@@ -797,6 +797,26 @@ section {
   60%,100% { left: 160%; }
 }
 
+.mock-choose-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 0.85rem;
+  padding: 12px 28px;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.mock-choose-btn:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
 .mock-note {
   margin-top: 0.75rem;
   font-size: 0.75rem;
@@ -1444,6 +1464,11 @@ footer {
             <span class="mock-btn-sparkle">✦</span>
           </button>
           <div class="mock-note">A past paper is selected at random from the archive each time you start.</div>
+          <a href="mock-exam/mock-exams.html" class="mock-choose-btn">
+            <span>📄</span>
+            <span>Choose Paper</span>
+          </a>
+          <div class="mock-note">Browse and select a specific past paper to attempt.</div>
         </div>
         <div class="mock-paper-ticker" id="paper-ticker">
           <span class="ticker-label">Papers available:</span>
@@ -1681,7 +1706,7 @@ reveals.forEach(r => obs.observe(r));
 // GitHub config — update REPO_OWNER and REPO_NAME when you deploy
 const GITHUB_OWNER = 'ivan-syless';
 const GITHUB_REPO  = 'curious-crows';
-const QUESTIONS_PATH = 'mock-exam';
+const QUESTIONS_PATH = 'questions';
 
 let availablePapers = [];
 let selectedPaper   = null;
@@ -1770,8 +1795,8 @@ document.addEventListener('click', function(e) {
   if (!href || href.startsWith('http') || href.startsWith('mailto') ||
       href.startsWith('#') || href.startsWith('//')) return;
 
-  // Skip the exam modal launch — it handles navigation itself
-  if (href.includes('exam.html')) return;
+  // Skip exam-related pages — they handle navigation themselves
+  if (href.includes('mock-exam')) return;
 
   e.preventDefault();
 
