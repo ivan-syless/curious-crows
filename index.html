@@ -1736,7 +1736,7 @@ function closeExamModal() {
 function launchExam() {
   if (!selectedPaper) { closeExamModal(); return; }
   // Navigate to the exam page — will be built later
-  window.location.href = `mock-exam/mock-exam.html?paper=${encodeURIComponent(selectedPaper.path)}`;
+  window.location.href = `mock-exam/mock-exams.html?paper=${encodeURIComponent(selectedPaper.path)}`;
 }
 
 // fetch paper list on load
