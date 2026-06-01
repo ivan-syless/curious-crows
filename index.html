@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PhysicaLab — PhD Entrance Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+:root {
+  /* ── LIGHT warm (default) ── */
+  --bg:      #fdf8f0;
+  --bg2:     #f7f0e4;
+  --bg3:     #f0e8d8;
+  --surface: #e8ddc8;
+  --border:  rgba(160,100,40,0.14);
+  --accent:  #c4570a;
+  --accent2: #1a8fa8;
+  --accent3: #9b2c2c;
+  --accent4: #2e7d32;
+  --text:    #1e150a;
+  --muted:   #7a6348;
+  --faint:   rgba(196,87,10,0.06);
+  --nav-bg:  rgba(253,248,240,0.88);
+  --canvas-opacity: 0.22;
+  --shadow:  rgba(160,100,40,0.12);
+  --font-display: 'Instrument Serif', serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+:root.dark {
+  /* ── DARK ── */
+  --bg:      #09090f;
+  --bg2:     #0f0f1a;
+  --bg3:     #13131f;
+  --surface: #1a1a2e;
+  --border:  rgba(255,255,255,0.07);
+  --accent:  #7c6af7;
+  --accent2: #4fc8e8;
+  --accent3: #e86f4f;
+  --accent4: #5ce87a;
+  --text:    #f0eeff;
+  --muted:   #7a7899;
+  --faint:   rgba(255,255,255,0.04);
+  --nav-bg:  rgba(9,9,15,0.82);
+  --canvas-opacity: 0.35;
+  --shadow: rgba(0,0,0,0.35);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── Custom cursor ── */
+#cursor {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.08s, background 0.2s, width 0.2s, height 0.2s;
+  mix-blend-mode: normal;
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.18s ease, width 0.2s, height 0.2s, opacity 0.2s;
+}
+
+/* ── Canvas ── */
+#canvas-bg {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  z-index: 0; opacity: var(--canvas-opacity, 0.35);
+  transition: opacity 0.45s ease;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 64px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo span.dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+.nav-links {
+  display: flex; align-items: center; gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.25s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-cta {
+  background: var(--accent);
+  color: #fff !important;
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 0.8rem !important;
+  transition: background 0.2s, transform 0.15s !important;
+}
+.nav-cta:hover { background: #9585ff !important; transform: translateY(-1px); }
+.nav-cta::after { display: none !important; }
+
+/* ── UNDER CONSTRUCTION MODAL ── */
+.wip-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  z-index: 9000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.wip-overlay.active {
+  opacity: 1; pointer-events: all;
+}
+.wip-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 2.4rem 2.2rem 2rem;
+  max-width: 420px; width: 90%;
+  box-shadow: 0 24px 60px var(--shadow);
+  position: relative;
+  transform: translateY(18px) scale(0.97);
+  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+}
+.wip-overlay.active .wip-modal {
+  transform: translateY(0) scale(1);
+}
+.wip-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1rem;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.wip-close:hover { background: var(--faint); color: var(--text); }
+.wip-icon {
+  font-size: 2.4rem; margin-bottom: 1rem;
+  display: block;
+  animation: wip-wobble 2.4s ease-in-out infinite;
+}
+@keyframes wip-wobble {
+  0%,100% { transform: rotate(-4deg); }
+  50%      { transform: rotate(4deg); }
+}
+.wip-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  margin-bottom: 0.5rem;
+}
+.wip-body {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+.wip-ok {
+  display: inline-block;
+  padding: 9px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.85rem; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.03em;
+}
+.wip-ok:hover { background: #9585ff; transform: translateY(-1px); }
+
+/* ── THEME TOGGLE ── */
+*, body, nav, section, .subject-card, .practice-card, .play-card,
+.concept-box, .q-card, .stats-strip, footer, .grid-lines {
+  transition: background 0.45s ease, color 0.45s ease,
+              border-color 0.45s ease, box-shadow 0.45s ease,
+              background-color 0.45s ease;
+}
+
+.theme-toggle {
+  background: none; border: none; cursor: pointer;
+  padding: 0; display: flex; align-items: center;
+  outline: none; margin-left: 0.5rem;
+}
+.toggle-track {
+  position: relative;
+  width: 58px; height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a8d8ff 0%, #d4eaff 100%);
+  border: 1.5px solid rgba(90,80,200,0.2);
+  display: flex; align-items: center;
+  overflow: hidden;
+  transition: background 0.5s ease, border-color 0.4s ease,
+              box-shadow 0.4s ease;
+  box-shadow: 0 2px 12px rgba(90,80,200,0.15);
+}
+:root.dark .toggle-track {
+  background: linear-gradient(135deg, #1a1040 0%, #0d0828 100%);
+  border-color: rgba(124,106,247,0.3);
+  box-shadow: 0 2px 16px rgba(124,106,247,0.25);
+}
+.theme-toggle:hover .toggle-track {
+  box-shadow: 0 0 0 3px rgba(90,80,200,0.18);
+  transform: scale(1.04);
+}
+:root.dark .theme-toggle:hover .toggle-track {
+  box-shadow: 0 0 0 3px rgba(124,106,247,0.22);
+}
+.theme-toggle:active .toggle-track { transform: scale(0.97); }
+
+/* thumb */
+.toggle-thumb {
+  position: absolute;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff8c0, #ffd700);
+  box-shadow: 0 1px 6px rgba(200,160,0,0.4), inset 0 -1px 2px rgba(180,120,0,0.2);
+  left: 3px;
+  transition: left 0.42s cubic-bezier(0.34,1.56,0.64,1),
+              background 0.4s, box-shadow 0.4s, transform 0.3s;
+  z-index: 3;
+}
+:root.dark .toggle-thumb {
+  left: 33px;
+  background: radial-gradient(circle at 35% 35%, #e8e0ff, #c0b0ff);
+  box-shadow: 0 1px 8px rgba(124,106,247,0.6), inset 0 -1px 2px rgba(80,60,200,0.3);
+}
+.theme-toggle:hover .toggle-thumb { transform: rotate(20deg) scale(1.05); }
+:root.dark .theme-toggle:hover .toggle-thumb { transform: rotate(-20deg) scale(1.05); }
+
+/* sun rays */
+.toggle-sun {
+  position: absolute;
+  width: 28px; height: 28px;
+  left: -1px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+  transition: opacity 0.35s, transform 0.42s cubic-bezier(0.34,1.56,0.64,1);
+}
+:root.dark .toggle-sun { opacity: 0; transform: translateX(30px) rotate(90deg); }
+.sun-core {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: transparent;
+}
+.ray {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(255,200,0,0.7);
+}
+.r1 { top: 2px;  left: 50%; transform: translateX(-50%); }
+.r2 { bottom: 2px; left: 50%; transform: translateX(-50%); }
+.r3 { left: 2px;  top: 50%; transform: translateY(-50%); }
+.r4 { right: 2px; top: 50%; transform: translateY(-50%); }
+.r5 { top: 3px;  left: 3px; }
+.r6 { top: 3px;  right: 3px; }
+.r7 { bottom: 3px; left: 3px; }
+.r8 { bottom: 3px; right: 3px; }
+
+/* stars */
+.toggle-stars {
+  position: absolute; inset: 0;
+  z-index: 1;
+  transition: opacity 0.35s, transform 0.42s;
+  opacity: 0; transform: translateX(-10px);
+}
+:root.dark .toggle-stars { opacity: 1; transform: translateX(0); }
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle 2.4s ease-in-out infinite;
+}
+.s1 { width: 2.5px; height: 2.5px; top: 5px;  left: 8px;  animation-delay: 0s; }
+.s2 { width: 2px;   height: 2px;   top: 14px; left: 14px; animation-delay: 0.7s; }
+.s3 { width: 2px;   height: 2px;   top: 7px;  left: 20px; animation-delay: 1.3s; }
+@keyframes twinkle {
+  0%,100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.5); }
+}
+
+/* ripple on click */
+@keyframes themeRipple {
+  from { transform: scale(0); opacity: 0.35; }
+  to   { transform: scale(4); opacity: 0; }
+}
+.toggle-ripple {
+  position: fixed; border-radius: 50%;
+  pointer-events: none; z-index: 9990;
+  animation: themeRipple 0.7s ease-out forwards;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 120px 2rem 80px;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.4s forwards;
+}
+.hero-title em {
+  font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+}
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.6s forwards;
+}
+.hero-btns {
+  display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.8s forwards;
+}
+.btn-primary {
+  padding: 13px 30px;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  letter-spacing: 0.03em;
+}
+.btn-primary:hover {
+  background: #9585ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(124,106,247,0.35);
+}
+.btn-ghost {
+  padding: 13px 30px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  letter-spacing: 0.03em;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  background: rgba(124,106,247,0.08);
+  transform: translateY(-2px);
+}
+
+/* floating equations */
+.float-eq {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--accent) 32%, transparent);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: floatEq linear infinite;
+}
+@keyframes floatEq {
+  from { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  to { transform: translateY(-120px) rotate(var(--rot)); opacity: 0; }
+}
+
+/* scroll indicator */
+.scroll-hint {
+  position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--muted); font-size: 0.7rem; letter-spacing: 0.12em; transition: color 0.45s;
+  text-transform: uppercase; font-family: var(--font-mono);
+  animation: fadeUp 1s 1.2s both;
+}
+.scroll-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION COMMON ── */
+section {
+  position: relative; z-index: 1;
+  padding: 100px 2rem;
+}
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+.section-sub {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 540px;
+  margin-bottom: 3rem;
+}
+
+/* ── LEARN SECTION ── */
+#learn { background: var(--bg); }
+.learn-inner { max-width: 1200px; margin: 0 auto; }
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.subject-card {
+  background: var(--bg2);
+  padding: 2rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.25s;
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+.subject-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--card-accent, var(--accent));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.35s ease;
+}
+.subject-card:hover { background: var(--bg3); }
+.subject-card:hover::before { transform: scaleX(1); }
+.subject-card:hover .card-arrow { transform: translate(3px, -3px); opacity: 1; }
+
+.card-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 1.25rem;
+  background: var(--faint);
+  border: 1px solid var(--border);
+}
+.card-title {
+  font-size: 1rem; font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+}
+.card-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+.card-topics {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 1.25rem;
+}
+.topic-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.card-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.card-count span {
+  color: var(--card-accent, var(--accent));
+  font-weight: 500;
+}
+.card-arrow {
+  position: absolute; top: 1.5rem; right: 1.5rem;
+  font-size: 1rem;
+  opacity: 0.2;
+  transition: transform 0.2s, opacity 0.2s;
+  color: var(--card-accent, var(--accent));
+}
+
+/* ── PRACTICE SECTION ── */
+#practice { background: var(--bg2); }
+.practice-inner { max-width: 1200px; margin: 0 auto; }
+
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.practice-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.2s;
+}
+.practice-card:hover {
+  border-color: var(--card-accent, var(--accent));
+  transform: translateY(-4px);
+}
+.practice-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, var(--card-glow, rgba(124,106,247,0.06)), transparent 60%);
+  pointer-events: none;
+}
+.pcard-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--accent));
+  margin-bottom: 0.75rem;
+}
+.pcard-title {
+  font-size: 1.1rem; font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.pcard-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.pcard-meta {
+  display: flex; gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.pcard-meta b { color: var(--text); font-weight: 500; }
+
+/* ── MOCK EXAM SECTION ── */
+#mock { background: var(--bg2); }
+.mock-inner { max-width: 1200px; margin: 0 auto; padding: 0; }
+
+.mock-hero {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+@media(max-width: 900px) { .mock-hero { grid-template-columns: 1fr; } }
+
+.mock-card-main {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 40px var(--shadow, rgba(0,0,0,0.15));
+}
+.mock-glow {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
+  top: -100px; right: -100px;
+  pointer-events: none;
+  animation: mockGlowPulse 4s ease-in-out infinite;
+}
+@keyframes mockGlowPulse {
+  0%,100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.12); }
+}
+
+.mock-top { margin-bottom: 2rem; }
+.mock-badge-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 1.5rem;
+}
+.mock-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+.mock-title-block {
+  display: flex; align-items: center; gap: 1.25rem;
+}
+.mock-exam-icon {
+  font-size: 2.5rem; line-height: 1;
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent));
+}
+.mock-exam-name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+.mock-exam-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+.mock-exam-sub code {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  padding: 1px 6px; border-radius: 4px;
+}
+
+.mock-stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.mock-stat {
+  background: var(--bg2);
+  padding: 1rem;
+  text-align: center;
+  transition: background 0.2s;
+}
+.mock-stat:hover { background: var(--bg3); }
+.mock-stat-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.mock-stat-lbl {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.mock-actions { margin-bottom: 1.5rem; }
+.mock-start-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 16px 36px;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 1rem; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.03em;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.mock-start-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 36px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.mock-start-btn:active { transform: scale(0.97); }
+.mock-btn-icon {
+  font-size: 0.85rem;
+  animation: btnIconPulse 2s ease-in-out infinite;
+}
+@keyframes btnIconPulse {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.3); }
+}
+.mock-btn-sparkle {
+  position: absolute; top: 8px; right: 14px;
+  font-size: 0.7rem; opacity: 0.7;
+  animation: sparkleSpin 3s linear infinite;
+}
+@keyframes sparkleSpin {
+  from { transform: rotate(0deg) scale(1); opacity: 0.7; }
+  50%  { transform: rotate(180deg) scale(1.5); opacity: 1; }
+  to   { transform: rotate(360deg) scale(1); opacity: 0.7; }
+}
+/* shimmer sweep on button */
+.mock-start-btn::after {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  animation: btnShimmer 2.5s ease-in-out infinite;
+}
+@keyframes btnShimmer {
+  0%   { left: -100%; }
+  60%,100% { left: 160%; }
+}
+
+.mock-note {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.mock-paper-ticker {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--faint);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  overflow: hidden;
+}
+.ticker-label {
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ticker-scroll {
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  animation: tickerScroll 18s linear infinite;
+}
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* info cards column */
+.mock-info-col { display: flex; flex-direction: column; gap: 16px; }
+.mock-info-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.25s, transform 0.2s;
+}
+.mock-info-card:hover {
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+.mic-icon { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.mic-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.35rem; }
+.mic-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.65; }
+.mic-desc code {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  padding: 1px 5px; border-radius: 3px;
+  font-family: var(--font-mono);
+}
+
+/* modal for exam start */
+.exam-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  align-items: center; justify-content: center;
+}
+.exam-modal-overlay.active { display: flex; }
+.exam-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 460px; width: 90%;
+  text-align: center;
+  position: relative;
+}
+.exam-modal h3 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: 0.75rem;
+}
+.exam-modal p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+.exam-modal-close {
+  position: absolute; top: 1rem; right: 1.25rem;
+  background: none; border: none; font-size: 1.2rem;
+  cursor: pointer; color: var(--muted);
+}
+.exam-selected-paper {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.4s ease;
+}
+.exam-go-btn {
+  padding: 12px 32px;
+  background: var(--accent);
+  color: #fff; border: none;
+  border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.exam-go-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 40%, transparent); }
+
+/* ── PLAY SECTION ── */
+#play { background: var(--bg); }
+.play-inner { max-width: 1200px; margin: 0 auto; }
+.play-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.play-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem;
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column;
+  transition: border-color 0.25s, transform 0.2s;
+  position: relative; overflow: hidden;
+}
+.play-card:hover {
+  border-color: var(--card-accent, var(--accent));
+  transform: translateY(-4px);
+}
+.play-icon {
+  font-size: 2rem; margin-bottom: 1rem;
+  line-height: 1;
+}
+.play-title {
+  font-size: 0.95rem; font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.play-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.6;
+  flex: 1;
+}
+.play-badge {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--card-accent, var(--accent));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  position: relative; z-index: 1;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+  display: flex; justify-content: center;
+}
+.stats-inner {
+  max-width: 900px; width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  text-align: center;
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--accent);
+  transition: color 0.45s;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+.footer-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  line-height: 1.8;
+}
+
+/* reveal-on-scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* grid line bg decoration */
+.grid-lines {
+  position: absolute;
+  inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(var(--grid-color, rgba(124,106,247,0.03)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color, rgba(124,106,247,0.03)) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* ── responsive ── */
+@media(max-width: 700px) {
+  .stats-inner { grid-template-columns: repeat(2,1fr); }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="canvas-bg"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <span class="dot"></span> PhysicaLab
+  </a>
+  <ul class="nav-links">
+    <li><a href="#practice">Practice</a></li>
+    <li><a href="#mock">Mock Exam</a></li>
+    <li><a href="#learn">Learn</a></li>
+    <li><a href="#play">Play</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" aria-label="Toggle theme">
+    <span class="toggle-track">
+      <span class="toggle-stars">
+        <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
+      </span>
+      <span class="toggle-sun">
+        <span class="sun-core"></span>
+        <span class="ray r1"></span><span class="ray r2"></span><span class="ray r3"></span>
+        <span class="ray r4"></span><span class="ray r5"></span><span class="ray r6"></span>
+        <span class="ray r7"></span><span class="ray r8"></span>
+      </span>
+      <span class="toggle-thumb"></span>
+    </span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="grid-lines"></div>
+
+  <!-- floating equations -->
+  <div class="float-eq" style="left:8%;top:30%;--rot:-8deg;animation-duration:9s;animation-delay:0s;">\(\nabla \times \mathbf{B} = \mu_0 \mathbf{J}\)</div>
+  <div class="float-eq" style="left:78%;top:20%;--rot:5deg;animation-duration:11s;animation-delay:2s;">\(e^{i\pi}+1=0\)</div>
+  <div class="float-eq" style="left:20%;top:70%;--rot:-3deg;animation-duration:13s;animation-delay:1s;">\(\hat{H}\psi=E\psi\)</div>
+  <div class="float-eq" style="left:65%;top:65%;--rot:10deg;animation-duration:10s;animation-delay:3s;">\(\oint \mathbf{E}\cdot d\mathbf{A}=\frac{Q}{\varepsilon_0}\)</div>
+  <div class="float-eq" style="left:45%;top:15%;--rot:-5deg;animation-duration:14s;animation-delay:0.5s;">\(S = k_B \ln\Omega\)</div>
+  <div class="float-eq" style="left:5%;top:55%;--rot:6deg;animation-duration:12s;animation-delay:4s;">\(\mathcal{L}=T-V\)</div>
+  <div class="float-eq" style="left:85%;top:50%;--rot:-9deg;animation-duration:15s;animation-delay:1.5s;">\(\{q_i,p_j\}=\delta_{ij}\)</div>
+
+  <div class="hero-eyebrow">PhD Entrance Exam Preparation</div>
+  <h1 class="hero-title">
+    Master Physics<br/>& <em>Mathematics</em>
+  </h1>
+  <p class="hero-sub">
+    Concept-first learning with interactive quizzes, LaTeX-rendered equations, and step-by-step solutions — built for serious exam prep.
+  </p>
+  <div class="hero-btns">
+    <a href="#learn" class="btn-primary">Start Learning →</a>
+    <a href="#practice" class="btn-ghost">Take a Practice Test</a>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip reveal">
+  <div class="stats-inner">
+    <div>
+      <div class="stat-num">12+</div>
+      <div class="stat-label">Subjects</div>
+    </div>
+    <div>
+      <div class="stat-num">100+</div>
+      <div class="stat-label">Lessons</div>
+    </div>
+    <div>
+      <div class="stat-num">1000+</div>
+      <div class="stat-label">Problems</div>
+    </div>
+    <div>
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Curiosity</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRACTICE ── -->
+<section id="practice" style="background:var(--bg2);">
+  <div class="practice-inner">
+    <div class="reveal">
+      <div class="section-label">01 — Practice</div>
+      <h2 class="section-title">Solve & self-test</h2>
+      <p class="section-sub">10-question quizzes per topic. Submit to see what's wrong, then hit "Show how" for full step-by-step solutions.</p>
+    </div>
+
+    <div class="practice-grid reveal">
+
+      <a href="mechanics/lagrangian.html#quiz" class="practice-card" style="--card-accent:#7c6af7;--card-glow:rgba(124,106,247,0.08);">
+        <div class="pcard-label">Classical Mechanics</div>
+        <div class="pcard-title">Lagrangian & Hamiltonian</div>
+        <div class="pcard-desc">Derive equations of motion, conserved quantities, and phase space structure.</div>
+        <div class="pcard-meta">
+          <span><b>10</b> questions</span>
+          <span><b>MCQ</b> format</span>
+          <span><b>Step-by-step</b> solutions</span>
+        </div>
+      </a>
+
+      <a href="quantum/schrodinger.html#quiz" class="practice-card" style="--card-accent:#e86f4f;--card-glow:rgba(232,111,79,0.08);">
+        <div class="pcard-label">Quantum Mechanics</div>
+        <div class="pcard-title">Schrödinger Equation</div>
+        <div class="pcard-desc">Infinite wells, harmonic oscillator, expectation values, and normalization.</div>
+        <div class="pcard-meta">
+          <span><b>10</b> questions</span>
+          <span><b>MCQ</b> format</span>
+          <span><b>Step-by-step</b> solutions</span>
+        </div>
+      </a>
+
+      <a href="electromagnetism/maxwells-equations.html#quiz" class="practice-card" style="--card-accent:#4fc8e8;--card-glow:rgba(79,200,232,0.08);">
+        <div class="pcard-label">Electrodynamics</div>
+        <div class="pcard-title">Maxwell's Equations</div>
+        <div class="pcard-desc">Gauss, Faraday, Ampere's laws, electromagnetic wave solutions and more.</div>
+        <div class="pcard-meta">
+          <span><b>10</b> questions</span>
+          <span><b>MCQ</b> format</span>
+          <span><b>Step-by-step</b> solutions</span>
+        </div>
+      </a>
+
+      <a href="thermo/index.html#quiz" class="practice-card" style="--card-accent:#f0c040;--card-glow:rgba(240,192,64,0.08);">
+        <div class="pcard-label">Statistical Mechanics</div>
+        <div class="pcard-title">Partition Functions</div>
+        <div class="pcard-desc">Canonical, grand canonical ensembles, Boltzmann distribution, and entropy.</div>
+        <div class="pcard-meta">
+          <span><b>10</b> questions</span>
+          <span><b>MCQ</b> format</span>
+          <span><b>Step-by-step</b> solutions</span>
+        </div>
+      </a>
+
+      <a href="math/complex-analysis.html#quiz" class="practice-card" style="--card-accent:#4fc8e8;--card-glow:rgba(79,200,232,0.08);">
+        <div class="pcard-label">Mathematics</div>
+        <div class="pcard-title">Complex Integration</div>
+        <div class="pcard-desc">Residue theorem, contour integrals, poles and essential singularities.</div>
+        <div class="pcard-meta">
+          <span><b>10</b> questions</span>
+          <span><b>MCQ</b> format</span>
+          <span><b>Step-by-step</b> solutions</span>
+        </div>
+      </a>
+
+      <a href="math/linear-algebra.html#quiz" class="practice-card" style="--card-accent:#7c6af7;--card-glow:rgba(124,106,247,0.08);">
+        <div class="pcard-label">Mathematics</div>
+        <div class="pcard-title">Linear Algebra</div>
+        <div class="pcard-desc">Eigenvalue problems, matrix decompositions, and inner product spaces.</div>
+        <div class="pcard-meta">
+          <span><b>10</b> questions</span>
+          <span><b>MCQ</b> format</span>
+          <span><b>Step-by-step</b> solutions</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── LEARN ── -->
+<section id="learn" style="background:var(--bg);">
+  <div class="grid-lines" style="opacity:0.5;"></div>
+  <div class="learn-inner">
+    <div class="reveal">
+      <div class="section-label">02 — Learn</div>
+      <h2 class="section-title">Concept-first lessons</h2>
+      <p class="section-sub">Each topic begins with a clear explanation, key equations in LaTeX, and intuition before any problem-solving.</p>
+    </div>
+
+    <div class="subject-grid reveal">
+
+      <!-- MATHEMATICAL METHODS -->
+      <a href="math/linear-algebra.html" class="subject-card" style="--card-accent:#7c6af7;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">∫</div>
+        <div class="card-title">Mathematical Methods</div>
+        <div class="card-desc">The mathematical backbone of theoretical physics — from linear algebra to Green's functions.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Linear Algebra</span>
+          <span class="topic-tag">Complex Analysis</span>
+          <span class="topic-tag">Fourier Series</span>
+          <span class="topic-tag">Group Theory</span>
+          <span class="topic-tag">Diff. Equations</span>
+          <span class="topic-tag">Integral Equations</span>
+          <span class="topic-tag">Vector Calculus</span>
+          <span class="topic-tag">Green's Functions</span>
+          <span class="topic-tag">Probability & Stats</span>
+          <span class="topic-tag">Special Functions</span>
+        </div>
+        <div class="card-count"><span>10</span> lessons</div>
+      </a>
+
+      <!-- CLASSICAL MECHANICS -->
+      <a href="mechanics/index.html" class="subject-card" style="--card-accent:#4fc8e8;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">⚙️</div>
+        <div class="card-title">Classical Mechanics</div>
+        <div class="card-desc">From Newton's laws to the elegance of Lagrangian and Hamiltonian formulations, rigid bodies, and special relativity.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Newtonian Mechanics</span>
+          <span class="topic-tag">Lagrangian</span>
+          <span class="topic-tag">Hamiltonian</span>
+          <span class="topic-tag">Rotational Mechanics</span>
+          <span class="topic-tag">Vibrations & Oscillations</span>
+          <span class="topic-tag">Special Relativity</span>
+        </div>
+        <div class="card-count"><span>6</span> lessons</div>
+      </a>
+
+      <!-- THERMODYNAMICS -->
+      <a href="thermo/index.html" class="subject-card" style="--card-accent:#f0c040;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">🔥</div>
+        <div class="card-title">Thermodynamics & Statistical Mechanics</div>
+        <div class="card-desc">Laws of thermodynamics, entropy, partition functions, ensembles, and phase transitions.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Zeroth–Third Laws</span>
+          <span class="topic-tag">Entropy & Free Energy</span>
+          <span class="topic-tag">Partition Functions</span>
+          <span class="topic-tag">Canonical Ensemble</span>
+          <span class="topic-tag">Grand Canonical</span>
+          <span class="topic-tag">Phase Transitions</span>
+          <span class="topic-tag">Fermi–Dirac / Bose–Einstein</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+      <!-- ELECTRODYNAMICS -->
+      <a href="electromagnetism/index.html" class="subject-card" style="--card-accent:#e86f4f;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Electrodynamics</div>
+        <div class="card-desc">Maxwell's equations in full — static fields, time-dependent phenomena, radiation, waveguides, and relativistic EM.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Maxwell's Equations</span>
+          <span class="topic-tag">Boundary Conditions</span>
+          <span class="topic-tag">Time-Dependent Fields</span>
+          <span class="topic-tag">Waveguides</span>
+          <span class="topic-tag">Radiation</span>
+          <span class="topic-tag">Special Relativity</span>
+        </div>
+        <div class="card-count"><span>6</span> lessons</div>
+      </a>
+
+      <!-- QUANTUM MECHANICS I -->
+      <a href="quantum/qm1.html" class="subject-card" style="--card-accent:#5ce87a;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">🌊</div>
+        <div class="card-title">Quantum Mechanics I</div>
+        <div class="card-desc">Foundations: wavefunctions, operators, Schrödinger equation, simple systems, and the measurement postulates.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Wave-Particle Duality</span>
+          <span class="topic-tag">Schrödinger Equation</span>
+          <span class="topic-tag">Infinite Square Well</span>
+          <span class="topic-tag">Harmonic Oscillator</span>
+          <span class="topic-tag">Hydrogen Atom</span>
+          <span class="topic-tag">Operators & Observables</span>
+          <span class="topic-tag">Uncertainty Principle</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+      <!-- QUANTUM MECHANICS II -->
+      <a href="quantum/qm2.html" class="subject-card" style="--card-accent:#e87cd8;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">⚛️</div>
+        <div class="card-title">Quantum Mechanics II</div>
+        <div class="card-desc">Advanced topics: perturbation theory, angular momentum, identical particles, scattering, and relativistic QM.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Perturbation Theory</span>
+          <span class="topic-tag">Variational Method</span>
+          <span class="topic-tag">Angular Momentum</span>
+          <span class="topic-tag">Spin & Addition of AM</span>
+          <span class="topic-tag">Identical Particles</span>
+          <span class="topic-tag">Scattering Theory</span>
+          <span class="topic-tag">Dirac Equation</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+      <!-- CONDENSED MATTER -->
+      <a href="condensed/index.html" class="subject-card" style="--card-accent:#7c6af7;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">🔷</div>
+        <div class="card-title">Condensed Matter & Solid State Physics</div>
+        <div class="card-desc">Crystal structure, band theory, phonons, magnetism, superconductivity, and modern topics.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Crystal Structure</span>
+          <span class="topic-tag">Reciprocal Lattice</span>
+          <span class="topic-tag">Band Theory</span>
+          <span class="topic-tag">Phonons</span>
+          <span class="topic-tag">Free Electron Model</span>
+          <span class="topic-tag">Magnetism</span>
+          <span class="topic-tag">Superconductivity</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+      <!-- NUCLEAR & PARTICLE PHYSICS -->
+      <a href="nuclear/index.html" class="subject-card" style="--card-accent:#f0c040;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">☢️</div>
+        <div class="card-title">Nuclear & Particle Physics</div>
+        <div class="card-desc">Nuclear models, radioactive decay, reactions, fundamental particles, symmetries, and the Standard Model.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Nuclear Models</span>
+          <span class="topic-tag">Radioactive Decay</span>
+          <span class="topic-tag">Nuclear Reactions</span>
+          <span class="topic-tag">Particle Classification</span>
+          <span class="topic-tag">Conservation Laws</span>
+          <span class="topic-tag">Feynman Diagrams</span>
+          <span class="topic-tag">Standard Model</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+      <!-- ELECTRONICS -->
+      <a href="electronics/index.html" class="subject-card" style="--card-accent:#4fc8e8;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">📟</div>
+        <div class="card-title">Electronics & Digital Circuits</div>
+        <div class="card-desc">Analog circuits, semiconductors, op-amps, logic gates, flip-flops, and digital design fundamentals.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Semiconductor Devices</span>
+          <span class="topic-tag">Diodes & Transistors</span>
+          <span class="topic-tag">Op-Amps</span>
+          <span class="topic-tag">Boolean Algebra</span>
+          <span class="topic-tag">Logic Gates</span>
+          <span class="topic-tag">Flip-Flops</span>
+          <span class="topic-tag">ADC / DAC</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+      <!-- COMPUTATIONAL METHODS -->
+      <a href="computational/index.html" class="subject-card" style="--card-accent:#5ce87a;">
+        <div class="card-arrow">↗</div>
+        <div class="card-icon">💻</div>
+        <div class="card-title">Computational Methods</div>
+        <div class="card-desc">Numerical techniques for physics: root-finding, integration, ODEs, Monte Carlo, and linear systems.</div>
+        <div class="card-topics">
+          <span class="topic-tag">Root Finding</span>
+          <span class="topic-tag">Numerical Integration</span>
+          <span class="topic-tag">Numerical ODEs</span>
+          <span class="topic-tag">Monte Carlo</span>
+          <span class="topic-tag">Linear Systems</span>
+          <span class="topic-tag">Fourier Transforms</span>
+          <span class="topic-tag">Finite Difference</span>
+        </div>
+        <div class="card-count"><span>7</span> lessons</div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── MOCK EXAM ── -->
+<section id="mock" style="background:var(--bg2);">
+  <div class="grid-lines" style="opacity:0.5;"></div>
+  <div class="mock-inner">
+    <div class="reveal">
+      <div class="section-label">03 — Mock Exam</div>
+      <h2 class="section-title">Simulate the real exam</h2>
+      <p class="section-sub">Full-length timed mock exams drawn randomly from past question papers. Each session picks a paper at random from the archive — just like the real thing.</p>
+    </div>
+
+    <div class="mock-hero reveal">
+      <div class="mock-card-main">
+        <div class="mock-glow"></div>
+        <div class="mock-top">
+          <div class="mock-badge-row">
+            <span class="mock-badge">⏱ Timed</span>
+            <span class="mock-badge">🎲 Randomized</span>
+            <span class="mock-badge">📄 Past Papers</span>
+            <span class="mock-badge">✅ Auto-graded</span>
+          </div>
+          <div class="mock-title-block">
+            <div class="mock-exam-icon">📝</div>
+            <div>
+              <div class="mock-exam-name">PhD Entrance — Full Mock</div>
+              <div class="mock-exam-sub">Randomly selected from <code>questions/</code> folder</div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-stats-row">
+          <div class="mock-stat"><span class="mock-stat-num">60</span><span class="mock-stat-lbl">Questions</span></div>
+          <div class="mock-stat"><span class="mock-stat-num">3h</span><span class="mock-stat-lbl">Duration</span></div>
+          <div class="mock-stat"><span class="mock-stat-num">∞</span><span class="mock-stat-lbl">Attempts</span></div>
+          <div class="mock-stat"><span class="mock-stat-num">All</span><span class="mock-stat-lbl">Subjects</span></div>
+        </div>
+        <div class="mock-actions">
+          <button class="mock-start-btn" onclick="startMockExam()">
+            <span class="mock-btn-icon">▶</span>
+            <span class="mock-btn-text">Start Random Mock</span>
+            <span class="mock-btn-sparkle">✦</span>
+          </button>
+          <div class="mock-note">A past paper is selected at random from the archive each time you start.</div>
+        </div>
+        <div class="mock-paper-ticker" id="paper-ticker">
+          <span class="ticker-label">Papers available:</span>
+          <span class="ticker-scroll" id="ticker-text">Loading archive…</span>
+        </div>
+      </div>
+
+      <div class="mock-info-col">
+        <div class="mock-info-card reveal-delay">
+          <div class="mic-icon">🧪</div>
+          <div class="mic-title">How it works</div>
+          <div class="mic-desc">When you click Start, the exam engine fetches the list of papers from <code>questions/</code> on GitHub and picks one at random. No two sessions are the same.</div>
+        </div>
+        <div class="mock-info-card reveal-delay">
+          <div class="mic-icon">📊</div>
+          <div class="mic-title">After the exam</div>
+          <div class="mic-desc">See your score, which topics you struggled with, and full step-by-step solutions for every question — even ones you got right.</div>
+        </div>
+        <div class="mock-info-card reveal-delay">
+          <div class="mic-icon">🗂</div>
+          <div class="mic-title">Add your own papers</div>
+          <div class="mic-desc">Drop a new JSON file into the <code>questions/</code> folder on GitHub and it automatically becomes part of the random pool — no code changes needed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PLAY ── -->
+<section id="play">
+  <div class="grid-lines" style="opacity:0.4;"></div>
+  <div class="play-inner">
+    <div class="reveal">
+      <div class="section-label">04 — Play</div>
+      <h2 class="section-title">Play with math</h2>
+      <p class="section-sub">Interactive visualizations and tools to build intuition beyond formulas.</p>
+    </div>
+
+    <div class="play-grid reveal">
+      <a href="play/phase-space.html" class="play-card" style="--card-accent:#7c6af7;">
+        <div class="play-icon">🌀</div>
+        <div class="play-title">Phase Space Explorer</div>
+        <div class="play-desc">Visualize trajectories in phase space for different potentials. Drag parameters and watch orbits evolve live.</div>
+        <span class="play-badge">Interactive</span>
+      </a>
+      <a href="play/fourier.html" class="play-card" style="--card-accent:#4fc8e8;">
+        <div class="play-icon">〰️</div>
+        <div class="play-title">Fourier Builder</div>
+        <div class="play-desc">Add sine waves and watch them combine into square waves, sawtooths, and beyond.</div>
+        <span class="play-badge">Simulation</span>
+      </a>
+      <a href="play/quantum-well.html" class="play-card" style="--card-accent:#e86f4f;">
+        <div class="play-icon">📦</div>
+        <div class="play-title">Quantum Well</div>
+        <div class="play-desc">Adjust well width and depth to see how energy levels and wavefunctions shift in real time.</div>
+        <span class="play-badge">Simulation</span>
+      </a>
+      <a href="play/em-fields.html" class="play-card" style="--card-accent:#4fc8e8;">
+        <div class="play-icon">🔵</div>
+        <div class="play-title">EM Field Lines</div>
+        <div class="play-desc">Place charges and see electric field lines and equipotential surfaces update live.</div>
+        <span class="play-badge">Interactive</span>
+      </a>
+      <a href="play/eigenvectors.html" class="play-card" style="--card-accent:#5ce87a;">
+        <div class="play-icon">→</div>
+        <div class="play-title">Eigenvector Visualizer</div>
+        <div class="play-desc">Drag matrix entries and watch eigenvectors and eigenvalues update geometrically.</div>
+        <span class="play-badge">Interactive</span>
+      </a>
+      <a href="play/lorentz.html" class="play-card" style="--card-accent:#f0c040;">
+        <div class="play-icon">⏳</div>
+        <div class="play-title">Lorentz Boost</div>
+        <div class="play-desc">See how spacetime diagrams transform as you approach the speed of light.</div>
+        <span class="play-badge">Simulation</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="about">
+  <div class="footer-logo">PhysicaLab</div>
+  <p class="footer-note">
+    A free, open study resource for physics & math PhD entrance exams.<br/>
+    Built with HTML + MathJax + GitHub Pages · No login · No ads · Always free.
+  </p>
+</footer>
+
+<!-- MOCK EXAM MODAL -->
+<div class="exam-modal-overlay" id="examModal">
+  <div class="exam-modal">
+    <button class="exam-modal-close" onclick="closeExamModal()">✕</button>
+    <h3>Ready to begin?</h3>
+    <p>A past paper has been randomly selected for you. Your timer will start the moment you enter the exam.</p>
+    <div class="exam-selected-paper" id="selected-paper-name">Fetching paper…</div>
+    <button class="exam-go-btn" id="exam-go-btn" onclick="launchExam()">Begin Exam →</button>
+  </div>
+</div>
+
+<!-- UNDER CONSTRUCTION MODAL -->
+<div class="wip-overlay" id="wipModal">
+  <div class="wip-modal">
+    <button class="wip-close" onclick="closeWipModal()" aria-label="Close">✕</button>
+    <span class="wip-icon">🚧</span>
+    <div class="wip-title">Still under construction!</div>
+    <div class="wip-body">
+      This page is being built. Check back soon — it'll be worth the wait!
+    </div>
+    <button class="wip-ok" onclick="closeWipModal()">Got it</button>
+  </div>
+</div>
+
+<script>
+// ── Theme ──
+(function() {
+  // default = light
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.documentElement.classList.add('dark');
+})();
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const isDark = root.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+  // ripple burst
+  const btn = document.getElementById('theme-toggle');
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top  + rect.height / 2;
+  const size = Math.max(window.innerWidth, window.innerHeight) * 0.5;
+  const ripple = document.createElement('div');
+  ripple.className = 'toggle-ripple';
+  ripple.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${cx - size/2}px; top:${cy - size/2}px;
+    background: ${isDark ? 'rgba(124,106,247,0.12)' : 'rgba(245,244,255,0.35)'};
+  `;
+  document.body.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+
+  // update canvas particle color
+  updateCanvasColor(isDark);
+}
+
+function updateCanvasColor(isDark) {
+  window._particleColor = isDark ? '124,106,247' : '90,80,200';
+}
+// default — sync with actual theme on load
+window._particleColor = document.documentElement.classList.contains('dark') ? '124,106,247' : '90,80,200';
+
+// ── Cursor ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '16px'; cursor.style.height = '16px';
+    ring.style.width = '50px'; ring.style.height = '50px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '10px'; cursor.style.height = '10px';
+    ring.style.width = '36px'; ring.style.height = '36px';
+  });
+});
+
+// ── Canvas particle field ──
+const canvas = document.getElementById('canvas-bg');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+function Particle() {
+  this.x = Math.random() * W;
+  this.y = Math.random() * H;
+  this.vx = (Math.random() - 0.5) * 0.3;
+  this.vy = (Math.random() - 0.5) * 0.3;
+  this.r = Math.random() * 1.5 + 0.3;
+  this.alpha = Math.random() * 0.5 + 0.1;
+}
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+function drawCanvas() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    const pc = window._particleColor || '124,106,247';
+    ctx.fillStyle = `rgba(${pc},${p.alpha})`;
+    ctx.fill();
+  });
+  // draw lines between close particles
+  const lc = window._particleColor || '124,106,247';
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 100) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(${lc},${0.15 * (1 - d/100)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawCanvas);
+}
+drawCanvas();
+
+// ── Scroll reveal ──
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+reveals.forEach(r => obs.observe(r));
+
+// ── Mock Exam ──
+// GitHub config — update REPO_OWNER and REPO_NAME when you deploy
+const GITHUB_OWNER = 'YOUR_GITHUB_USERNAME';
+const GITHUB_REPO  = 'physics-prep';
+const QUESTIONS_PATH = 'questions';
+
+let availablePapers = [];
+let selectedPaper   = null;
+
+async function fetchPaperList() {
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${QUESTIONS_PATH}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('GitHub API error');
+    const files = await res.json();
+    availablePapers = files
+      .filter(f => f.name.endsWith('.json') || f.name.endsWith('.html'))
+      .map(f => ({ name: f.name, path: f.path, download_url: f.download_url }));
+    updateTicker();
+  } catch(e) {
+    availablePapers = [];
+    updateTicker();
+  }
+}
+
+function updateTicker() {
+  const el = document.getElementById('ticker-text');
+  if (!el) return;
+  if (availablePapers.length === 0) {
+    el.textContent = 'Archive not yet connected — add papers to questions/ folder on GitHub  •  ';
+    return;
+  }
+  const names = availablePapers.map(p => p.name.replace(/\.(json|html)$/,'')).join('  •  ');
+  el.textContent = names + '  •  ' + names; // doubled for seamless scroll
+}
+
+function pickRandomPaper() {
+  if (availablePapers.length === 0) return null;
+  return availablePapers[Math.floor(Math.random() * availablePapers.length)];
+}
+
+function startMockExam() {
+  selectedPaper = pickRandomPaper();
+  const nameEl = document.getElementById('selected-paper-name');
+  if (selectedPaper) {
+    nameEl.textContent = '📄  ' + selectedPaper.name.replace(/\.(json|html)$/,'');
+  } else {
+    nameEl.textContent = '⚠️  No papers found in questions/ folder yet';
+  }
+  document.getElementById('examModal').classList.add('active');
+}
+
+function closeExamModal() {
+  document.getElementById('examModal').classList.remove('active');
+}
+
+function launchExam() {
+  if (!selectedPaper) { closeExamModal(); return; }
+  // Navigate to the exam page — will be built later
+  window.location.href = `mock-exam/mock-exam.html?paper=${encodeURIComponent(selectedPaper.path)}`;
+}
+
+// fetch paper list on load
+fetchPaperList();
+
+// ── Under Construction: intercept unavailable internal links ──
+function openWipModal() {
+  document.getElementById('wipModal').classList.add('active');
+}
+function closeWipModal() {
+  document.getElementById('wipModal').classList.remove('active');
+}
+// Close on backdrop click
+document.getElementById('wipModal').addEventListener('click', function(e) {
+  if (e.target === this) closeWipModal();
+});
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeWipModal();
+});
+
+// Intercept clicks on internal .html links
+// On GitHub Pages, a missing file returns a 404 — we detect this with a HEAD request.
+// For file:// protocol (local dev), we catch fetch errors as unavailable.
+document.addEventListener('click', function(e) {
+  const anchor = e.target.closest('a[href]');
+  if (!anchor) return;
+
+  const href = anchor.getAttribute('href');
+  // Only handle relative, non-anchor, html links (skip external, mailto, #hash, etc.)
+  if (!href || href.startsWith('http') || href.startsWith('mailto') ||
+      href.startsWith('#') || href.startsWith('//')) return;
+
+  // Skip the exam modal launch — it handles navigation itself
+  if (href.includes('exam.html')) return;
+
+  e.preventDefault();
+
+  const url = new URL(href, window.location.href).href;
+
+  fetch(url, { method: 'HEAD' })
+    .then(res => {
+      if (res.ok) {
+        window.location.href = url;
+      } else {
+        openWipModal();
+      }
+    })
+    .catch(() => {
+      // fetch error on file:// or network issue — treat as unavailable
+      openWipModal();
+    });
+});
+
+// ── MathJax on floating equations ──
+window.MathJax = { tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]']] } };
+</script>
+</body>
+</html>

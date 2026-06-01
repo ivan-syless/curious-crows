@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics Simulations</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --radius: 10px; }
+
+[data-theme="dark"] {
+  --bg:#111214; --bg2:#1a1c1f; --bg3:#24272b; --bg4:#2e3237;
+  --text:#e8eaed; --text2:#9aa0ab; --text3:#5c636e;
+  --accent:#5b9cf6; --accent2:#3b7de8; --accent-bg:rgba(91,156,246,0.12);
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --shadow:0 4px 24px rgba(0,0,0,0.5);
+  --phase-bg:#0e1017;
+}
+[data-theme="light"] {
+  --bg:#f0f2f5; --bg2:#ffffff; --bg3:#e8ebef; --bg4:#dde0e6;
+  --text:#1a1d22; --text2:#5a6070; --text3:#9aa0ab;
+  --accent:#2563eb; --accent2:#1d4ed8; --accent-bg:rgba(37,99,235,0.1);
+  --border:rgba(0,0,0,0.09); --border2:rgba(0,0,0,0.16);
+  --shadow:0 4px 24px rgba(0,0,0,0.12);
+  --phase-bg:#f4f6fa;
+}
+
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Syne',system-ui,sans-serif; overflow:hidden; transition:background .3s,color .3s; }
+#app { display:flex; flex-direction:column; height:100vh; }
+
+.topbar {
+  display:flex; align-items:center; gap:10px; padding:11px 18px;
+  border-bottom:1px solid var(--border); background:var(--bg2);
+  flex-shrink:0; box-shadow:var(--shadow); z-index:10; flex-wrap:wrap;
+}
+.topbar-title { font-size:17px; font-weight:700; color:var(--text); margin-right:4px; white-space:nowrap; }
+.topbar-title span { color:var(--accent); }
+.sel-btn {
+  padding:7px 15px; border:1px solid var(--border2); border-radius:var(--radius);
+  background:var(--bg3); color:var(--text2); font-size:13px; font-weight:600;
+  cursor:pointer; transition:all .15s; font-family:inherit; white-space:nowrap;
+}
+.sel-btn:hover { background:var(--bg4); color:var(--text); }
+.sel-btn.active { background:var(--accent-bg); color:var(--accent); border-color:var(--accent); }
+.spacer { flex:1; }
+#theme-toggle {
+  width:38px; height:38px; border:1px solid var(--border2); border-radius:50%;
+  background:var(--bg3); color:var(--text2); font-size:17px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all .2s; flex-shrink:0;
+}
+#theme-toggle:hover { background:var(--bg4); transform:scale(1.08); }
+
+/* Layout:
+   [sim canvas]  |  [right column: panel on top, phase portrait square on bottom]
+*/
+.workspace { display:flex; flex:1; min-height:0; overflow:hidden; }
+
+/* Left: sim canvas only */
+.sim-area { flex:1; display:flex; flex-direction:column; min-width:0; }
+canvas#sim { flex:1; width:100%; cursor:grab; display:block; }
+canvas#sim.dragging { cursor:grabbing; }
+
+/* Right column */
+.right-col {
+  width:340px; min-width:340px;
+  border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  background:var(--bg2); flex-shrink:0;
+  overflow:hidden;
+}
+
+/* Panel scrolls in upper portion */
+.panel {
+  flex:1; min-height:0;
+  overflow-y:auto; padding:14px 13px;
+  display:flex; flex-direction:column; gap:14px;
+  background:var(--bg2);
+}
+.panel::-webkit-scrollbar { width:4px; }
+.panel::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:99px; }
+
+/* Phase portrait — square-ish, fixed height in right col */
+.phase-section {
+  height:340px;
+  border-top:1px solid var(--border);
+  padding:10px 12px 8px;
+  display:flex; flex-direction:column; gap:5px;
+  flex-shrink:0; background:var(--bg2);
+}
+.phase-header { display:flex; align-items:center; justify-content:space-between; }
+.phase-label { font-size:12px; font-weight:700; color:var(--text2); letter-spacing:.06em; text-transform:uppercase; }
+.phase-sublabel { font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+canvas#phase { width:100%; flex:1; display:block; border-radius:6px; }
+.panel::-webkit-scrollbar { width:4px; }
+.panel::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:99px; }
+.panel-section { display:flex; flex-direction:column; gap:9px; }
+.panel-title { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:.1em; text-transform:uppercase; }
+.param-row { display:flex; flex-direction:column; gap:4px; }
+.param-header { display:flex; justify-content:space-between; align-items:center; }
+.param-name { font-size:13px; color:var(--text2); }
+.param-val { font-size:13px; font-weight:600; color:var(--accent); min-width:72px; text-align:right; font-family:'JetBrains Mono',monospace; }
+input[type=range] { width:100%; height:4px; cursor:pointer; accent-color:var(--accent); }
+.ctrl-row { display:flex; gap:7px; }
+.ctrl-btn { flex:1; padding:9px 4px; font-size:13px; font-weight:600; border:1px solid var(--border2); border-radius:var(--radius); background:var(--bg3); color:var(--text); cursor:pointer; transition:all .12s; font-family:inherit; }
+.ctrl-btn:hover { background:var(--bg4); }
+.ctrl-btn.primary { background:var(--accent-bg); color:var(--accent); border-color:var(--accent); }
+.info-box { background:var(--bg3); border-radius:var(--radius); padding:11px 12px; font-size:13px; color:var(--text2); line-height:1.6; border:1px solid var(--border); }
+.trail-toggle { display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text2); cursor:pointer; user-select:none; }
+.trail-toggle input { accent-color:var(--accent); cursor:pointer; width:14px; height:14px; }
+.energy-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+.e-label { color:var(--text2); }
+.e-val { font-weight:600; color:var(--text); font-variant-numeric:tabular-nums; font-family:'JetBrains Mono',monospace; font-size:13px; }
+.divider { border:none; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title">Physics<span>Lab</span></div>
+    <button class="sel-btn active"  data-sim="spring"   onclick="selectSim('spring')">Spring–Mass</button>
+    <button class="sel-btn"         data-sim="simple"   onclick="selectSim('simple')">Simple Pendulum</button>
+    <button class="sel-btn"         data-sim="double"   onclick="selectSim('double')">Double Pendulum</button>
+    <button class="sel-btn"         data-sim="compound" onclick="selectSim('compound')">Compound Pendulum</button>
+    <div class="spacer"></div>
+    <button id="theme-toggle" onclick="toggleTheme()">🌙</button>
+  </div>
+  <div class="workspace">
+    <div class="sim-area">
+      <canvas id="sim"></canvas>
+    </div>
+    <div class="right-col">
+      <div class="panel" id="panel"></div>
+      <div class="phase-section">
+        <div class="phase-header">
+          <div class="phase-label">Phase Portrait</div>
+          <div class="phase-sublabel" id="phase-axis-label">x (m) vs ẋ (m/s)</div>
+        </div>
+        <canvas id="phase"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+const html = document.documentElement;
+function toggleTheme() {
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.getElementById('theme-toggle').textContent = html.dataset.theme === 'dark' ? '🌙' : '☀️';
+}
+function dark() { return html.dataset.theme === 'dark'; }
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS
+// ═══════════════════════════════════════════════════════════
+const simCanvas   = document.getElementById('sim');
+const phaseCanvas = document.getElementById('phase');
+const sC = simCanvas.getContext('2d');
+const pC = phaseCanvas.getContext('2d');
+const panel = document.getElementById('panel');
+const DPR = window.devicePixelRatio || 1;
+
+let currentSim = 'spring';
+let paused = false;
+let showTrail = true;
+// phaseData stores [pos, vel] pairs in physical units
+let phaseData = [];
+const MAX_PHASE = 1800;
+
+function resize() {
+  // sim canvas fills the entire left sim-area
+  const sa = simCanvas.parentElement;
+  const sw = sa.clientWidth, sh = Math.max(300, sa.clientHeight);
+  simCanvas.style.width  = sw + 'px';
+  simCanvas.style.height = sh + 'px';
+  simCanvas.width  = sw * DPR;
+  simCanvas.height = sh * DPR;
+  sC.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+  // phase canvas fills the phase-section (minus padding/header)
+  const ps = phaseCanvas.parentElement;
+  const pw = ps.clientWidth - 24;
+  const ph = Math.max(60, ps.clientHeight - 40);
+  phaseCanvas.style.width  = pw + 'px';
+  phaseCanvas.style.height = ph + 'px';
+  phaseCanvas.width  = pw * DPR;
+  phaseCanvas.height = ph * DPR;
+  pC.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SPRING–MASS  (vertical spring, Hooke's law, Euler integration)
+// ═══════════════════════════════════════════════════════════
+const spring = {
+  k:80, m:1.0, b:0.3,
+  x:0.18, v:0,          // x in metres from equilibrium (positive = down)
+  trail:[], dragging:false,
+  params:[
+    {name:'Spring constant k', key:'k', min:5,   max:300, step:5,    unit:'N/m'},
+    {name:'Mass m',            key:'m', min:0.1, max:5,   step:0.1,  unit:'kg'},
+    {name:'Damping b',         key:'b', min:0,   max:3,   step:0.05, unit:'Ns/m'},
+  ],
+  reset(){ this.x=0.18; this.v=0; this.trail=[]; phaseData=[]; },
+  step(dt){
+    if(this.dragging) return;
+    const a = (-this.k*this.x - this.b*this.v) / this.m;
+    this.v += a*dt;
+    this.x += this.v*dt;
+    this.x = Math.max(-0.55, Math.min(0.55, this.x));
+  },
+  draw(w,h){
+    const cx = w/2;
+    // pixel scale: map ±0.55 m to the available height
+    const pxPerM = (h - 120) / 1.1;
+    const mY = h/2 + this.x * pxPerM;
+
+    if(showTrail){
+      this.trail.push([cx, mY]);
+      if(this.trail.length > 180) this.trail.shift();
+      for(let i=1; i<this.trail.length; i++){
+        sC.beginPath();
+        sC.strokeStyle = `hsla(220,75%,65%,${(i/this.trail.length)*0.45})`;
+        sC.lineWidth = 2;
+        sC.moveTo(...this.trail[i-1]); sC.lineTo(...this.trail[i]); sC.stroke();
+      }
+    }
+
+    // ceiling bracket
+    sC.fillStyle = dark() ? '#404040' : '#c0c0c0';
+    sC.fillRect(cx-52, 22, 104, 11);
+
+    // spring coil
+    drawSpring(cx, 33, cx, mY-24, 13, 16, '#5b9cf6');
+
+    // mass ball
+    sC.beginPath(); sC.arc(cx, mY, 26, 0, Math.PI*2);
+    sC.fillStyle = this.dragging ? '#3b7de8' : '#5b9cf6';
+    sC.fill();
+    sC.strokeStyle = '#2a5ccc'; sC.lineWidth = 2.5; sC.stroke();
+
+    // equilibrium dashed line
+    sC.setLineDash([5,5]);
+    sC.strokeStyle = dark() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+    sC.lineWidth = 1;
+    sC.beginPath(); sC.moveTo(cx-80,h/2); sC.lineTo(cx+80,h/2); sC.stroke();
+    sC.setLineDash([]);
+
+    sC.fillStyle = dark() ? 'rgba(220,225,235,0.85)' : 'rgba(30,35,50,0.85)';
+    sC.font = 'bold 14px "JetBrains Mono",monospace';
+    sC.fillText(`x = ${this.x.toFixed(3)} m`,    cx+34, mY-6);
+    sC.fillText(`v = ${this.v.toFixed(3)} m/s`,  cx+34, mY+14);
+
+    const KE = 0.5*this.m*this.v**2;
+    const PE = 0.5*this.k*this.x**2;
+    return {KE, PE};
+  },
+  startDrag(x,y,w,h){
+    const pxPerM = (h-120)/1.1;
+    const mY = h/2 + this.x*pxPerM;
+    if(Math.hypot(x-w/2, y-mY) < 32){ this.dragging=true; this.v=0; return true; }
+    return false;
+  },
+  doDrag(x,y,w,h){
+    const pxPerM = (h-120)/1.1;
+    this.x = Math.max(-0.54, Math.min(0.54, (y - h/2)/pxPerM));
+    this.v = 0; this.trail=[]; phaseData=[];
+  },
+  endDrag(){ this.dragging=false; }
+};
+
+function drawSpring(x1,y1,x2,y2,amp,coils,color){
+  const len=Math.hypot(x2-x1,y2-y1), ang=Math.atan2(y2-y1,x2-x1);
+  sC.save(); sC.translate(x1,y1); sC.rotate(ang);
+  sC.beginPath(); sC.strokeStyle=color; sC.lineWidth=2.5;
+  const seg=len/(coils*2+1);
+  sC.moveTo(0,0); sC.lineTo(seg,0);
+  for(let i=0;i<coils;i++){
+    const b=seg+i*2*seg;
+    sC.lineTo(b+seg*.5, amp); sC.lineTo(b+seg,0);
+    sC.lineTo(b+seg*1.5,-amp); sC.lineTo(b+seg*2,0);
+  }
+  sC.lineTo(len,0); sC.stroke(); sC.restore();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SIMPLE PENDULUM  θ̈ = -(g/L)sinθ - b·ω
+// ═══════════════════════════════════════════════════════════
+const simplePend = {
+  L:1.5, m:1.0, b:0.05, g:9.81,
+  theta:0.9, omega:0,
+  trail:[], dragging:false,
+  params:[
+    {name:'Length L',  key:'L', min:0.3, max:3,  step:0.05, unit:'m'},
+    {name:'Mass m',    key:'m', min:0.1, max:5,  step:0.1,  unit:'kg'},
+    {name:'Damping b', key:'b', min:0,   max:1,  step:0.01, unit:''},
+    {name:'Gravity g', key:'g', min:1,   max:25, step:0.5,  unit:'m/s²'},
+  ],
+  reset(){ this.theta=0.9; this.omega=0; this.trail=[]; phaseData=[]; },
+  step(dt){
+    if(this.dragging) return;
+    const alpha = -(this.g/this.L)*Math.sin(this.theta) - this.b*this.omega;
+    this.omega += alpha*dt;
+    this.theta += this.omega*dt;
+  },
+  draw(w,h){
+    const pX=w/2, pY=70;
+    // scale: rod length fills ~70% of min(w,h)
+    const sc = Math.min((h-110)*0.7/this.L, (w-110)*0.7/this.L);
+    const bX = pX + sc*this.L*Math.sin(this.theta);
+    const bY = pY + sc*this.L*Math.cos(this.theta);
+
+    if(showTrail){
+      this.trail.push([bX,bY]);
+      if(this.trail.length>280) this.trail.shift();
+      for(let i=1;i<this.trail.length;i++){
+        sC.beginPath();
+        sC.strokeStyle=`hsla(160,65%,50%,${(i/this.trail.length)*0.5})`;
+        sC.lineWidth=2; sC.moveTo(...this.trail[i-1]); sC.lineTo(...this.trail[i]); sC.stroke();
+      }
+    }
+
+    // ceiling
+    sC.fillStyle = dark()?'#404040':'#c0c0c0';
+    sC.fillRect(pX-52,48,104,11);
+    sC.beginPath(); sC.arc(pX,pY,6,0,Math.PI*2); sC.fillStyle='#888'; sC.fill();
+
+    // rod
+    sC.beginPath(); sC.moveTo(pX,pY); sC.lineTo(bX,bY);
+    sC.strokeStyle='#4a8060'; sC.lineWidth=3; sC.stroke();
+
+    // bob
+    const r = 20 + this.m*3;
+    sC.beginPath(); sC.arc(bX,bY,r,0,Math.PI*2);
+    sC.fillStyle = this.dragging ? '#17a071' : '#27b382';
+    sC.fill(); sC.strokeStyle='#0a5e42'; sC.lineWidth=2.5; sC.stroke();
+
+    sC.fillStyle = dark()?'rgba(220,225,235,0.88)':'rgba(20,30,45,0.88)';
+    sC.font='bold 14px "JetBrains Mono",monospace';
+    sC.fillText(`θ = ${(this.theta*180/Math.PI).toFixed(2)}°`,   bX+r+8, bY-5);
+    sC.fillText(`ω = ${this.omega.toFixed(4)} rad/s`, bX+r+8, bY+16);
+
+    const KE = 0.5*this.m*(this.L*this.omega)**2;
+    const PE = this.m*this.g*this.L*(1-Math.cos(this.theta));
+    return {KE, PE};
+  },
+  startDrag(x,y,w,h){
+    const pX=w/2,pY=70,sc=Math.min((h-110)*0.7/this.L,(w-110)*0.7/this.L);
+    const bX=pX+sc*this.L*Math.sin(this.theta), bY=pY+sc*this.L*Math.cos(this.theta);
+    if(Math.hypot(x-bX,y-bY)<30+this.m*3){ this.dragging=true; this.omega=0; return true; }
+    return false;
+  },
+  doDrag(x,y,w,h){
+    this.theta=Math.atan2(x-w/2, y-70); this.omega=0; this.trail=[]; phaseData=[];
+  },
+  endDrag(){ this.dragging=false; }
+};
+
+// ═══════════════════════════════════════════════════════════
+// DOUBLE PENDULUM  (point masses, exact Lagrangian EOMs)
+// ═══════════════════════════════════════════════════════════
+const doublePend = {
+  L1:1.0, L2:1.0, m1:1.0, m2:1.0, g:9.81, b:0.005,
+  theta1:1.3, theta2:-0.5, omega1:0, omega2:0,
+  trail:[], dragging:0,
+  params:[
+    {name:'Length L₁', key:'L1', min:0.3, max:2,   step:0.05,  unit:'m'},
+    {name:'Length L₂', key:'L2', min:0.3, max:2,   step:0.05,  unit:'m'},
+    {name:'Mass m₁',   key:'m1', min:0.1, max:5,   step:0.1,   unit:'kg'},
+    {name:'Mass m₂',   key:'m2', min:0.1, max:5,   step:0.1,   unit:'kg'},
+    {name:'Gravity g', key:'g',  min:1,   max:25,  step:0.5,   unit:'m/s²'},
+    {name:'Damping b', key:'b',  min:0,   max:0.1, step:0.002, unit:''},
+  ],
+  reset(){ this.theta1=1.3; this.theta2=-0.5; this.omega1=0; this.omega2=0; this.trail=[]; phaseData=[]; },
+  step(dt){
+    if(this.dragging) return;
+    // Standard double-pendulum Lagrangian EOMs (point masses)
+    const {L1,L2,m1,m2,g,b,theta1,theta2,omega1,omega2} = this;
+    const dth = theta1-theta2;
+    const sd = Math.sin(dth), cd = Math.cos(dth);
+    const M  = m1+m2;
+    const den = L1*(2*M - m2*Math.cos(2*dth));
+
+    const alpha1 = (
+      -g*(2*M)*Math.sin(theta1)
+      - m2*g*Math.sin(theta1-2*theta2)
+      - 2*sd*m2*(omega2*omega2*L2 + omega1*omega1*L1*cd)
+      - b*omega1
+    ) / den;
+
+    const alpha2 = (
+      2*sd*(
+        omega1*omega1*L1*M
+        + g*M*Math.cos(theta1)
+        + omega2*omega2*L2*m2*cd
+      ) - b*omega2
+    ) / (L2*(2*M - m2*Math.cos(2*dth)));
+
+    this.omega1 += alpha1*dt;
+    this.omega2 += alpha2*dt;
+    this.theta1 += this.omega1*dt;
+    this.theta2 += this.omega2*dt;
+  },
+  draw(w,h){
+    const pX=w/2, pY=72;
+    const maxL = this.L1+this.L2;
+    const sc = Math.min((h-100)*0.78/maxL, (w-120)*0.78/maxL);
+    const x1 = pX + sc*this.L1*Math.sin(this.theta1);
+    const y1 = pY + sc*this.L1*Math.cos(this.theta1);
+    const x2 = x1 + sc*this.L2*Math.sin(this.theta2);
+    const y2 = y1 + sc*this.L2*Math.cos(this.theta2);
+
+    if(showTrail){
+      this.trail.push([x2,y2]);
+      if(this.trail.length>450) this.trail.shift();
+      for(let i=1;i<this.trail.length;i++){
+        const t=i/this.trail.length;
+        sC.beginPath();
+        sC.strokeStyle=`hsla(28,85%,60%,${t*0.65})`;
+        sC.lineWidth=1.5; sC.moveTo(...this.trail[i-1]); sC.lineTo(...this.trail[i]); sC.stroke();
+      }
+    }
+
+    sC.fillStyle=dark()?'#404040':'#c0c0c0';
+    sC.fillRect(pX-52,50,104,11);
+    sC.beginPath(); sC.arc(pX,pY,6,0,Math.PI*2); sC.fillStyle='#888'; sC.fill();
+
+    sC.beginPath(); sC.moveTo(pX,pY); sC.lineTo(x1,y1);
+    sC.strokeStyle='#6670cc'; sC.lineWidth=3; sC.stroke();
+    sC.beginPath(); sC.moveTo(x1,y1); sC.lineTo(x2,y2);
+    sC.strokeStyle='#cc6060'; sC.lineWidth=3; sC.stroke();
+
+    const r1=16+this.m1*3;
+    sC.beginPath(); sC.arc(x1,y1,r1,0,Math.PI*2);
+    sC.fillStyle=this.dragging===1?'#534AB7':'#7060cc';
+    sC.fill(); sC.strokeStyle='#3a2fa0'; sC.lineWidth=2.5; sC.stroke();
+
+    const r2=16+this.m2*3;
+    sC.beginPath(); sC.arc(x2,y2,r2,0,Math.PI*2);
+    sC.fillStyle=this.dragging===2?'#B05030':'#cc6040';
+    sC.fill(); sC.strokeStyle='#802020'; sC.lineWidth=2.5; sC.stroke();
+
+    sC.fillStyle=dark()?'rgba(220,225,235,0.88)':'rgba(20,30,45,0.88)';
+    sC.font='bold 14px "JetBrains Mono",monospace';
+    sC.fillText(`θ₁ = ${(this.theta1*180/Math.PI).toFixed(1)}°`, 14, 22);
+    sC.fillText(`θ₂ = ${(this.theta2*180/Math.PI).toFixed(1)}°`, 14, 42);
+
+    const v1sq = (this.L1*this.omega1)**2;
+    const v2sq = (this.L1*this.omega1)**2 + (this.L2*this.omega2)**2
+                 + 2*this.L1*this.L2*this.omega1*this.omega2*Math.cos(this.theta1-this.theta2);
+    const KE = 0.5*this.m1*v1sq + 0.5*this.m2*v2sq;
+    const PE = -(this.m1+this.m2)*this.g*this.L1*Math.cos(this.theta1)
+               - this.m2*this.g*this.L2*Math.cos(this.theta2);
+    return {KE: Math.abs(KE), PE: Math.abs(PE)};
+  },
+  startDrag(x,y,w,h){
+    const pX=w/2,pY=72,maxL=this.L1+this.L2;
+    const sc=Math.min((h-100)*0.78/maxL,(w-120)*0.78/maxL);
+    const x1=pX+sc*this.L1*Math.sin(this.theta1), y1=pY+sc*this.L1*Math.cos(this.theta1);
+    const x2=x1+sc*this.L2*Math.sin(this.theta2), y2=y1+sc*this.L2*Math.cos(this.theta2);
+    if(Math.hypot(x-x2,y-y2)<24+this.m2*3){this.dragging=2;this.omega1=0;this.omega2=0;this.trail=[];phaseData=[];return true;}
+    if(Math.hypot(x-x1,y-y1)<22+this.m1*3){this.dragging=1;this.omega1=0;this.omega2=0;this.trail=[];phaseData=[];return true;}
+    return false;
+  },
+  doDrag(x,y,w,h){
+    const pX=w/2,pY=72,maxL=this.L1+this.L2;
+    const sc=Math.min((h-100)*0.78/maxL,(w-120)*0.78/maxL);
+    if(this.dragging===1){this.theta1=Math.atan2(x-pX,y-pY);this.omega1=0;}
+    else if(this.dragging===2){
+      const x1=pX+sc*this.L1*Math.sin(this.theta1),y1=pY+sc*this.L1*Math.cos(this.theta1);
+      this.theta2=Math.atan2(x-x1,y-y1);this.omega2=0;
+    }
+  },
+  endDrag(){this.dragging=0;}
+};
+
+// ═══════════════════════════════════════════════════════════
+// DOUBLE COMPOUND PENDULUM
+// Two uniform rigid rods connected by pin joints.
+// Rod i has mass mᵢ, length Lᵢ, moment of inertia Iᵢ = mᵢLᵢ²/3 about its own pivot.
+// Pivot of rod 1 is fixed. Pivot of rod 2 is at the TIP of rod 1.
+// Lagrangian EOMs (standard derivation for double compound pendulum):
+//   M·α = f   where M is 2×2 mass matrix and f is forcing vector.
+// ═══════════════════════════════════════════════════════════
+const compoundPend = {
+  L1:1.2, L2:1.0, m1:1.5, m2:1.0, g:9.81, b:0.008,
+  theta1:1.0, theta2:0.4, omega1:0, omega2:0,
+  trail:[], dragging:0,
+  params:[
+    {name:'Rod length L₁', key:'L1', min:0.3, max:2,    step:0.05,  unit:'m'},
+    {name:'Rod length L₂', key:'L2', min:0.3, max:2,    step:0.05,  unit:'m'},
+    {name:'Rod mass m₁',   key:'m1', min:0.2, max:6,    step:0.1,   unit:'kg'},
+    {name:'Rod mass m₂',   key:'m2', min:0.2, max:6,    step:0.1,   unit:'kg'},
+    {name:'Gravity g',     key:'g',  min:1,   max:25,   step:0.5,   unit:'m/s²'},
+    {name:'Damping b',     key:'b',  min:0,   max:0.15, step:0.002, unit:''},
+  ],
+  reset(){ this.theta1=1.0; this.theta2=0.4; this.omega1=0; this.omega2=0; this.trail=[]; phaseData=[]; },
+
+  // ──────────────────────────────────────────────────────────
+  // Physics: double compound pendulum Lagrangian
+  //
+  // Generalised coordinates: θ₁ (angle of rod1 from vertical),
+  //                          θ₂ (angle of rod2 from vertical, ABSOLUTE)
+  //
+  // KE = ½I₁ω₁² + ½m₂[L₁²ω₁² + (L₂/2)²ω₂² + L₁(L₂/2)ω₁ω₂·2cos(θ₁−θ₂)]
+  //       + ½(m₂L₂²/12)ω₂²   (spin of rod2 about its own CoM)
+  //
+  // More concisely, effective mass matrix:
+  //   M₁₁ = m₁L₁²/3 + m₂L₁²                      (= I₁_eff)
+  //   M₁₂ = M₂₁ = m₂·L₁·(L₂/2)·cos(θ₁−θ₂)
+  //   M₂₂ = m₂L₂²/3                               (= I₂_eff)
+  //
+  // Coriolis/gravity forcing:
+  //   f₁ = −m₂·L₁·(L₂/2)·ω₂²·sin(θ₁−θ₂)
+  //         −(m₁/2+m₂)·g·L₁·sin(θ₁) − b·ω₁
+  //   f₂ = +m₂·L₁·(L₂/2)·ω₁²·sin(θ₁−θ₂)
+  //         −m₂·g·(L₂/2)·sin(θ₂) − b·ω₂
+  // ──────────────────────────────────────────────────────────
+  step(dt){
+    if(this.dragging) return;
+    const {L1,L2,m1,m2,g,b,theta1,theta2,omega1,omega2} = this;
+
+    const c12 = Math.cos(theta1-theta2);
+    const s12 = Math.sin(theta1-theta2);
+
+    // Mass matrix (using absolute angles — rod2 angle is absolute)
+    const M11 = m1*L1*L1/3 + m2*L1*L1;
+    const M12 = m2 * L1 * (L2/2) * c12;
+    const M22 = m2*L2*L2/3;
+
+    // Forcing
+    const f1 = -m2*L1*(L2/2)*omega2*omega2*s12
+               -(m1/2+m2)*g*L1*Math.sin(theta1)
+               - b*omega1;
+    const f2 = +m2*L1*(L2/2)*omega1*omega1*s12
+               - m2*g*(L2/2)*Math.sin(theta2)
+               - b*omega2;
+
+    // Solve 2×2: [M11 M12; M12 M22][α1;α2] = [f1;f2]
+    const det = M11*M22 - M12*M12;
+    const alpha1 = (M22*f1 - M12*f2) / det;
+    const alpha2 = (M11*f2 - M12*f1) / det;
+
+    this.omega1 += alpha1*dt;
+    this.omega2 += alpha2*dt;
+    this.theta1 += this.omega1*dt;
+    this.theta2 += this.omega2*dt;
+  },
+
+  draw(w,h){
+    const pX = w/2;
+    const pY = 72;
+    const maxL = this.L1 + this.L2;
+    const sc = Math.min((h-100)*0.78/maxL, (w-120)*0.78/maxL);
+
+    // All positions computed directly in canvas coords — no transforms.
+    // theta1, theta2 are both ABSOLUTE angles from downward vertical.
+    // pivot → joint → tip
+    const jx = pX + sc*this.L1*Math.sin(this.theta1);
+    const jy = pY + sc*this.L1*Math.cos(this.theta1);
+    const tx = jx + sc*this.L2*Math.sin(this.theta2);
+    const ty = jy + sc*this.L2*Math.cos(this.theta2);
+
+    // Trail of tip
+    if(showTrail){
+      this.trail.push([tx,ty]);
+      if(this.trail.length>500) this.trail.shift();
+      for(let i=1;i<this.trail.length;i++){
+        const t=i/this.trail.length;
+        sC.beginPath();
+        sC.strokeStyle=`hsla(280,80%,65%,${t*0.62})`;
+        sC.lineWidth=1.5;
+        sC.moveTo(...this.trail[i-1]); sC.lineTo(...this.trail[i]); sC.stroke();
+      }
+    }
+
+    // Ceiling
+    sC.fillStyle = dark()?'#404040':'#c0c0c0';
+    sC.fillRect(pX-52,50,104,11);
+
+    // Draw rod 1: thick line from pivot (pX,pY) to joint (jx,jy)
+    const rod1W = Math.max(8, 6+this.m1*2);
+    sC.beginPath();
+    sC.moveTo(pX, pY); sC.lineTo(jx, jy);
+    sC.strokeStyle = this.dragging===1 ? '#534AB7' : (dark()?'#5060c0':'#6070d0');
+    sC.lineWidth = rod1W; sC.lineCap = 'round'; sC.stroke();
+    // rod 1 border for depth
+    sC.beginPath();
+    sC.moveTo(pX, pY); sC.lineTo(jx, jy);
+    sC.strokeStyle = dark()?'#2a3a80':'#3a4a99';
+    sC.lineWidth = rod1W+3; sC.lineCap = 'round'; sC.stroke();
+    sC.beginPath();
+    sC.moveTo(pX, pY); sC.lineTo(jx, jy);
+    sC.strokeStyle = this.dragging===1 ? '#534AB7' : (dark()?'#5060c0':'#6070d0');
+    sC.lineWidth = rod1W; sC.lineCap = 'round'; sC.stroke();
+
+    // Draw rod 2: thick line from joint (jx,jy) to tip (tx,ty)
+    const rod2W = Math.max(7, 5+this.m2*2);
+    sC.beginPath();
+    sC.moveTo(jx, jy); sC.lineTo(tx, ty);
+    sC.strokeStyle = dark()?'#2a3a80':'#3a4a99'; // border
+    sC.lineWidth = rod2W+3; sC.lineCap = 'round'; sC.stroke();
+    sC.beginPath();
+    sC.moveTo(jx, jy); sC.lineTo(tx, ty);
+    sC.strokeStyle = this.dragging===2 ? '#C050A0' : (dark()?'#c050a0':'#d060b0');
+    sC.lineWidth = rod2W; sC.lineCap = 'round'; sC.stroke();
+
+    // Pivot pin
+    sC.beginPath(); sC.arc(pX,pY,7,0,Math.PI*2);
+    sC.fillStyle='#888'; sC.fill(); sC.strokeStyle='#444'; sC.lineWidth=2; sC.stroke();
+
+    // Joint pin at tip of rod1 = start of rod2
+    sC.beginPath(); sC.arc(jx,jy,9,0,Math.PI*2);
+    sC.fillStyle=dark()?'#ccc':'#999'; sC.fill();
+    sC.strokeStyle='#444'; sC.lineWidth=2; sC.stroke();
+
+    // Tip dot
+    sC.beginPath(); sC.arc(tx,ty,7,0,Math.PI*2);
+    sC.fillStyle=dark()?'#e080d0':'#c050a0'; sC.fill();
+    sC.strokeStyle=dark()?'#804060':'#903050'; sC.lineWidth=2; sC.stroke();
+
+    // HUD text
+    sC.fillStyle=dark()?'rgba(220,225,235,0.88)':'rgba(20,30,45,0.88)';
+    sC.font='bold 14px "JetBrains Mono",monospace';
+    sC.fillText(`θ₁ = ${(this.theta1*180/Math.PI).toFixed(1)}°`, 14, 22);
+    sC.fillText(`θ₂ = ${(this.theta2*180/Math.PI).toFixed(1)}°`, 14, 42);
+    sC.fillText(`ω₁ = ${this.omega1.toFixed(3)} r/s`,            14, 62);
+
+    // Energy
+    const KE = 0.5*(this.m1*this.L1*this.L1/3)*this.omega1*this.omega1
+             + 0.5*(this.m2*this.L2*this.L2/3)*this.omega2*this.omega2
+             + 0.5*this.m2*this.L1*this.L1*this.omega1*this.omega1
+             + this.m2*this.L1*(this.L2/2)*this.omega1*this.omega2*Math.cos(this.theta1-this.theta2);
+    const PE = -(this.m1/2+this.m2)*this.g*this.L1*Math.cos(this.theta1)
+               - this.m2*(this.g/2)*this.L2*Math.cos(this.theta2);
+    return {KE: Math.abs(KE), PE: Math.abs(PE)};
+  },
+
+  startDrag(x,y,w,h){
+    const pX=w/2,pY=72,maxL=this.L1+this.L2;
+    const sc=Math.min((h-100)*0.78/maxL,(w-120)*0.78/maxL);
+    const jx=pX+sc*this.L1*Math.sin(this.theta1), jy=pY+sc*this.L1*Math.cos(this.theta1);
+    const tx=jx+sc*this.L2*Math.sin(this.theta2), ty=jy+sc*this.L2*Math.cos(this.theta2);
+    if(Math.hypot(x-tx,y-ty)<20){this.dragging=2;this.omega1=0;this.omega2=0;this.trail=[];phaseData=[];return true;}
+    if(Math.hypot(x-jx,y-jy)<18){this.dragging=1;this.omega1=0;this.omega2=0;this.trail=[];phaseData=[];return true;}
+    return false;
+  },
+  doDrag(x,y,w,h){
+    const pX=w/2,pY=72;
+    if(this.dragging===1){ this.theta1=Math.atan2(x-pX,y-pY); this.omega1=0; }
+    else if(this.dragging===2){
+      const maxL=this.L1+this.L2;
+      const sc=Math.min((h-100)*0.78/maxL,(w-120)*0.78/maxL);
+      const jx=pX+sc*this.L1*Math.sin(this.theta1), jy=pY+sc*this.L1*Math.cos(this.theta1);
+      this.theta2=Math.atan2(x-jx,y-jy); this.omega2=0;
+    }
+  },
+  endDrag(){this.dragging=0;}
+};
+
+const sims = {spring, simple:simplePend, double:doublePend, compound:compoundPend};
+function getSim(){ return sims[currentSim] || spring; }
+
+// ═══════════════════════════════════════════════════════════
+// PHASE PORTRAIT
+// Independent scales on each axis — data fills the full plot.
+// The canvas is square-ish (right column), so the portrait
+// looks correct without equal-aspect tricks.
+// ═══════════════════════════════════════════════════════════
+function drawPhase(w, h) {
+  pC.clearRect(0,0,w,h);
+  pC.fillStyle = dark() ? '#0d0f14' : '#f3f5fa';
+  pC.fillRect(0,0,w,h);
+
+  const PAD = {left:52, right:14, top:14, bottom:34};
+  const pw = w - PAD.left - PAD.right;
+  const ph = h - PAD.top  - PAD.bottom;
+  const ox = PAD.left, oy = PAD.top;
+
+  // Axis labels
+  const axLabels = {
+    spring:   ['x (m)',     'ẋ (m/s)'],
+    simple:   ['θ (rad)',   'ω (rad/s)'],
+    double:   ['θ₁ (rad)', 'ω₁ (rad/s)'],
+    compound: ['θ₁ (rad)', 'ω₁ (rad/s)'],
+  };
+  const [xLbl, yLbl] = axLabels[currentSim] || ['x','v'];
+  document.getElementById('phase-axis-label').textContent = `${xLbl} vs ${yLbl}`;
+
+  // Data range
+  let xMax=0.001, vMax=0.001;
+  for(const [x,v] of phaseData){
+    xMax = Math.max(xMax, Math.abs(x));
+    vMax = Math.max(vMax, Math.abs(v));
+  }
+  xMax *= 1.18;  vMax *= 1.18;
+
+  // Independent scales — data fills full plot width and height
+  const sx = pw / (2*xMax);  // pixels per x-unit
+  const sy = ph / (2*vMax);  // pixels per v-unit
+
+  // Origin in pixel space (centre of plot)
+  const cx = ox + pw/2;
+  const cy = oy + ph/2;
+
+  // Mapping functions
+  const toX = x => cx + x*sx;
+  const toY = v => cy - v*sy;
+
+  // Grid — evenly spaced, 4 divisions each side
+  const N = 4;
+  pC.strokeStyle = dark() ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)';
+  pC.lineWidth = 1;
+  for(let i=-N; i<=N; i++){
+    const gx = cx + (pw/2)*(i/N);
+    const gy = cy + (ph/2)*(i/N);
+    pC.beginPath(); pC.moveTo(gx, oy);     pC.lineTo(gx, oy+ph); pC.stroke();
+    pC.beginPath(); pC.moveTo(ox, gy);     pC.lineTo(ox+pw, gy); pC.stroke();
+  }
+
+  // Main axes
+  const axCol = dark() ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.36)';
+  pC.strokeStyle = axCol; pC.lineWidth = 1.5;
+  pC.beginPath(); pC.moveTo(ox, cy);    pC.lineTo(ox+pw, cy);  pC.stroke();
+  pC.beginPath(); pC.moveTo(cx, oy);    pC.lineTo(cx, oy+ph);  pC.stroke();
+
+  // Arrowheads
+  pC.fillStyle = axCol;
+  pC.beginPath(); pC.moveTo(ox+pw+5,cy); pC.lineTo(ox+pw-2,cy-4); pC.lineTo(ox+pw-2,cy+4); pC.closePath(); pC.fill();
+  pC.beginPath(); pC.moveTo(cx,oy-5);    pC.lineTo(cx-4,oy+3);    pC.lineTo(cx+4,oy+3);    pC.closePath(); pC.fill();
+
+  // Tick marks + labels — 2 ticks each side (at ±½ and ±max)
+  pC.fillStyle = dark() ? 'rgba(185,200,225,0.65)' : 'rgba(40,55,80,0.70)';
+  pC.font = '10px "JetBrains Mono",monospace';
+  pC.strokeStyle = axCol; pC.lineWidth = 1;
+
+  const xTicks = [-1, -0.5, 0.5, 1];
+  const vTicks = [-1, -0.5, 0.5, 1];
+
+  for(const t of xTicks){
+    const xv = xMax*t;
+    const px = toX(xv);
+    pC.beginPath(); pC.moveTo(px, cy-3); pC.lineTo(px, cy+3); pC.stroke();
+    pC.textAlign = 'center';
+    pC.fillText(fmtTick(xv), px, cy+13);
+  }
+  for(const t of vTicks){
+    const vv = vMax*t;
+    const py = toY(vv);
+    pC.beginPath(); pC.moveTo(ox-3, py); pC.lineTo(ox+3, py); pC.stroke();
+    pC.textAlign = 'right';
+    pC.fillText(fmtTick(vv), ox-5, py+3.5);
+  }
+
+  // Axis labels
+  pC.fillStyle = dark() ? 'rgba(175,195,225,0.85)' : 'rgba(35,50,80,0.85)';
+  pC.font = 'bold 11px "JetBrains Mono",monospace';
+  pC.textAlign = 'center';
+  pC.fillText(xLbl, ox+pw+12, cy+4);
+  pC.save();
+  pC.translate(ox-40, oy+ph/2);
+  pC.rotate(-Math.PI/2);
+  pC.fillText(yLbl, 0, 0);
+  pC.restore();
+
+  if(phaseData.length < 2) return;
+
+  // Trajectory (age-coloured)
+  const hue = currentSim==='spring'?220 : currentSim==='simple'?150 : currentSim==='double'?30 : 285;
+  for(let i=1; i<phaseData.length; i++){
+    const t = i/phaseData.length;
+    pC.beginPath();
+    pC.strokeStyle = `hsla(${hue},78%,58%,${0.08+t*0.88})`;
+    pC.lineWidth = t > 0.88 ? 2.2 : 1.3;
+    pC.moveTo(toX(phaseData[i-1][0]), toY(phaseData[i-1][1]));
+    pC.lineTo(toX(phaseData[i][0]),   toY(phaseData[i][1]));
+    pC.stroke();
+  }
+
+  // Current state dot
+  const [lx,lv] = phaseData[phaseData.length-1];
+  pC.beginPath();
+  pC.arc(toX(lx), toY(lv), 5, 0, Math.PI*2);
+  pC.fillStyle = `hsl(${hue},90%,68%)`;
+  pC.fill();
+  pC.strokeStyle = dark()?'#0d0f14':'#f3f5fa';
+  pC.lineWidth = 2; pC.stroke();
+}
+
+function fmtTick(v){
+  const a=Math.abs(v);
+  if(a===0) return '0';
+  if(a>=100)  return v.toFixed(0);
+  if(a>=10)   return v.toFixed(1);
+  if(a>=1)    return v.toFixed(2);
+  if(a>=0.01) return v.toFixed(3);
+  return v.toExponential(1);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════════════════
+function loop(){
+  const w=simCanvas.clientWidth, h=simCanvas.clientHeight;
+  const pw=phaseCanvas.clientWidth, ph=phaseCanvas.clientHeight;
+  const sim=getSim();
+  sC.clearRect(0,0,w,h);
+
+  if(!paused){
+    // Sub-step for stability (especially double/compound)
+    const SUB = 10;
+    for(let i=0;i<SUB;i++) sim.step(0.016/SUB);
+
+    // Record phase data in physical units
+    let pos,vel;
+    if(currentSim==='spring')   { pos=sim.x;      vel=sim.v;      }
+    else if(currentSim==='simple'){ pos=sim.theta;  vel=sim.omega;  }
+    else                          { pos=sim.theta1; vel=sim.omega1; }
+    phaseData.push([pos,vel]);
+    if(phaseData.length>MAX_PHASE) phaseData.shift();
+  }
+
+  const e = sim.draw(w,h);
+  drawPhase(pw,ph);
+
+  const ke=document.getElementById('ke-val'), pe=document.getElementById('pe-val');
+  if(ke) ke.textContent=e.KE.toFixed(4);
+  if(pe) pe.textContent=e.PE.toFixed(4);
+
+  requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PANEL
+// ═══════════════════════════════════════════════════════════
+function buildPanel(){
+  const sim=getSim();
+  const desc={
+    spring:   'Hooke\'s law: F = −kx. Drag the blue mass to set initial displacement.',
+    simple:   'Nonlinear pendulum: θ̈ = −(g/L)sinθ − bω. Drag the green bob.',
+    double:   'Chaotic double pendulum (point masses). Lagrangian mechanics. Drag either bob.',
+    compound: 'Double compound pendulum — two uniform rigid rods on pin joints. Highly chaotic. Drag the joint or tip.'
+  }[currentSim];
+
+  panel.innerHTML=`
+    <div class="panel-section">
+      <div class="panel-title">Parameters</div>
+      ${sim.params.map(p=>`
+      <div class="param-row">
+        <div class="param-header">
+          <span class="param-name">${p.name}</span>
+          <span class="param-val" id="pv-${p.key}">${fmtParam(sim[p.key],p.step)} ${p.unit}</span>
+        </div>
+        <input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${sim[p.key]}"
+          oninput="updateParam('${p.key}',this.value,'${p.unit}',${p.step})">
+      </div>`).join('')}
+    </div>
+    <hr class="divider">
+    <div class="panel-section">
+      <div class="panel-title">Controls</div>
+      <div class="ctrl-row">
+        <button class="ctrl-btn primary" id="pause-btn" onclick="togglePause()">${paused?'▶ Play':'⏸ Pause'}</button>
+        <button class="ctrl-btn" onclick="resetSim()">↺ Reset</button>
+      </div>
+      <label class="trail-toggle">
+        <input type="checkbox" ${showTrail?'checked':''} onchange="showTrail=this.checked;getSim().trail=[];phaseData=[];">
+        Show motion trail
+      </label>
+    </div>
+    <hr class="divider">
+    <div class="panel-section">
+      <div class="panel-title">Energy (Joules)</div>
+      <div class="energy-row"><span class="e-label">Kinetic KE</span><span class="e-val" id="ke-val">0.0000</span></div>
+      <div class="energy-row"><span class="e-label">Potential PE</span><span class="e-val" id="pe-val">0.0000</span></div>
+    </div>
+    <hr class="divider">
+    <div class="info-box">${desc}</div>`;
+}
+
+function fmtParam(v,step){
+  const d = step<0.01?3 : step<0.1?3 : step<1?2 : 1;
+  return parseFloat(v).toFixed(d);
+}
+
+function updateParam(key,val,unit,step){
+  const sim=getSim(); sim[key]=parseFloat(val);
+  const el=document.getElementById('pv-'+key);
+  if(el) el.textContent=fmtParam(parseFloat(val),step)+' '+unit;
+  sim.trail=[]; phaseData=[];
+}
+function togglePause(){
+  paused=!paused;
+  const b=document.getElementById('pause-btn');
+  if(b) b.textContent=paused?'▶ Play':'⏸ Pause';
+}
+function resetSim(){
+  getSim().reset(); paused=false;
+  const b=document.getElementById('pause-btn');
+  if(b) b.textContent='⏸ Pause';
+}
+function selectSim(name){
+  currentSim=name; phaseData=[]; paused=false;
+  document.querySelectorAll('.sel-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.sim===name);
+  });
+  buildPanel();
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAG
+// ═══════════════════════════════════════════════════════════
+let isDragging=false;
+function evPos(e,c){
+  const r=c.getBoundingClientRect(), s=e.touches?e.touches[0]:e;
+  return [s.clientX-r.left, s.clientY-r.top];
+}
+simCanvas.addEventListener('mousedown',e=>{
+  const[x,y]=evPos(e,simCanvas);
+  if(getSim().startDrag(x,y,simCanvas.clientWidth,simCanvas.clientHeight)){isDragging=true;simCanvas.classList.add('dragging');}
+});
+simCanvas.addEventListener('touchstart',e=>{
+  const[x,y]=evPos(e,simCanvas);
+  if(getSim().startDrag(x,y,simCanvas.clientWidth,simCanvas.clientHeight)){isDragging=true;e.preventDefault();}
+},{passive:false});
+window.addEventListener('mousemove',e=>{
+  if(!isDragging)return;
+  const[x,y]=evPos(e,simCanvas);
+  getSim().doDrag(x,y,simCanvas.clientWidth,simCanvas.clientHeight);
+});
+window.addEventListener('touchmove',e=>{
+  if(!isDragging)return;
+  const[x,y]=evPos(e,simCanvas);
+  getSim().doDrag(x,y,simCanvas.clientWidth,simCanvas.clientHeight);
+  e.preventDefault();
+},{passive:false});
+window.addEventListener('mouseup', ()=>{ if(isDragging){getSim().endDrag();isDragging=false;simCanvas.classList.remove('dragging');}});
+window.addEventListener('touchend',()=>{ if(isDragging){getSim().endDrag();isDragging=false;}});
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+resize();
+buildPanel();
+loop();
+window.addEventListener('resize',()=>resize());
+</script>
+</body>
+</html>

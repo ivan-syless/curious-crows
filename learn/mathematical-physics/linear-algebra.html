@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Linear Algebra — PhysicaLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+:root {
+  --bg:      #fdf8f0;
+  --bg2:     #f7f0e4;
+  --bg3:     #f0e8d8;
+  --surface: #e8ddc8;
+  --border:  rgba(160,100,40,0.14);
+  --accent:  #c4570a;
+  --text:    #1e150a;
+  --muted:   #7a6348;
+  --faint:   rgba(196,87,10,0.06);
+  --nav-bg:  rgba(253,248,240,0.92);
+  --font-display: 'Instrument Serif', serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --shadow: rgba(160,100,40,0.12);
+}
+:root.dark {
+  --bg:      #09090f;
+  --bg2:     #0f0f1a;
+  --bg3:     #13131f;
+  --surface: #1a1a2e;
+  --border:  rgba(255,255,255,0.07);
+  --accent:  #7c6af7;
+  --text:    #f0eeff;
+  --muted:   #7a7899;
+  --faint:   rgba(255,255,255,0.04);
+  --nav-bg:  rgba(9,9,15,0.92);
+  --shadow:  rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-back {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--muted);
+  font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-back:hover { color: var(--accent); }
+.nav-back svg { width: 14px; height: 14px; }
+.nav-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--text);
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-progress-text {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.theme-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg3);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  transition: background 0.2s, transform 0.15s;
+}
+.theme-dot:hover { transform: scale(1.15); background: var(--surface); }
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap {
+  position: fixed; top: 58px; left: 0; right: 0; z-index: 199;
+  height: 3px; background: var(--border);
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ── LAYOUT ── */
+.course-shell {
+  display: flex;
+  padding-top: 61px;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed; top: 61px; left: 0; bottom: 0;
+  width: 260px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 1.5rem 0;
+  z-index: 100;
+}
+.sidebar-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.65rem 1.25rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--muted);
+  border-left: 2px solid transparent;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  position: relative;
+}
+.sidebar-item:hover { color: var(--text); background: var(--faint); }
+.sidebar-item.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  font-weight: 600;
+}
+.sidebar-item.done .s-num { background: var(--accent); color: #fff; }
+.s-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--surface); color: var(--muted);
+  font-family: var(--font-mono); font-size: 0.6rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.3s, color 0.3s;
+}
+.sidebar-item.active .s-num { background: var(--accent); color: #fff; }
+.s-lock { font-size: 0.65rem; margin-left: auto; opacity: 0.4; }
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  margin-left: 260px;
+  flex: 1;
+  min-height: calc(100vh - 61px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── CHAPTERS ── */
+.chapters-viewport { position: relative; width: 100%; }
+.chapter {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 3rem 2.5rem 6rem;
+  opacity: 0;
+  transform: translateX(60px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1);
+  min-height: calc(100vh - 61px);
+}
+.chapter.active {
+  position: relative;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+.chapter.exit-left { opacity: 0; transform: translateX(-60px); }
+
+/* chapter header */
+.ch-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.ch-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+.ch-subtitle {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+.ch-divider {
+  height: 1px;
+  background: linear-gradient(to right, var(--accent), transparent);
+  margin-bottom: 2.5rem;
+  opacity: 0.4;
+}
+
+/* ── TWO-COLUMN BODY ── */
+.ch-body {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+.ch-body .prose {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+}
+.ch-diagram {
+  width: 340px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 82px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.ch-diagram::-webkit-scrollbar { display: none; }
+
+/* diagram card */
+.diagram-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.diagram-label {
+  background: var(--surface);
+  padding: 0.55rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.diagram-card canvas {
+  width: 100%;
+  display: block;
+  cursor: crosshair;
+}
+.diagram-controls {
+  padding: 0.65rem 1rem 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ctrl-row label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  width: 1.6rem;
+  flex-shrink: 0;
+}
+.ctrl-row input[type=range] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.ctrl-row .ctrl-val {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--accent);
+  width: 2.4rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+.diagram-stat {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent);
+  padding: 0.45rem 1rem 0.5rem;
+  border-top: 1px solid var(--border);
+  line-height: 1.7;
+}
+.diagram-hint {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  padding: 0.4rem 1rem 0.55rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* content prose */
+.prose {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text);
+}
+.prose p { margin-bottom: 1.25rem; }
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin: 2rem 0 0.75rem;
+  color: var(--text);
+}
+.prose h4 {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 1.75rem 0 0.5rem;
+}
+.prose strong { color: var(--accent); font-weight: 700; }
+.prose em { font-style: italic; color: var(--muted); }
+
+/* equation box */
+.eq-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  font-size: 1.05rem;
+  overflow-x: auto;
+}
+.eq-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+/* highlight callout */
+.callout {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.callout-icon { font-size: 1rem; margin-right: 6px; }
+
+/* definition box */
+.def-box {
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+}
+.def-box .def-term {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+  color: var(--accent);
+}
+.def-box .def-body {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* example card */
+.example-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+.example-header {
+  background: var(--surface);
+  padding: 0.6rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.example-body { padding: 1.25rem 1.5rem; font-size: 0.9rem; line-height: 1.8; }
+
+/* ── NAVIGATION FOOTER ── */
+.chapter-nav {
+  position: fixed; bottom: 0; left: 260px; right: 0;
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid var(--border);
+  padding: 0.85rem 3.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 150;
+}
+.ch-nav-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem; font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--muted);
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+.ch-nav-btn:hover { color: var(--text); border-color: var(--accent); background: var(--faint); }
+.ch-nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+.ch-nav-btn.primary {
+  background: var(--accent); color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 3px 14px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.ch-nav-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.ch-nav-dots { display: flex; gap: 6px; align-items: center; }
+.nav-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.2s, width 0.25s;
+}
+.nav-dot.active { background: var(--accent); width: 18px; border-radius: 3px; }
+.nav-dot:hover { background: var(--muted); }
+
+/* ── QUIZ ── */
+.quiz-section { max-width: 720px; }
+.quiz-header {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+}
+.quiz-title-block h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem; margin-bottom: 0.25rem;
+}
+.quiz-title-block p { font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); }
+.quiz-score-display { font-family: var(--font-display); font-size: 2rem; color: var(--accent); display: none; }
+.q-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.3s, background 0.3s;
+}
+.q-card.correct { border-color: #16a34a; background: color-mix(in srgb, #16a34a 6%, var(--bg)); }
+.q-card.wrong   { border-color: #dc2626; background: color-mix(in srgb, #dc2626 6%, var(--bg)); }
+.q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.q-num { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; }
+.q-topic {
+  font-family: var(--font-mono); font-size: 0.6rem;
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--faint);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.q-text { font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  cursor: pointer; font-size: 0.88rem; line-height: 1.6;
+  transition: background 0.15s, border-color 0.15s;
+}
+.opt:hover { background: var(--bg3); border-color: var(--accent); }
+.opt input[type=radio] { accent-color: var(--accent); flex-shrink: 0; margin-top: 3px; }
+.opt.selected-correct { background: color-mix(in srgb,#16a34a 12%,transparent); border-color:#16a34a; }
+.opt.selected-wrong   { background: color-mix(in srgb,#dc2626 12%,transparent); border-color:#dc2626; }
+.opt.reveal-correct   { background: color-mix(in srgb,#16a34a 9%,transparent);  border-color:#16a34a; }
+.q-result-row { display: none; align-items: center; gap: 10px; margin-top: 1rem; }
+.q-badge {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  padding: 3px 10px; border-radius: 5px;
+  font-weight: 500;
+}
+.q-badge.ok  { background: color-mix(in srgb,#16a34a 14%,transparent); color:#16a34a; border:1px solid #16a34a; }
+.q-badge.bad { background: color-mix(in srgb,#dc2626 14%,transparent); color:#dc2626; border:1px solid #dc2626; }
+.show-how-btn {
+  font-family: var(--font-mono); font-size: 0.68rem;
+  padding: 3px 10px; border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg2); color: var(--muted);
+  cursor: pointer; transition: color 0.15s, border-color 0.15s;
+}
+.show-how-btn:hover { color: var(--accent); border-color: var(--accent); }
+.sol-modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.45);
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.sol-modal-overlay.active { display: flex; }
+.sol-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px; width: 90%;
+  max-height: 80vh; overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.sol-modal-close {
+  position: absolute; top: 1rem; right: 1.25rem;
+  background: none; border: none; font-size: 1.1rem;
+  cursor: pointer; color: var(--muted);
+  transition: color 0.15s;
+}
+.sol-modal-close:hover { color: var(--text); }
+.sol-modal h3 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 1rem; padding-right: 2rem; }
+.sol-step {
+  font-size: 0.85rem;
+  line-height: 1.85;
+  margin-bottom: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+}
+.sol-step.highlight { border-left-color: var(--accent); background: var(--faint); border-radius: 0 6px 6px 0; }
+.quiz-submit-row { margin-top: 1.75rem; display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.quiz-submit-btn {
+  padding: 12px 32px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 10px;
+  font-family: var(--font-ui); font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.04em;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 3px 16px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.quiz-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 50%, transparent); }
+.quiz-submit-btn:disabled { opacity: 0.5; pointer-events: none; }
+.quiz-result-msg { font-size: 0.88rem; color: var(--muted); font-family: var(--font-mono); display: none; }
+.completion-banner {
+  display: none;
+  background: var(--bg2);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 14px;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+.completion-banner.show { display: block; animation: fadeUp 0.5s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.completion-banner h3 { font-family: var(--font-display); font-size: 1.6rem; margin-bottom: 0.5rem; }
+.completion-banner p  { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.25rem; }
+.back-home-btn {
+  display: inline-block;
+  padding: 10px 26px;
+  background: var(--accent); color: #fff;
+  border-radius: 8px; text-decoration: none;
+  font-size: 0.85rem; font-weight: 700;
+  transition: transform 0.15s;
+}
+.back-home-btn:hover { transform: translateY(-2px); }
+
+/* responsive */
+@media(max-width: 1180px) {
+  .ch-body { flex-direction: column; }
+  .ch-diagram { width: 100%; position: static; max-height: none; }
+  .ch-diagram canvas { max-height: 240px; width: auto !important; margin: 0 auto; display: block; }
+}
+@media(max-width: 860px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .chapter-nav { left: 0; padding: 0.85rem 1.25rem; }
+  .chapter { padding: 2rem 1.25rem 6rem; }
+  .ch-diagram { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="../index.html">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10 12L6 8l4-4"/>
+    </svg>
+    Back
+  </a>
+  <span class="nav-title">Linear Algebra</span>
+  <div class="nav-right">
+    <span class="nav-progress-text" id="nav-progress">Chapter 1 of 7</span>
+    <div class="theme-dot" onclick="toggleTheme()" title="Toggle theme">☀</div>
+  </div>
+</nav>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progress-fill" style="width:14.28%"></div>
+</div>
+
+<div class="course-shell">
+  <aside class="sidebar">
+    <div class="sidebar-label">Mathematical Methods</div>
+    <div class="sidebar-item active" onclick="goTo(0)" id="sb-0">
+      <span class="s-num">1</span> Introduction
+    </div>
+    <div class="sidebar-item" onclick="goTo(1)" id="sb-1">
+      <span class="s-num">2</span> Vector Spaces
+    </div>
+    <div class="sidebar-item" onclick="goTo(2)" id="sb-2">
+      <span class="s-num">3</span> Linear Transformations
+    </div>
+    <div class="sidebar-item" onclick="goTo(3)" id="sb-3">
+      <span class="s-num">4</span> Eigenvalues &amp; Eigenvectors
+    </div>
+    <div class="sidebar-item" onclick="goTo(4)" id="sb-4">
+      <span class="s-num">5</span> Inner Products &amp; Orthogonality
+    </div>
+    <div class="sidebar-item" onclick="goTo(5)" id="sb-5">
+      <span class="s-num">6</span> Diagonalization &amp; Spectral Theorem
+    </div>
+    <div class="sidebar-item" onclick="goTo(6)" id="sb-6">
+      <span class="s-num">✦</span> Quiz
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="chapters-viewport" id="viewport">
+
+      <!-- ═══ CHAPTER 0 — Introduction ═══ -->
+      <div class="chapter active" id="ch-0">
+        <div class="ch-eyebrow">Mathematical Methods · Linear Algebra</div>
+        <h1 class="ch-title">Introduction to<br/>Linear Algebra</h1>
+        <p class="ch-subtitle">The language of quantum mechanics, electrodynamics, and all of modern physics.</p>
+        <div class="ch-divider"></div>
+
+        <div class="ch-body">
+          <div class="prose">
+            <p>Linear algebra is arguably the single most important mathematical tool in theoretical physics. Every quantum state is a vector. Every observable is a linear operator. Every symmetry is a group acting linearly on a space. Before you can seriously tackle quantum mechanics, you must be fluent in this language.</p>
+
+            <h3>Why does it matter for physics?</h3>
+            <p>In quantum mechanics, states live in a <strong>Hilbert space</strong> — an infinite-dimensional vector space with an inner product. The eigenvalues of the Hamiltonian operator are the energy levels of the system. In classical mechanics, small oscillations around equilibrium are governed by a matrix eigenvalue problem. In electrodynamics, the polarisation states of light form a 2D vector space. The pattern repeats everywhere.</p>
+
+            <div class="callout">
+              <span class="callout-icon">💡</span>
+              <strong>The central idea:</strong> Linear algebra studies <em>linear maps between vector spaces</em> — maps that respect addition and scalar multiplication. Almost all of physics is built on linearity (with small nonlinear corrections).
+            </div>
+
+            <h3>What we will cover</h3>
+            <p>This course has 5 content chapters followed by a 10-question quiz:</p>
+
+            <div class="example-card">
+              <div class="example-header">📚 Course outline</div>
+              <div class="example-body">
+                <p><strong>Chapter 2 — Vector Spaces:</strong> Axioms, subspaces, basis, dimension, span, linear independence.</p>
+                <p><strong>Chapter 3 — Linear Transformations:</strong> Matrices as maps, kernel, image, rank-nullity theorem.</p>
+                <p><strong>Chapter 4 — Eigenvalues &amp; Eigenvectors:</strong> Characteristic equation, diagonalization conditions, physical meaning.</p>
+                <p><strong>Chapter 5 — Inner Products &amp; Orthogonality:</strong> Gram-Schmidt, orthonormal bases, projections, Parseval's theorem.</p>
+                <p><strong>Chapter 6 — Diagonalization &amp; Spectral Theorem:</strong> Hermitian operators, unitary matrices, simultaneous diagonalization — the foundation of quantum mechanics.</p>
+              </div>
+            </div>
+
+            <p>Use the <strong>Next</strong> button at the bottom or click any chapter in the sidebar to navigate. Each chapter builds on the previous one, so it is best to go in order on your first pass.</p>
+          </div>
+
+          <!-- DIAGRAM 0: Topic Roadmap -->
+          <div class="ch-diagram">
+            <div class="diagram-card">
+              <div class="diagram-label">🗺 Course Roadmap</div>
+              <canvas id="diag-0" width="680" height="540" style="height:270px;"></canvas>
+              <div class="diagram-hint">Click any node to jump to that chapter</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHAPTER 1 — Vector Spaces ═══ -->
+      <div class="chapter" id="ch-1">
+        <div class="ch-eyebrow">Chapter 2</div>
+        <h1 class="ch-title">Vector Spaces</h1>
+        <p class="ch-subtitle">The abstract setting where all of linear algebra lives.</p>
+        <div class="ch-divider"></div>
+
+        <div class="ch-body">
+          <div class="prose">
+            <div class="def-box">
+              <div class="def-term">Definition — Vector Space</div>
+              <div class="def-body">A <strong>vector space</strong> \(V\) over a field \(\mathbb{F}\) (usually \(\mathbb{R}\) or \(\mathbb{C}\)) is a set with two operations — vector addition and scalar multiplication — satisfying 8 axioms: closure, associativity, commutativity, identity element \(\mathbf{0}\), inverse \(-\mathbf{v}\), scalar distributivity, vector distributivity, and compatibility.</div>
+            </div>
+
+            <h3>Key concepts</h3>
+
+            <h4>Linear Independence</h4>
+            <p>A set of vectors \(\{\mathbf{v}_1, \ldots, \mathbf{v}_n\}\) is <strong>linearly independent</strong> if the only solution to</p>
+            <div class="eq-box">
+              <div class="eq-label">Definition</div>
+              \[ c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \cdots + c_n \mathbf{v}_n = \mathbf{0} \]
+              is \(c_1 = c_2 = \cdots = c_n = 0\). Otherwise the set is <em>linearly dependent</em>.
+            </div>
+
+            <h4>Basis and Dimension</h4>
+            <p>A <strong>basis</strong> of \(V\) is a linearly independent set that <em>spans</em> \(V\) — every vector in \(V\) can be written as a unique linear combination of basis vectors. The number of basis vectors is the <strong>dimension</strong> \(\dim V\).</p>
+
+            <div class="callout">
+              <span class="callout-icon">⚛️</span>
+              <strong>Physics link:</strong> In quantum mechanics, a complete set of orthonormal eigenstates \(\{|n\rangle\}\) of the Hamiltonian forms a basis for the Hilbert space. The superposition principle is just the statement that any state \(|\psi\rangle = \sum_n c_n |n\rangle\) is a linear combination.
+            </div>
+
+            <h4>Subspace</h4>
+            <p>A subset \(W \subseteq V\) is a <strong>subspace</strong> if it is itself a vector space (closed under addition and scalar multiplication, and contains \(\mathbf{0}\)). The set of all solutions to a homogeneous linear system \(A\mathbf{x}=\mathbf{0}\) is always a subspace — it's called the <em>null space</em> of \(A\).</p>
+
+            <div class="example-card">
+              <div class="example-header">✏️ Example — \(\mathbb{R}^3\)</div>
+              <div class="example-body">
+                <p>The standard basis of \(\mathbb{R}^3\) is \(\{\hat{e}_1, \hat{e}_2, \hat{e}_3\}\) where</p>
+                \[\hat{e}_1 = \begin{pmatrix}1\\0\\0\end{pmatrix},\quad \hat{e}_2 = \begin{pmatrix}0\\1\\0\end{pmatrix},\quad \hat{e}_3 = \begin{pmatrix}0\\0\\1\end{pmatrix}\]
+                <p style="margin-top:0.75rem;">These are linearly independent and span all of \(\mathbb{R}^3\), so \(\dim\mathbb{R}^3 = 3\). Any vector \(\mathbf{r} = x\hat{e}_1 + y\hat{e}_2 + z\hat{e}_3\).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIAGRAM 1: Vector Span Explorer -->
+          <div class="ch-diagram">
+            <div class="diagram-card">
+              <div class="diagram-label">🔵 Vector Span Explorer</div>
+              <canvas id="diag-1" width="680" height="540" style="height:270px;"></canvas>
+              <div class="diagram-controls">
+                <div class="diagram-hint" style="padding:0;border:none;">Drag the vector tips to explore linear independence</div>
+              </div>
+              <div class="diagram-stat" id="stat-1">Independent · det = ?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHAPTER 2 — Linear Transformations ═══ -->
+      <div class="chapter" id="ch-2">
+        <div class="ch-eyebrow">Chapter 3</div>
+        <h1 class="ch-title">Linear Transformations</h1>
+        <p class="ch-subtitle">Matrices are representations of linear maps between vector spaces.</p>
+        <div class="ch-divider"></div>
+
+        <div class="ch-body">
+          <div class="prose">
+            <div class="def-box">
+              <div class="def-term">Definition — Linear Map</div>
+              <div class="def-body">A map \(T: V \to W\) is <strong>linear</strong> if for all \(\mathbf{u},\mathbf{v}\in V\) and \(\alpha\in\mathbb{F}\):
+              \[T(\mathbf{u}+\mathbf{v}) = T\mathbf{u} + T\mathbf{v} \qquad \text{and} \qquad T(\alpha\mathbf{v}) = \alpha T\mathbf{v}\]</div>
+            </div>
+
+            <h3>Matrix Representation</h3>
+            <p>Once you choose bases for \(V\) and \(W\), every linear map \(T: V\to W\) can be represented as a matrix \([T]\). The columns of \([T]\) are the images of the basis vectors of \(V\), expressed in the basis of \(W\).</p>
+
+            <h4>Kernel and Image</h4>
+            <div class="eq-box">
+              <div class="eq-label">Key subspaces</div>
+              \[\ker T = \{\mathbf{v}\in V : T\mathbf{v} = \mathbf{0}\} \qquad \text{(null space)}\]
+              \[\operatorname{im} T = \{T\mathbf{v} : \mathbf{v}\in V\} \qquad \text{(column space)}\]
+            </div>
+
+            <h4>Rank-Nullity Theorem</h4>
+            <p>One of the most important results in linear algebra:</p>
+            <div class="eq-box">
+              <div class="eq-label">Rank-Nullity Theorem</div>
+              \[\dim(\ker T) + \dim(\operatorname{im} T) = \dim V\]
+              \[\text{nullity}(A) + \text{rank}(A) = n \quad \text{(for an } m\times n \text{ matrix)}\]
+            </div>
+
+            <div class="callout">
+              <span class="callout-icon">⚛️</span>
+              <strong>Physics link:</strong> In quantum mechanics, the kernel of \((\hat{H} - E\,\hat{I})\) is the eigenspace of energy \(E\). Its dimension is the <em>degeneracy</em> of that energy level.
+            </div>
+
+            <h3>Change of Basis</h3>
+            <p>If \(P\) is the change-of-basis matrix from old basis to new basis, then a linear operator \(A\) transforms as:</p>
+            <div class="eq-box">
+              <div class="eq-label">Similarity transformation</div>
+              \[A' = P^{-1} A P\]
+            </div>
+            <p>Two matrices related by a similarity transformation represent the <em>same linear map</em> in different bases. They share the same eigenvalues, trace, and determinant.</p>
+          </div>
+
+          <!-- DIAGRAM 2: Matrix Grid Transformer -->
+          <div class="ch-diagram">
+            <div class="diagram-card">
+              <div class="diagram-label">🔀 Matrix Transformer</div>
+              <canvas id="diag-2" width="680" height="540" style="height:270px;"></canvas>
+              <div class="diagram-controls">
+                <div class="ctrl-row">
+                  <label>a</label>
+                  <input type="range" id="m2a" min="-2.5" max="2.5" step="0.1" value="1.5"/>
+                  <span class="ctrl-val" id="v2a">1.5</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>b</label>
+                  <input type="range" id="m2b" min="-2.5" max="2.5" step="0.1" value="0.5"/>
+                  <span class="ctrl-val" id="v2b">0.5</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>c</label>
+                  <input type="range" id="m2c" min="-2.5" max="2.5" step="0.1" value="-0.5"/>
+                  <span class="ctrl-val" id="v2c">-0.5</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>d</label>
+                  <input type="range" id="m2d" min="-2.5" max="2.5" step="0.1" value="2"/>
+                  <span class="ctrl-val" id="v2d">2.0</span>
+                </div>
+              </div>
+              <div class="diagram-stat" id="stat-2">det = ?  ·  rank = ?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHAPTER 3 — Eigenvalues ═══ -->
+      <div class="chapter" id="ch-3">
+        <div class="ch-eyebrow">Chapter 4</div>
+        <h1 class="ch-title">Eigenvalues &<br/>Eigenvectors</h1>
+        <p class="ch-subtitle">The most important computation in all of theoretical physics.</p>
+        <div class="ch-divider"></div>
+
+        <div class="ch-body">
+          <div class="prose">
+            <div class="def-box">
+              <div class="def-term">Definition — Eigenvector</div>
+              <div class="def-body">A non-zero vector \(\mathbf{v}\) is an <strong>eigenvector</strong> of \(A\) with <strong>eigenvalue</strong> \(\lambda\) if \[A\mathbf{v} = \lambda\mathbf{v}\]</div>
+            </div>
+
+            <h3>The Characteristic Equation</h3>
+            <p>Rearranging: \((A - \lambda I)\mathbf{v} = \mathbf{0}\). For non-trivial solutions, the matrix \((A-\lambda I)\) must be singular:</p>
+            <div class="eq-box">
+              <div class="eq-label">Characteristic equation</div>
+              \[\det(A - \lambda I) = 0\]
+              This is an \(n\)-th degree polynomial in \(\lambda\) — the <strong>characteristic polynomial</strong> of \(A\). Its roots are the eigenvalues.
+            </div>
+
+            <h4>Trace and Determinant Relations</h4>
+            <div class="eq-box">
+              <div class="eq-label">Key identities</div>
+              \[\operatorname{tr}(A) = \sum_i \lambda_i \qquad \det(A) = \prod_i \lambda_i\]
+            </div>
+
+            <h3>Physical Meaning</h3>
+            <div class="callout">
+              <span class="callout-icon">⚛️</span>
+              <strong>Quantum mechanics:</strong> The eigenvalue equation \(\hat{H}|\psi\rangle = E|\psi\rangle\) is the time-independent Schrödinger equation. The eigenvalues \(E\) are the allowed energy levels. The eigenvectors \(|\psi\rangle\) are the stationary states.
+            </div>
+
+            <div class="example-card">
+              <div class="example-header">✏️ Example — \(2\times 2\) matrix</div>
+              <div class="example-body">
+                <p>Find the eigenvalues of \(A = \begin{pmatrix}3&1\\1&3\end{pmatrix}\).</p>
+                \[\det\begin{pmatrix}3-\lambda&1\\1&3-\lambda\end{pmatrix}=(3-\lambda)^2-1=0\]
+                \[(3-\lambda)^2=1 \implies \lambda = 2 \text{ or } \lambda = 4\]
+                <p style="margin-top:0.6rem;">Eigenvectors: for \(\lambda=4\), \(\mathbf{v} = \tfrac{1}{\sqrt{2}}(1,1)^T\); for \(\lambda=2\), \(\mathbf{v} = \tfrac{1}{\sqrt{2}}(1,-1)^T\).</p>
+              </div>
+            </div>
+
+            <h3>Algebraic vs Geometric Multiplicity</h3>
+            <p>The <strong>algebraic multiplicity</strong> of \(\lambda\) is its multiplicity as a root of \(\det(A-\lambda I)=0\). The <strong>geometric multiplicity</strong> is \(\dim\ker(A-\lambda I)\) — the number of linearly independent eigenvectors. A matrix is <em>diagonalisable</em> if and only if the geometric multiplicity equals the algebraic multiplicity for every eigenvalue.</p>
+          </div>
+
+          <!-- DIAGRAM 3: Eigenvector Visualizer -->
+          <div class="ch-diagram">
+            <div class="diagram-card">
+              <div class="diagram-label">🔴 Eigenvector Visualizer</div>
+              <canvas id="diag-3" width="680" height="540" style="height:270px;"></canvas>
+              <div class="diagram-controls">
+                <div class="ctrl-row">
+                  <label>a</label>
+                  <input type="range" id="m3a" min="-3" max="3" step="0.1" value="2"/>
+                  <span class="ctrl-val" id="v3a">2.0</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>b</label>
+                  <input type="range" id="m3b" min="-2" max="2" step="0.1" value="1"/>
+                  <span class="ctrl-val" id="v3b">1.0</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>d</label>
+                  <input type="range" id="m3d" min="-3" max="3" step="0.1" value="1"/>
+                  <span class="ctrl-val" id="v3d">1.0</span>
+                </div>
+              </div>
+              <div class="diagram-stat" id="stat-3">λ₁ = ?  ·  λ₂ = ?</div>
+            </div>
+            <div class="diagram-card" style="padding:0.85rem 1rem; font-family:var(--font-mono); font-size:0.68rem; color:var(--muted); line-height:1.8; background:var(--bg2); border:1px solid var(--border); border-radius:12px;">
+              Matrix A = [[a, b], [b, d]] (symmetric).<br/>
+              <span style="color:var(--accent)">Blue</span> = unit circle.<br/>
+              <span style="color:#f59e0b">Orange</span> = image A·v.<br/>
+              <span style="color:#22c55e">Green</span> = eigenvectors.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHAPTER 4 — Inner Products ═══ -->
+      <div class="chapter" id="ch-4">
+        <div class="ch-eyebrow">Chapter 5</div>
+        <h1 class="ch-title">Inner Products &<br/>Orthogonality</h1>
+        <p class="ch-subtitle">Geometry, length, and angles — in any vector space.</p>
+        <div class="ch-divider"></div>
+
+        <div class="ch-body">
+          <div class="prose">
+            <div class="def-box">
+              <div class="def-term">Definition — Inner Product</div>
+              <div class="def-body">An <strong>inner product</strong> \(\langle\cdot,\cdot\rangle: V\times V \to \mathbb{C}\) satisfies: conjugate symmetry \(\langle u,v\rangle = \overline{\langle v,u\rangle}\), linearity in second argument, and positive definiteness \(\langle v,v\rangle \geq 0\) with equality iff \(v=0\). A vector space with an inner product is an <strong>inner product space</strong> (if complete: a <em>Hilbert space</em>).</div>
+            </div>
+
+            <h4>Orthogonality and Norm</h4>
+            <div class="eq-box">
+              <div class="eq-label">Norm and orthogonality</div>
+              \[\|\mathbf{v}\| = \sqrt{\langle\mathbf{v},\mathbf{v}\rangle}\]
+              \[\mathbf{u}\perp\mathbf{v} \iff \langle\mathbf{u},\mathbf{v}\rangle = 0\]
+            </div>
+
+            <h3>Gram-Schmidt Process</h3>
+            <p>Given any basis \(\{\mathbf{v}_1,\ldots,\mathbf{v}_n\}\), Gram-Schmidt produces an orthonormal basis \(\{\mathbf{e}_1,\ldots,\mathbf{e}_n\}\):</p>
+            <div class="eq-box">
+              <div class="eq-label">Gram-Schmidt</div>
+              \[\mathbf{u}_k = \mathbf{v}_k - \sum_{j=1}^{k-1}\frac{\langle\mathbf{v}_k,\mathbf{u}_j\rangle}{\langle\mathbf{u}_j,\mathbf{u}_j\rangle}\,\mathbf{u}_j, \qquad \mathbf{e}_k = \frac{\mathbf{u}_k}{\|\mathbf{u}_k\|}\]
+            </div>
+
+            <h4>Projection</h4>
+            <p>The orthogonal projection of \(\mathbf{v}\) onto a subspace \(W\) with orthonormal basis \(\{\mathbf{e}_i\}\):</p>
+            <div class="eq-box">
+              <div class="eq-label">Projection formula</div>
+              \[\text{proj}_W\mathbf{v} = \sum_i \langle\mathbf{e}_i,\mathbf{v}\rangle\,\mathbf{e}_i\]
+            </div>
+
+            <div class="callout">
+              <span class="callout-icon">⚛️</span>
+              <strong>Dirac notation:</strong> In quantum mechanics \(\langle\phi|\psi\rangle\) is the inner product. The probability amplitude of measuring state \(|n\rangle\) given system in state \(|\psi\rangle\) is \(\langle n|\psi\rangle\). The completeness relation \(\sum_n |n\rangle\langle n| = \hat{I}\) is just the projection formula written in Dirac notation.
+            </div>
+
+            <h4>Cauchy-Schwarz Inequality</h4>
+            <div class="eq-box">
+              <div class="eq-label">Cauchy-Schwarz</div>
+              \[|\langle\mathbf{u},\mathbf{v}\rangle|^2 \leq \langle\mathbf{u},\mathbf{u}\rangle\,\langle\mathbf{v},\mathbf{v}\rangle\]
+            </div>
+            <p>In quantum mechanics, combined with the Robertson uncertainty relation, this is the mathematical origin of the <strong>Heisenberg Uncertainty Principle</strong>.</p>
+          </div>
+
+          <!-- DIAGRAM 4: Projection / Gram-Schmidt -->
+          <div class="ch-diagram">
+            <div class="diagram-card">
+              <div class="diagram-label">📐 Projection Explorer</div>
+              <canvas id="diag-4" width="680" height="540" style="height:270px;"></canvas>
+              <div class="diagram-stat" id="stat-4">⟨u,v⟩ = ?  ·  θ = ?°</div>
+            </div>
+            <div class="diagram-card">
+              <div class="diagram-label">⟂ Gram-Schmidt Steps</div>
+              <canvas id="diag-4b" width="680" height="400" style="height:200px;"></canvas>
+              <div class="diagram-hint">Shows orthogonalization of u, v into e₁, e₂</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHAPTER 5 — Diagonalization ═══ -->
+      <div class="chapter" id="ch-5">
+        <div class="ch-eyebrow">Chapter 6</div>
+        <h1 class="ch-title">Diagonalization &<br/>Spectral Theorem</h1>
+        <p class="ch-subtitle">The crown jewel — and the mathematical heart of quantum mechanics.</p>
+        <div class="ch-divider"></div>
+
+        <div class="ch-body">
+          <div class="prose">
+            <h3>Diagonalization</h3>
+            <p>An \(n\times n\) matrix \(A\) is <strong>diagonalisable</strong> if there exists an invertible matrix \(P\) such that:</p>
+            <div class="eq-box">
+              <div class="eq-label">Diagonalization</div>
+              \[A = P\,D\,P^{-1}\]
+              where \(D = \operatorname{diag}(\lambda_1,\ldots,\lambda_n)\) and the columns of \(P\) are the eigenvectors of \(A\).
+            </div>
+            <p>This is useful because \(A^n = P\,D^n\,P^{-1}\) and \(e^A = P\,e^D\,P^{-1}\), making matrix powers and functions easy to compute.</p>
+
+            <h3>Hermitian Operators</h3>
+            <div class="def-box">
+              <div class="def-term">Hermitian (self-adjoint) operator</div>
+              <div class="def-body">An operator \(A\) is <strong>Hermitian</strong> if \(A = A^\dagger\), where \(A^\dagger = \overline{A^T}\) (conjugate transpose). In Dirac notation: \(\langle\phi|A|\psi\rangle = \langle\psi|A|\phi\rangle^*\).</div>
+            </div>
+
+            <h4>Properties of Hermitian operators</h4>
+            <div class="callout">
+              <span class="callout-icon">⚛️</span>
+              <strong>1.</strong> All eigenvalues of a Hermitian operator are <em>real</em>.<br/>
+              <strong>2.</strong> Eigenvectors belonging to distinct eigenvalues are <em>orthogonal</em>.<br/>
+              <strong>3.</strong> The eigenvectors form a <em>complete orthonormal basis</em> — this is the Spectral Theorem.
+            </div>
+
+            <h3>The Spectral Theorem</h3>
+            <div class="eq-box">
+              <div class="eq-label">Spectral decomposition</div>
+              \[A = \sum_i \lambda_i\,|\mathbf{e}_i\rangle\langle\mathbf{e}_i| = \sum_i \lambda_i\,P_i\]
+              where \(P_i = |\mathbf{e}_i\rangle\langle\mathbf{e}_i|\) are orthogonal projection operators, \(P_i^2=P_i\), \(P_i P_j = \delta_{ij}P_i\), and \(\sum_i P_i = I\).
+            </div>
+
+            <h3>Unitary Matrices</h3>
+            <p>A matrix \(U\) is <strong>unitary</strong> if \(U^\dagger U = UU^\dagger = I\), i.e. \(U^{-1}=U^\dagger\). Unitary matrices preserve inner products and have eigenvalues of unit modulus \(|\lambda|=1\). Time evolution in quantum mechanics, \(|\psi(t)\rangle = e^{-i\hat{H}t/\hbar}|\psi(0)\rangle\), is generated by a unitary operator because \(\hat{H}\) is Hermitian.</p>
+
+            <div class="eq-box">
+              <div class="eq-label">Unitary diagonalization of Hermitian operators</div>
+              \[A = U\,D\,U^\dagger, \qquad D = \operatorname{diag}(\lambda_1,\ldots,\lambda_n)\in\mathbb{R}^{n\times n}\]
+              where \(U\) is unitary and the \(\lambda_i\) are real eigenvalues.
+            </div>
+          </div>
+
+          <!-- DIAGRAM 5: Spectral Decomposition -->
+          <div class="ch-diagram">
+            <div class="diagram-card">
+              <div class="diagram-label">✦ Spectral Decomposition</div>
+              <canvas id="diag-5" width="680" height="540" style="height:270px;"></canvas>
+              <div class="diagram-controls">
+                <div class="ctrl-row">
+                  <label>a</label>
+                  <input type="range" id="m5a" min="-3" max="3" step="0.1" value="2"/>
+                  <span class="ctrl-val" id="v5a">2.0</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>b</label>
+                  <input type="range" id="m5b" min="-2" max="2" step="0.1" value="1"/>
+                  <span class="ctrl-val" id="v5b">1.0</span>
+                </div>
+                <div class="ctrl-row">
+                  <label>d</label>
+                  <input type="range" id="m5d" min="-3" max="3" step="0.1" value="-1"/>
+                  <span class="ctrl-val" id="v5d">-1.0</span>
+                </div>
+              </div>
+              <div class="diagram-stat" id="stat-5">λ₁ = ?  ·  λ₂ = ?</div>
+            </div>
+            <div class="diagram-card" style="padding:0.85rem 1rem; font-family:var(--font-mono); font-size:0.68rem; color:var(--muted); line-height:1.8;">
+              A = λ₁P₁ + λ₂P₂<br/>
+              <span style="color:#22c55e">Green</span> = eigenvector e₁ (P₁ axis)<br/>
+              <span style="color:#f59e0b">Orange</span> = eigenvector e₂ (P₂ axis)<br/>
+              Ellipse = image of unit circle under A.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHAPTER 6 — QUIZ ═══ -->
+      <div class="chapter" id="ch-6">
+        <div class="ch-eyebrow">End-of-chapter assessment</div>
+        <h1 class="ch-title">Linear Algebra Quiz</h1>
+        <p class="ch-subtitle">10 questions · MCQ · Instant feedback · Show-how solutions</p>
+        <div class="ch-divider"></div>
+
+        <div class="quiz-section">
+          <div class="quiz-header">
+            <div class="quiz-title-block">
+              <h2>Chapter Quiz</h2>
+              <p>Select one answer per question, then click Submit.</p>
+            </div>
+            <div class="quiz-score-display" id="quiz-score-display"></div>
+          </div>
+
+          <div class="q-card" id="qc1">
+            <div class="q-meta"><span class="q-num">Q 01 / 10</span><span class="q-topic">Vector Spaces</span></div>
+            <div class="q-text">Which of the following is NOT a vector space over \(\mathbb{R}\)?</div>
+            <div class="options" id="opts1">
+              <label class="opt"><input type="radio" name="q1" value="A"> A) &nbsp; The set of all \(2\times 2\) real matrices</label>
+              <label class="opt"><input type="radio" name="q1" value="B"> B) &nbsp; The set of all polynomials of degree \(\leq 3\)</label>
+              <label class="opt"><input type="radio" name="q1" value="C"> C) &nbsp; The set of all \(n\times n\) invertible matrices</label>
+              <label class="opt"><input type="radio" name="q1" value="D"> D) &nbsp; The set of solutions to \(A\mathbf{x}=\mathbf{0}\)</label>
+            </div>
+            <div class="q-result-row" id="res1"></div>
+          </div>
+
+          <div class="q-card" id="qc2">
+            <div class="q-meta"><span class="q-num">Q 02 / 10</span><span class="q-topic">Basis & Dimension</span></div>
+            <div class="q-text">If \(V\) has dimension \(n\) and \(W\subset V\) is a subspace with \(\dim W = n\), then:</div>
+            <div class="options" id="opts2">
+              <label class="opt"><input type="radio" name="q2" value="A"> A) &nbsp; \(W\) must be the zero subspace</label>
+              <label class="opt"><input type="radio" name="q2" value="B"> B) &nbsp; \(W = V\)</label>
+              <label class="opt"><input type="radio" name="q2" value="C"> C) &nbsp; \(W\) cannot be a subspace of \(V\)</label>
+              <label class="opt"><input type="radio" name="q2" value="D"> D) &nbsp; \(W\) is linearly dependent</label>
+            </div>
+            <div class="q-result-row" id="res2"></div>
+          </div>
+
+          <div class="q-card" id="qc3">
+            <div class="q-meta"><span class="q-num">Q 03 / 10</span><span class="q-topic">Rank-Nullity</span></div>
+            <div class="q-text">A linear map \(T:\mathbb{R}^7\to\mathbb{R}^4\) has \(\dim(\ker T)=3\). What is \(\text{rank}(T)\)?</div>
+            <div class="options" id="opts3">
+              <label class="opt"><input type="radio" name="q3" value="A"> A) &nbsp; 1</label>
+              <label class="opt"><input type="radio" name="q3" value="B"> B) &nbsp; 3</label>
+              <label class="opt"><input type="radio" name="q3" value="C"> C) &nbsp; 4</label>
+              <label class="opt"><input type="radio" name="q3" value="D"> D) &nbsp; 7</label>
+            </div>
+            <div class="q-result-row" id="res3"></div>
+          </div>
+
+          <div class="q-card" id="qc4">
+            <div class="q-meta"><span class="q-num">Q 04 / 10</span><span class="q-topic">Eigenvalues</span></div>
+            <div class="q-text">The eigenvalues of \(A = \begin{pmatrix}0&-1\\1&0\end{pmatrix}\) are:</div>
+            <div class="options" id="opts4">
+              <label class="opt"><input type="radio" name="q4" value="A"> A) &nbsp; \(0\) and \(1\)</label>
+              <label class="opt"><input type="radio" name="q4" value="B"> B) &nbsp; \(+1\) and \(-1\)</label>
+              <label class="opt"><input type="radio" name="q4" value="C"> C) &nbsp; \(+i\) and \(-i\)</label>
+              <label class="opt"><input type="radio" name="q4" value="D"> D) &nbsp; \(+2\) and \(-2\)</label>
+            </div>
+            <div class="q-result-row" id="res4"></div>
+          </div>
+
+          <div class="q-card" id="qc5">
+            <div class="q-meta"><span class="q-num">Q 05 / 10</span><span class="q-topic">Trace & Det</span></div>
+            <div class="q-text">A \(3\times3\) matrix has eigenvalues \(1, 2, 3\). Its determinant is:</div>
+            <div class="options" id="opts5">
+              <label class="opt"><input type="radio" name="q5" value="A"> A) &nbsp; \(6\)</label>
+              <label class="opt"><input type="radio" name="q5" value="B"> B) &nbsp; \(9\)</label>
+              <label class="opt"><input type="radio" name="q5" value="C"> C) &nbsp; \(5\)</label>
+              <label class="opt"><input type="radio" name="q5" value="D"> D) &nbsp; \(1\)</label>
+            </div>
+            <div class="q-result-row" id="res5"></div>
+          </div>
+
+          <div class="q-card" id="qc6">
+            <div class="q-meta"><span class="q-num">Q 06 / 10</span><span class="q-topic">Inner Products</span></div>
+            <div class="q-text">In a complex inner product space, \(\langle\mathbf{u},\mathbf{v}\rangle = 3+4i\). Then \(\langle\mathbf{v},\mathbf{u}\rangle =\)</div>
+            <div class="options" id="opts6">
+              <label class="opt"><input type="radio" name="q6" value="A"> A) &nbsp; \(3+4i\)</label>
+              <label class="opt"><input type="radio" name="q6" value="B"> B) &nbsp; \(3-4i\)</label>
+              <label class="opt"><input type="radio" name="q6" value="C"> C) &nbsp; \(-3+4i\)</label>
+              <label class="opt"><input type="radio" name="q6" value="D"> D) &nbsp; \(-3-4i\)</label>
+            </div>
+            <div class="q-result-row" id="res6"></div>
+          </div>
+
+          <div class="q-card" id="qc7">
+            <div class="q-meta"><span class="q-num">Q 07 / 10</span><span class="q-topic">Hermitian Operators</span></div>
+            <div class="q-text">Which statement about a Hermitian operator \(\hat{A}\) is FALSE?</div>
+            <div class="options" id="opts7">
+              <label class="opt"><input type="radio" name="q7" value="A"> A) &nbsp; Its eigenvalues are real</label>
+              <label class="opt"><input type="radio" name="q7" value="B"> B) &nbsp; Its eigenvectors for distinct eigenvalues are orthogonal</label>
+              <label class="opt"><input type="radio" name="q7" value="C"> C) &nbsp; Its eigenvalues can be complex</label>
+              <label class="opt"><input type="radio" name="q7" value="D"> D) &nbsp; It can be diagonalized by a unitary matrix</label>
+            </div>
+            <div class="q-result-row" id="res7"></div>
+          </div>
+
+          <div class="q-card" id="qc8">
+            <div class="q-meta"><span class="q-num">Q 08 / 10</span><span class="q-topic">Unitary Matrices</span></div>
+            <div class="q-text">If \(U\) is unitary, which relation is correct?</div>
+            <div class="options" id="opts8">
+              <label class="opt"><input type="radio" name="q8" value="A"> A) &nbsp; \(U^T = U\)</label>
+              <label class="opt"><input type="radio" name="q8" value="B"> B) &nbsp; \(U^\dagger = U^{-1}\)</label>
+              <label class="opt"><input type="radio" name="q8" value="C"> C) &nbsp; \(\det U = 0\)</label>
+              <label class="opt"><input type="radio" name="q8" value="D"> D) &nbsp; \(U = U^{-1}\)</label>
+            </div>
+            <div class="q-result-row" id="res8"></div>
+          </div>
+
+          <div class="q-card" id="qc9">
+            <div class="q-meta"><span class="q-num">Q 09 / 10</span><span class="q-topic">Spectral Theorem</span></div>
+            <div class="q-text">The spectral decomposition of a Hermitian operator is \(A = \sum_i \lambda_i P_i\), where \(P_i\) are projection operators. Which property do the \(P_i\) satisfy?</div>
+            <div class="options" id="opts9">
+              <label class="opt"><input type="radio" name="q9" value="A"> A) &nbsp; \(P_i P_j = \lambda_i \delta_{ij}\)</label>
+              <label class="opt"><input type="radio" name="q9" value="B"> B) &nbsp; \(\sum_i P_i = 0\)</label>
+              <label class="opt"><input type="radio" name="q9" value="C"> C) &nbsp; \(P_i^2 = P_i\) and \(\sum_i P_i = I\)</label>
+              <label class="opt"><input type="radio" name="q9" value="D"> D) &nbsp; \(P_i = P_i^\dagger\) only if \(\lambda_i > 0\)</label>
+            </div>
+            <div class="q-result-row" id="res9"></div>
+          </div>
+
+          <div class="q-card" id="qc10">
+            <div class="q-meta"><span class="q-num">Q 10 / 10</span><span class="q-topic">Gram-Schmidt</span></div>
+            <div class="q-text">The Gram-Schmidt process applied to a linearly independent set produces:</div>
+            <div class="options" id="opts10">
+              <label class="opt"><input type="radio" name="q10" value="A"> A) &nbsp; A set of eigenvectors</label>
+              <label class="opt"><input type="radio" name="q10" value="B"> B) &nbsp; An orthonormal basis for the same span</label>
+              <label class="opt"><input type="radio" name="q10" value="C"> C) &nbsp; A larger linearly independent set</label>
+              <label class="opt"><input type="radio" name="q10" value="D"> D) &nbsp; The null space of the original matrix</label>
+            </div>
+            <div class="q-result-row" id="res10"></div>
+          </div>
+
+          <div class="quiz-submit-row">
+            <button class="quiz-submit-btn" id="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+            <span class="quiz-result-msg" id="quiz-result-msg"></span>
+          </div>
+
+          <div class="completion-banner" id="completion-banner">
+            <div style="font-size:2.5rem;margin-bottom:0.5rem;">🎓</div>
+            <h3>Linear Algebra Complete!</h3>
+            <p id="completion-text">You've finished the Linear Algebra module. Ready for the next topic?</p>
+            <a href="../index.html#learn" class="back-home-btn">← Back to Course List</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end viewport -->
+  </main>
+</div><!-- end shell -->
+
+<!-- BOTTOM NAV -->
+<div class="chapter-nav" id="chapter-nav">
+  <button class="ch-nav-btn" id="btn-prev" onclick="navigate(-1)" disabled>← Prev</button>
+  <div class="ch-nav-dots" id="nav-dots"></div>
+  <button class="ch-nav-btn primary" id="btn-next" onclick="navigate(1)">Next →</button>
+</div>
+
+<!-- SOLUTION MODAL -->
+<div class="sol-modal-overlay" id="sol-modal">
+  <div class="sol-modal">
+    <button class="sol-modal-close" onclick="closeSolution()">✕</button>
+    <h3 id="sol-title">Solution</h3>
+    <div id="sol-body"></div>
+  </div>
+</div>
+
+<script>
+// ── Theme ──
+(function(){
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.documentElement.classList.add('dark');
+})();
+function toggleTheme(){
+  const dark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  document.querySelector('.theme-dot').textContent = dark ? '🌙' : '☀';
+  // redraw all diagrams for new theme colours
+  setTimeout(() => { drawAll(); }, 60);
+}
+document.querySelector('.theme-dot').textContent =
+  document.documentElement.classList.contains('dark') ? '🌙' : '☀';
+
+// ── Chapter navigation ──
+const TOTAL = 7;
+let current = 0;
+let visited = new Set([0]);
+
+function buildDots(){
+  const wrap = document.getElementById('nav-dots');
+  wrap.innerHTML = '';
+  for(let i=0;i<TOTAL;i++){
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i===current?' active':'');
+    d.onclick = ()=>goTo(i);
+    d.title = i===6?'Quiz':`Chapter ${i+1}`;
+    wrap.appendChild(d);
+  }
+}
+
+function updateUI(){
+  const pct = ((current+1)/TOTAL*100).toFixed(1);
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('nav-progress').textContent =
+    current===6 ? 'Quiz' : `Chapter ${current+1} of ${TOTAL-1}`;
+  document.getElementById('btn-prev').disabled = current===0;
+  const nextBtn = document.getElementById('btn-next');
+  if(current===6){
+    nextBtn.textContent = 'Done ✓';
+    nextBtn.onclick = ()=>{ window.location.href='../index.html#learn'; };
+  } else {
+    nextBtn.textContent = current===5 ? 'Take Quiz →' : 'Next →';
+    nextBtn.onclick = ()=>navigate(1);
+  }
+  buildDots();
+  for(let i=0;i<TOTAL;i++){
+    const el = document.getElementById('sb-'+i);
+    if(!el) continue;
+    el.classList.toggle('active', i===current);
+    el.classList.toggle('done', visited.has(i) && i!==current);
+  }
+}
+
+function goTo(idx){
+  if(idx<0||idx>=TOTAL) return;
+  if(idx===current) return;
+  const from = document.getElementById('ch-'+current);
+  const to   = document.getElementById('ch-'+idx);
+  from.classList.remove('active');
+  from.classList.add('exit-left');
+  setTimeout(()=> from.classList.remove('exit-left'), 500);
+  to.style.transform = idx>current?'translateX(60px)':'translateX(-60px)';
+  to.style.opacity = '0';
+  to.style.position = 'absolute';
+  to.getBoundingClientRect();
+  to.classList.add('active');
+  to.style.transform = '';
+  to.style.opacity = '';
+  to.style.position = '';
+  current = idx;
+  visited.add(idx);
+  updateUI();
+  document.querySelector('.main-content').scrollTop = 0;
+  window.scrollTo(0,0);
+  if(window.MathJax) MathJax.typesetPromise([to]);
+  // redraw the diagram for the new chapter
+  setTimeout(() => { drawAll(); }, 60);
+}
+
+function navigate(dir){ goTo(current+dir); }
+
+// ── Quiz logic ──
+const ANSWERS = {
+  q1:'C', q2:'B', q3:'C', q4:'C', q5:'A',
+  q6:'B', q7:'C', q8:'B', q9:'C', q10:'B'
+};
+
+const SOLUTIONS = {
+  q1:{ title:'Vector space — invertible matrices', steps:[
+    {t:'The set of invertible matrices is NOT closed under addition.', hl:true},
+    {t:'Counterexample: \\(I + (-I) = 0\\), and the zero matrix is not invertible.'},
+    {t:'A vector space must contain the zero element, and the sum of any two elements must stay in the set.'},
+    {t:'All other options satisfy the vector space axioms.'},
+  ]},
+  q2:{ title:'Dimension of a subspace', steps:[
+    {t:'If \\(\\dim W = \\dim V = n\\), then \\(W\\) has \\(n\\) linearly independent vectors.', hl:true},
+    {t:'But \\(V\\) itself has dimension \\(n\\), so any \\(n\\) linearly independent vectors in \\(V\\) span \\(V\\).'},
+    {t:'Therefore \\(W = V\\).'},
+  ]},
+  q3:{ title:'Rank-Nullity Theorem', steps:[
+    {t:'Rank-Nullity: \\(\\dim(\\ker T) + \\text{rank}(T) = \\dim(\\text{domain}) = 7\\)', hl:true},
+    {t:'Given \\(\\dim(\\ker T) = 3\\).'},
+    {t:'\\(\\text{rank}(T) = 7 - 3 = 4\\).'},
+    {t:'Also check: \\(T:\\mathbb{R}^7\\to\\mathbb{R}^4\\), so rank cannot exceed 4 — consistent.'},
+  ]},
+  q4:{ title:'Eigenvalues of a rotation matrix', steps:[
+    {t:'Characteristic equation: \\(\\det(A-\\lambda I) = \\lambda^2 + 1 = 0\\)', hl:true},
+    {t:'\\(\\lambda^2 = -1 \\implies \\lambda = \\pm i\\)'},
+    {t:'Real rotations have no real eigenvectors, but complex eigenvalues \\(\\pm i\\).'},
+  ]},
+  q5:{ title:'Determinant = product of eigenvalues', steps:[
+    {t:'\\(\\det(A) = \\prod_i \\lambda_i\\)', hl:true},
+    {t:'\\(\\det(A) = 1 \\times 2 \\times 3 = 6\\)'},
+    {t:'Also: \\(\\text{tr}(A) = 1+2+3=6\\). Both are basis-independent invariants.'},
+  ]},
+  q6:{ title:'Conjugate symmetry of inner product', steps:[
+    {t:'In a complex inner product space: \\(\\langle u,v\\rangle = \\overline{\\langle v,u\\rangle}\\)', hl:true},
+    {t:'So \\(\\langle v,u\\rangle = \\overline{\\langle u,v\\rangle} = \\overline{3+4i} = 3-4i\\)'},
+  ]},
+  q7:{ title:'Properties of Hermitian operators', steps:[
+    {t:'Statement C is FALSE: eigenvalues of Hermitian operators are always REAL.', hl:true},
+    {t:'Proof: Let \\(A\\mathbf{v}=\\lambda\\mathbf{v}\\). Then \\(\\langle\\mathbf{v}|A|\\mathbf{v}\\rangle = \\lambda\\|v\\|^2\\).'},
+    {t:'Since \\(A=A^\\dagger\\): \\(\\langle\\mathbf{v}|A|\\mathbf{v}\\rangle = \\bar{\\lambda}\\|v\\|^2\\). Therefore \\(\\lambda\\in\\mathbb{R}\\).'},
+  ]},
+  q8:{ title:'Definition of a unitary matrix', steps:[
+    {t:'A unitary matrix satisfies \\(U^\\dagger U = I\\), i.e. \\(U^{-1} = U^\\dagger\\)', hl:true},
+    {t:'Option A is for symmetric matrices, not unitary.'},
+    {t:'Option C is wrong: \\(|\\det U|=1\\neq 0\\) (unitary matrices are invertible).'},
+  ]},
+  q9:{ title:'Projection operators in the spectral theorem', steps:[
+    {t:'\\(P_i^2 = P_i\\) (idempotent), \\(P_iP_j=\\delta_{ij}P_i\\) (orthogonal), and \\(\\sum_i P_i = I\\) (completeness).', hl:true},
+    {t:'These are the defining properties of a complete set of orthogonal projections.'},
+  ]},
+  q10:{ title:'Gram-Schmidt process', steps:[
+    {t:'Gram-Schmidt takes a linearly independent set and produces an orthonormal basis for the SAME span.', hl:true},
+    {t:'Key: the span does not change — you are just reorganising the basis to be orthogonal.'},
+    {t:'Step 1: subtract off projections. Step 2: normalise each vector.'},
+  ]}
+};
+
+function submitQuiz(){
+  let score = 0;
+  for(let n=1;n<=10;n++){
+    const sel = document.querySelector(`input[name="q${n}"]:checked`);
+    const card = document.getElementById(`qc${n}`);
+    const resDiv = document.getElementById(`res${n}`);
+    const opts = document.querySelectorAll(`#opts${n} .opt`);
+    opts.forEach(o=>{ o.style.pointerEvents='none'; });
+    resDiv.style.display = 'flex';
+    const correct = ANSWERS[`q${n}`];
+    if(!sel){
+      resDiv.innerHTML = `<span class="q-badge bad">Unanswered</span>`;
+      card.classList.add('wrong');
+      continue;
+    }
+    const chosen = sel.value;
+    opts.forEach(o=>{
+      const v = o.querySelector('input').value;
+      if(v===correct) o.classList.add('reveal-correct');
+      if(v===chosen && chosen!==correct) o.classList.add('selected-wrong');
+      if(v===chosen && chosen===correct) o.classList.add('selected-correct');
+    });
+    if(chosen===correct){
+      score++;
+      card.classList.add('correct');
+      resDiv.innerHTML = `<span class="q-badge ok">✓ Correct</span><button class="show-how-btn" onclick="showSolution('q${n}')">Show how</button>`;
+    } else {
+      card.classList.add('wrong');
+      resDiv.innerHTML = `<span class="q-badge bad">✗ Wrong</span><button class="show-how-btn" onclick="showSolution('q${n}')">Show how</button>`;
+    }
+  }
+  document.getElementById('submit-btn').disabled = true;
+  const msg = document.getElementById('quiz-result-msg');
+  msg.style.display = 'inline';
+  const disp = document.getElementById('quiz-score-display');
+  disp.style.display = 'block';
+  const pct = Math.round(score/10*100);
+  disp.textContent = `${score}/10`;
+  msg.textContent = pct>=80 ? `🎉 Excellent! ${pct}%` : pct>=60 ? `👍 Good — ${pct}%` : `📖 Review needed — ${pct}%`;
+  const banner = document.getElementById('completion-banner');
+  banner.classList.add('show');
+  document.getElementById('completion-text').textContent =
+    `You scored ${score}/10 (${pct}%). ${pct>=80?'Outstanding work!':'Review the solutions above, then move on.'}`;
+  if(window.MathJax) MathJax.typesetPromise([document.getElementById('ch-6')]);
+}
+
+function showSolution(qid){
+  const s = SOLUTIONS[qid];
+  document.getElementById('sol-title').textContent = s.title;
+  document.getElementById('sol-body').innerHTML = s.steps.map(st=>
+    `<div class="sol-step${st.hl?' highlight':''}">${st.t}</div>`
+  ).join('');
+  document.getElementById('sol-modal').classList.add('active');
+  if(window.MathJax) MathJax.typesetPromise([document.getElementById('sol-modal')]);
+}
+function closeSolution(){ document.getElementById('sol-modal').classList.remove('active'); }
+
+buildDots();
+updateUI();
+if(window.MathJax) MathJax.typesetPromise([document.getElementById('ch-0')]);
+
+// ════════════════════════════════════════════════════════════
+//  DIAGRAM ENGINE
+// ════════════════════════════════════════════════════════════
+
+function gc(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function setupCanvas(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = el.getBoundingClientRect();
+  const W = el.offsetWidth || 340;
+  const H = el.offsetHeight || 270;
+  el.width  = W * dpr;
+  el.height = H * dpr;
+  const ctx = el.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { el, ctx, W, H, dpr };
+}
+
+function arrow(ctx, x1, y1, x2, y2, color, lw, hs) {
+  lw = lw || 2; hs = hs || 9;
+  const dx = x2-x1, dy = y2-y1;
+  const ang = Math.atan2(dy, dx);
+  ctx.save();
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - hs*Math.cos(ang-0.38), y2 - hs*Math.sin(ang-0.38));
+  ctx.lineTo(x2 - hs*Math.cos(ang+0.38), y2 - hs*Math.sin(ang+0.38));
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawAxes(ctx, ox, oy, W, H, color) {
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.5;
+  ctx.beginPath(); ctx.moveTo(ox, 6); ctx.lineTo(ox, H-6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(6, oy); ctx.lineTo(W-6, oy); ctx.stroke();
+  ctx.restore();
+}
+
+function drawGrid(ctx, ox, oy, scale, W, H, color) {
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = 0.5; ctx.globalAlpha = 0.4;
+  for (let x = ox % scale; x < W; x += scale) {
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+  }
+  for (let y = oy % scale; y < H; y += scale) {
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── DIAGRAM 0: Course Roadmap ──────────────────────────────
+{
+  const nodes = [
+    { id:0, label:'Introduction',        short:'Intro',   x:0.5,  y:0.10 },
+    { id:1, label:'Vector Spaces',       short:'Vectors', x:0.22, y:0.32 },
+    { id:2, label:'Linear Maps',         short:'Maps',    x:0.78, y:0.32 },
+    { id:3, label:'Eigenvalues',         short:'Eigen',   x:0.5,  y:0.54 },
+    { id:4, label:'Inner Products',      short:'Inner⟨⟩', x:0.22, y:0.76 },
+    { id:5, label:'Diagonalization',     short:'Diag.',   x:0.78, y:0.76 },
+    { id:6, label:'Quiz ✦',             short:'Quiz ✦',  x:0.5,  y:0.96 },
+  ];
+  const edges = [[0,1],[0,2],[1,3],[2,3],[3,4],[3,5],[4,6],[5,6]];
+
+  let c0 = null;
+
+  function drawDiag0() {
+    if (!c0) c0 = setupCanvas('diag-0');
+    if (!c0) return;
+    const { ctx, W, H } = c0;
+    ctx.clearRect(0,0,W,H);
+
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const text   = gc('--text');
+    const bg2    = gc('--bg2');
+    const border = gc('--border');
+
+    // draw edges
+    edges.forEach(([a,b]) => {
+      const na = nodes[a], nb = nodes[b];
+      const x1 = na.x*W, y1 = na.y*H + 12;
+      const x2 = nb.x*W, y2 = nb.y*H - 12;
+      ctx.save();
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4,3]);
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      // bezier curve
+      ctx.bezierCurveTo(x1, y1+(y2-y1)*0.4, x2, y1+(y2-y1)*0.6, x2, y2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // draw nodes
+    nodes.forEach(n => {
+      const px = n.x * W, py = n.y * H;
+      const isActive = (n.id === current);
+      const isVisited = visited.has(n.id);
+      const r = 22;
+
+      ctx.save();
+      // glow for active
+      if (isActive) {
+        const g = ctx.createRadialGradient(px, py, r*0.3, px, py, r*1.6);
+        g.addColorStop(0, accent + '55');
+        g.addColorStop(1, accent + '00');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(px, py, r*1.6, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      // circle
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI*2);
+      ctx.fillStyle = isActive ? accent : isVisited ? accent + '33' : bg2;
+      ctx.fill();
+      ctx.strokeStyle = isActive ? accent : isVisited ? accent : border;
+      ctx.lineWidth = isActive ? 2 : 1.5;
+      ctx.stroke();
+
+      // number
+      ctx.fillStyle = isActive ? '#fff' : (isVisited ? accent : muted);
+      ctx.font = `600 ${n.id===6?'10':'11'}px 'DM Mono', monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(n.id===6 ? '✦' : String(n.id+1), px, py);
+
+      // label
+      ctx.fillStyle = isActive ? text : muted;
+      ctx.font = `${isActive?'600':'400'} 10px 'Syne', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(n.short, px, py + r + 4);
+      ctx.restore();
+    });
+  }
+
+  // click to navigate
+  document.getElementById('diag-0').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const W = this.offsetWidth, H = this.offsetHeight;
+    nodes.forEach(n => {
+      const px = n.x*W, py = n.y*H;
+      const dx = mx-px, dy = my-py;
+      if (Math.sqrt(dx*dx+dy*dy) < 26) goTo(n.id);
+    });
+  });
+  document.getElementById('diag-0').style.cursor = 'pointer';
+
+  window._drawDiag0 = drawDiag0;
+}
+
+// ── DIAGRAM 1: Vector Span Explorer ───────────────────────
+{
+  let c1 = null;
+  const SCALE1 = 44;
+  let v1 = { x: 2.2, y: 1.5 };
+  let v2 = { x: -1.2, y: 2.0 };
+  let dragging1 = null;
+
+  function w2p1(wx, wy, W, H) {
+    return [W/2 + wx*SCALE1, H/2 - wy*SCALE1];
+  }
+  function p2w1(px, py, W, H) {
+    return [(px - W/2)/SCALE1, -(py - H/2)/SCALE1];
+  }
+
+  function drawDiag1() {
+    if (!c1) c1 = setupCanvas('diag-1');
+    if (!c1) return;
+    const { ctx, W, H } = c1;
+    ctx.clearRect(0,0,W,H);
+
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const text   = gc('--text');
+    const border = gc('--border');
+    const bg2    = gc('--bg2');
+
+    const OX = W/2, OY = H/2;
+
+    // grid
+    drawGrid(ctx, OX, OY, SCALE1, W, H, muted);
+    drawAxes(ctx, OX, OY, W, H, muted);
+
+    // axis labels
+    ctx.fillStyle = muted; ctx.font = '10px DM Mono'; ctx.textAlign = 'center';
+    for (let i=-4; i<=4; i++) {
+      if (i===0) continue;
+      const [px] = w2p1(i, 0, W, H);
+      const [,py] = w2p1(0, i, W, H);
+      if (px > 8 && px < W-8) { ctx.fillText(i, px, OY+13); }
+      if (py > 8 && py < H-8) { ctx.textAlign='right'; ctx.fillText(i, OX-5, py+4); ctx.textAlign='center'; }
+    }
+
+    // span parallelogram
+    const [x1, y1] = w2p1(v1.x, v1.y, W, H);
+    const [x2, y2] = w2p1(v2.x, v2.y, W, H);
+    const [x3, y3] = w2p1(v1.x+v2.x, v1.y+v2.y, W, H);
+
+    const det = v1.x*v2.y - v1.y*v2.x;
+    const independent = Math.abs(det) > 0.15;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(OX, OY);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x3, y3);
+    ctx.lineTo(x2, y2);
+    ctx.closePath();
+    ctx.fillStyle = independent ? accent + '22' : '#ef444422';
+    ctx.fill();
+    ctx.strokeStyle = independent ? accent + '55' : '#ef444455';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,3]);
+    ctx.stroke();
+    ctx.restore();
+
+    // v1 arrow (blue)
+    arrow(ctx, OX, OY, x1, y1, '#3b82f6', 2.5, 10);
+    // v2 arrow (orange)
+    arrow(ctx, OX, OY, x2, y2, '#f59e0b', 2.5, 10);
+
+    // draggable dots
+    [[x1,y1,'#3b82f6'],[x2,y2,'#f59e0b']].forEach(([px,py,col]) => {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+      ctx.fillStyle = col; ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.restore();
+    });
+
+    // labels
+    ctx.save();
+    ctx.font = 'bold 12px DM Mono';
+    ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'left';
+    ctx.fillText(`v₁(${v1.x.toFixed(1)}, ${v1.y.toFixed(1)})`, x1+10, y1-8);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText(`v₂(${v2.x.toFixed(1)}, ${v2.y.toFixed(1)})`, x2+10, y2-8);
+    ctx.restore();
+
+    // status
+    const statEl = document.getElementById('stat-1');
+    if (statEl) {
+      if (independent) {
+        statEl.textContent = `✓ Linearly Independent · det = ${det.toFixed(2)}`;
+        statEl.style.color = '#22c55e';
+      } else {
+        statEl.textContent = `✗ Linearly Dependent · det ≈ 0`;
+        statEl.style.color = '#ef4444';
+      }
+    }
+  }
+
+  // mouse events
+  function getPointer1(e) {
+    const rect = c1.el.getBoundingClientRect();
+    const te = e.touches ? e.touches[0] : e;
+    return [te.clientX - rect.left, te.clientY - rect.top];
+  }
+
+  function onDown1(e) {
+    if (!c1) return;
+    e.preventDefault();
+    const [mx, my] = getPointer1(e);
+    const [x1p, y1p] = w2p1(v1.x, v1.y, c1.W, c1.H);
+    const [x2p, y2p] = w2p1(v2.x, v2.y, c1.W, c1.H);
+    const d1 = Math.hypot(mx-x1p, my-y1p);
+    const d2 = Math.hypot(mx-x2p, my-y2p);
+    if (d1 < 18) dragging1 = 1;
+    else if (d2 < 18) dragging1 = 2;
+  }
+  function onMove1(e) {
+    if (!dragging1 || !c1) return;
+    e.preventDefault();
+    const [mx, my] = getPointer1(e);
+    const [wx, wy] = p2w1(mx, my, c1.W, c1.H);
+    const clamped = {
+      x: Math.max(-4.5, Math.min(4.5, wx)),
+      y: Math.max(-4.5, Math.min(4.5, wy))
+    };
+    if (dragging1===1) v1 = clamped;
+    else v2 = clamped;
+    drawDiag1();
+  }
+  function onUp1() { dragging1 = null; }
+
+  ['mousedown','touchstart'].forEach(ev => {
+    document.getElementById('diag-1')?.addEventListener(ev, onDown1, {passive:false});
+  });
+  ['mousemove','touchmove'].forEach(ev => {
+    document.addEventListener(ev, onMove1, {passive:false});
+  });
+  ['mouseup','touchend'].forEach(ev => {
+    document.addEventListener(ev, onUp1);
+  });
+
+  window._drawDiag1 = drawDiag1;
+}
+
+// ── DIAGRAM 2: Matrix Grid Transformer ────────────────────
+{
+  let c2 = null;
+  const SCALE2 = 38;
+
+  function getM2() {
+    return {
+      a: parseFloat(document.getElementById('m2a')?.value || 1.5),
+      b: parseFloat(document.getElementById('m2b')?.value || 0.5),
+      c: parseFloat(document.getElementById('m2c')?.value || -0.5),
+      d: parseFloat(document.getElementById('m2d')?.value || 2),
+    };
+  }
+
+  function drawDiag2() {
+    if (!c2) c2 = setupCanvas('diag-2');
+    if (!c2) return;
+    const { ctx, W, H } = c2;
+    ctx.clearRect(0,0,W,H);
+
+    const m = getM2();
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const bg3    = gc('--bg3');
+    const border = gc('--border');
+    const OX = W/2, OY = H/2;
+
+    function tp(wx, wy) {
+      return [OX + (m.a*wx + m.b*wy)*SCALE2, OY - (m.c*wx + m.d*wy)*SCALE2];
+    }
+
+    // Original grid (faint dashed)
+    ctx.save();
+    ctx.strokeStyle = muted; ctx.lineWidth = 0.5; ctx.globalAlpha = 0.25; ctx.setLineDash([2,4]);
+    for (let i=-5; i<=5; i++) {
+      ctx.beginPath(); ctx.moveTo(OX+i*SCALE2, 0); ctx.lineTo(OX+i*SCALE2, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, OY-i*SCALE2); ctx.lineTo(W, OY-i*SCALE2); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Transformed grid
+    ctx.save();
+    ctx.strokeStyle = accent; ctx.lineWidth = 0.8; ctx.globalAlpha = 0.35;
+    for (let i=-5; i<=5; i++) {
+      ctx.beginPath();
+      const [x0,y0] = tp(i, -5); ctx.moveTo(x0,y0);
+      const [x1,y1] = tp(i,  5); ctx.lineTo(x1,y1);
+      ctx.stroke();
+      ctx.beginPath();
+      const [x2,y2] = tp(-5, i); ctx.moveTo(x2,y2);
+      const [x3,y3] = tp( 5, i); ctx.lineTo(x3,y3);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Original axes
+    drawAxes(ctx, OX, OY, W, H, muted);
+
+    // Transformed basis vectors
+    const [tx1, ty1] = tp(1, 0);
+    const [tx2, ty2] = tp(0, 1);
+    arrow(ctx, OX, OY, tx1, ty1, '#3b82f6', 3, 11);  // e1 image
+    arrow(ctx, OX, OY, tx2, ty2, '#f59e0b', 3, 11);  // e2 image
+
+    // Labels
+    ctx.save();
+    ctx.font = 'bold 11px DM Mono';
+    ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'left';
+    ctx.fillText(`A·e₁`, tx1+8, ty1-6);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText(`A·e₂`, tx2+8, ty2-6);
+    ctx.restore();
+
+    // Matrix display
+    ctx.save();
+    ctx.font = '11px DM Mono'; ctx.fillStyle = muted;
+    ctx.textAlign = 'left';
+    ctx.fillText(`[${m.a.toFixed(1)}  ${m.b.toFixed(1)}]`, 8, 20);
+    ctx.fillText(`[${m.c.toFixed(1)}  ${m.d.toFixed(1)}]`, 8, 34);
+    ctx.restore();
+
+    // Stats
+    const det = m.a*m.d - m.b*m.c;
+    const rank = Math.abs(det) > 0.05 ? 2 : 1;
+    const statEl = document.getElementById('stat-2');
+    if (statEl) statEl.textContent = `det = ${det.toFixed(2)}  ·  rank = ${rank}${Math.abs(det)<0.05?' (singular!)':''}`;
+  }
+
+  // Slider events
+  ['m2a','m2b','m2c','m2d'].forEach(id => {
+    const el = document.getElementById(id);
+    const val = document.getElementById('v2'+id.slice(2));
+    el?.addEventListener('input', () => {
+      if (val) val.textContent = parseFloat(el.value).toFixed(1);
+      drawDiag2();
+    });
+  });
+
+  window._drawDiag2 = drawDiag2;
+}
+
+// ── DIAGRAM 3: Eigenvector Visualizer ─────────────────────
+{
+  let c3 = null;
+  const SCALE3 = 42;
+  const N_CIRCLE = 64;
+
+  function getM3() {
+    return {
+      a: parseFloat(document.getElementById('m3a')?.value || 2),
+      b: parseFloat(document.getElementById('m3b')?.value || 1),
+      d: parseFloat(document.getElementById('m3d')?.value || 1),
+    };
+  }
+
+  function eigenSym(a, b, d) {
+    const tr = a + d, det = a*d - b*b;
+    const disc = Math.sqrt(Math.max(0, tr*tr/4 - det));
+    const l1 = tr/2 + disc, l2 = tr/2 - disc;
+    // eigenvectors
+    let e1x, e1y, e2x, e2y;
+    if (Math.abs(b) > 1e-9) {
+      e1x = b; e1y = l1 - a;
+      e2x = b; e2y = l2 - a;
+    } else {
+      e1x = 1; e1y = 0;
+      e2x = 0; e2y = 1;
+    }
+    const n1 = Math.hypot(e1x,e1y), n2 = Math.hypot(e2x,e2y);
+    return { l1, l2, e1:[e1x/n1,e1y/n1], e2:[e2x/n2,e2y/n2] };
+  }
+
+  function drawDiag3() {
+    if (!c3) c3 = setupCanvas('diag-3');
+    if (!c3) return;
+    const { ctx, W, H } = c3;
+    ctx.clearRect(0,0,W,H);
+
+    const m = getM3();
+    const { l1, l2, e1, e2 } = eigenSym(m.a, m.b, m.d);
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const OX = W/2, OY = H/2;
+
+    drawGrid(ctx, OX, OY, SCALE3, W, H, muted);
+    drawAxes(ctx, OX, OY, W, H, muted);
+
+    // Unit circle (blue)
+    ctx.save();
+    ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    for (let i=0; i<=N_CIRCLE; i++) {
+      const t = (i/N_CIRCLE)*2*Math.PI;
+      const ux = Math.cos(t), uy = Math.sin(t);
+      if (i===0) ctx.moveTo(OX+ux*SCALE3, OY-uy*SCALE3);
+      else ctx.lineTo(OX+ux*SCALE3, OY-uy*SCALE3);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // Image ellipse (orange)
+    ctx.save();
+    ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    for (let i=0; i<=N_CIRCLE; i++) {
+      const t = (i/N_CIRCLE)*2*Math.PI;
+      const ux = Math.cos(t), uy = Math.sin(t);
+      const tx = m.a*ux + m.b*uy;
+      const ty = m.b*ux + m.d*uy;
+      if (i===0) ctx.moveTo(OX+tx*SCALE3, OY-ty*SCALE3);
+      else ctx.lineTo(OX+tx*SCALE3, OY-ty*SCALE3);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // Eigenvectors (green arrows)
+    const EL = 2.0;
+    const [e1px, e1py] = [OX+e1[0]*EL*SCALE3, OY-e1[1]*EL*SCALE3];
+    const [e2px, e2py] = [OX+e2[0]*EL*SCALE3, OY-e2[1]*EL*SCALE3];
+    arrow(ctx, OX, OY, e1px, e1py, '#22c55e', 2.5, 10);
+    arrow(ctx, OX, OY, OX-e1[0]*EL*SCALE3, OY+e1[1]*EL*SCALE3, '#22c55e', 1.5, 8);
+    arrow(ctx, OX, OY, e2px, e2py, '#22c55e', 2.5, 10);
+    arrow(ctx, OX, OY, OX-e2[0]*EL*SCALE3, OY+e2[1]*EL*SCALE3, '#22c55e', 1.5, 8);
+
+    // Eigen image arrows (where eigenvectors land)
+    const scale_e1 = EL * l1;
+    const scale_e2 = EL * l2;
+    if (Math.abs(l1) < 6) arrow(ctx, OX, OY, OX+e1[0]*scale_e1*SCALE3, OY-e1[1]*scale_e1*SCALE3, '#f59e0b', 2, 9);
+    if (Math.abs(l2) < 6) arrow(ctx, OX, OY, OX+e2[0]*scale_e2*SCALE3, OY-e2[1]*scale_e2*SCALE3, '#f59e0b', 2, 9);
+
+    // Labels
+    ctx.save();
+    ctx.font = 'bold 11px DM Mono'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#22c55e';
+    ctx.fillText(`e₁`, e1px+6, e1py-6);
+    ctx.fillText(`e₂`, e2px+6, e2py-6);
+    ctx.restore();
+
+    // Matrix label
+    ctx.save(); ctx.font='11px DM Mono'; ctx.fillStyle=muted; ctx.textAlign='left';
+    ctx.fillText(`[${m.a.toFixed(1)}  ${m.b.toFixed(1)}]`, 8, 20);
+    ctx.fillText(`[${m.b.toFixed(1)}  ${m.d.toFixed(1)}]`, 8, 34);
+    ctx.restore();
+
+    const statEl = document.getElementById('stat-3');
+    if (statEl) statEl.textContent = `λ₁ = ${l1.toFixed(2)}  ·  λ₂ = ${l2.toFixed(2)}`;
+  }
+
+  ['m3a','m3b','m3d'].forEach(id => {
+    const el = document.getElementById(id);
+    const key = id.slice(2); // 'a','b','d'
+    const val = document.getElementById('v3'+key);
+    el?.addEventListener('input', () => {
+      if (val) val.textContent = parseFloat(el.value).toFixed(1);
+      drawDiag3();
+    });
+  });
+
+  window._drawDiag3 = drawDiag3;
+}
+
+// ── DIAGRAM 4: Inner Product + Gram-Schmidt ───────────────
+{
+  let c4 = null, c4b = null;
+  const SCALE4 = 46;
+  let u4 = { x: 2.5, y: 1.0 };
+  let v4 = { x: 1.0, y: 2.5 };
+  let drag4 = null;
+
+  function w2p4(wx, wy, W, H) { return [W/2+wx*SCALE4, H/2-wy*SCALE4]; }
+  function p2w4(px, py, W, H) { return [(px-W/2)/SCALE4, -(py-H/2)/SCALE4]; }
+
+  function drawDiag4() {
+    if (!c4) c4 = setupCanvas('diag-4');
+    if (!c4) return;
+    const { ctx, W, H } = c4;
+    ctx.clearRect(0,0,W,H);
+
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const OX = W/2, OY = H/2;
+
+    drawGrid(ctx, OX, OY, SCALE4, W, H, muted);
+    drawAxes(ctx, OX, OY, W, H, muted);
+
+    const [ux, uy] = w2p4(u4.x, u4.y, W, H);
+    const [vx, vy] = w2p4(v4.x, v4.y, W, H);
+
+    // Projection of v onto u
+    const u_norm2 = u4.x*u4.x + u4.y*u4.y;
+    const dot = u4.x*v4.x + u4.y*v4.y;
+    const proj_scalar = u_norm2 > 1e-9 ? dot / u_norm2 : 0;
+    const proj = { x: proj_scalar*u4.x, y: proj_scalar*u4.y };
+    const [px, py] = w2p4(proj.x, proj.y, W, H);
+
+    // Perpendicular component
+    const perp = { x: v4.x-proj.x, y: v4.y-proj.y };
+
+    // Draw projection line (dashed)
+    ctx.save();
+    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(px, py); ctx.stroke();
+    ctx.restore();
+
+    // Right angle marker at projection point
+    const uLen = Math.hypot(u4.x, u4.y);
+    if (uLen > 0.2 && Math.hypot(perp.x, perp.y) > 0.3) {
+      const ux_n = u4.x/uLen, uy_n = u4.y/uLen;
+      const size = 8;
+      ctx.save();
+      ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1; ctx.globalAlpha=0.7;
+      ctx.beginPath();
+      ctx.moveTo(px + ux_n*size, py - uy_n*size);
+      ctx.lineTo(px + ux_n*size - (-uy_n)*size, py - uy_n*size - ux_n*size);
+      ctx.lineTo(px + (-(-uy_n))*size, py - ux_n*size);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Projection arrow (green)
+    arrow(ctx, OX, OY, px, py, '#22c55e', 2.5, 9);
+
+    // u arrow (blue)
+    arrow(ctx, OX, OY, ux, uy, '#3b82f6', 3, 11);
+    // v arrow (orange)
+    arrow(ctx, OX, OY, vx, vy, '#f59e0b', 3, 11);
+
+    // Angle arc
+    const ang_u = Math.atan2(-(u4.y), u4.x);
+    const ang_v = Math.atan2(-(v4.y), v4.x);
+    ctx.save();
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.5; ctx.globalAlpha=0.6;
+    ctx.beginPath();
+    ctx.arc(OX, OY, 24, Math.min(ang_u,ang_v), Math.max(ang_u,ang_v));
+    ctx.stroke();
+    ctx.restore();
+
+    // Draggable dots
+    [[ux,uy,'#3b82f6'],[vx,vy,'#f59e0b']].forEach(([x,y,col]) => {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2);
+      ctx.fillStyle=col; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+      ctx.restore();
+    });
+
+    // Labels
+    ctx.save(); ctx.font='bold 11px DM Mono'; ctx.textAlign='left';
+    ctx.fillStyle='#3b82f6'; ctx.fillText(`u`, ux+10, uy-8);
+    ctx.fillStyle='#f59e0b'; ctx.fillText(`v`, vx+10, vy-8);
+    ctx.fillStyle='#22c55e'; ctx.fillText(`proj`, px+8, py-8);
+    ctx.restore();
+
+    // Stats
+    const dot_val = u4.x*v4.x + u4.y*v4.y;
+    const theta = Math.atan2(Math.abs(u4.x*v4.y - u4.y*v4.x), dot_val) * 180/Math.PI;
+    const statEl = document.getElementById('stat-4');
+    if (statEl) statEl.textContent = `⟨u,v⟩ = ${dot_val.toFixed(2)}  ·  θ = ${theta.toFixed(1)}°`;
+
+    // Also update gram-schmidt diagram
+    drawDiag4b();
+  }
+
+  function drawDiag4b() {
+    if (!c4b) c4b = setupCanvas('diag-4b');
+    if (!c4b) return;
+    const { ctx, W, H } = c4b;
+    ctx.clearRect(0,0,W,H);
+
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const S = Math.min(W, H) * 0.38;
+    const OX = W/2, OY = H/2;
+
+    // Gram-Schmidt: e1 = u/|u|, e2 = (v - proj_u v)/|...|
+    const uLen = Math.hypot(u4.x, u4.y);
+    if (uLen < 0.1) return;
+    const e1 = { x: u4.x/uLen, y: u4.y/uLen };
+    const dot_v_e1 = v4.x*e1.x + v4.y*e1.y;
+    const perp2 = { x: v4.x - dot_v_e1*e1.x, y: v4.y - dot_v_e1*e1.y };
+    const pLen = Math.hypot(perp2.x, perp2.y);
+    if (pLen < 0.05) return;
+    const e2 = { x: perp2.x/pLen, y: perp2.y/pLen };
+
+    // Draw small coordinate frame showing e1, e2
+    drawAxes(ctx, OX, OY, W, H, muted);
+
+    // e1 (blue)
+    arrow(ctx, OX, OY, OX+e1.x*S, OY-e1.y*S, '#3b82f6', 3, 11);
+    // e2 (green)
+    arrow(ctx, OX, OY, OX+e2.x*S, OY-e2.y*S, '#22c55e', 3, 11);
+
+    // Original u, v (faint)
+    arrow(ctx, OX, OY, OX+u4.x/uLen*S*0.85, OY-u4.y/uLen*S*0.85, '#3b82f670', 1.5, 7);
+    arrow(ctx, OX, OY, OX+v4.x/Math.hypot(v4.x,v4.y)*S*0.85, OY-v4.y/Math.hypot(v4.x,v4.y)*S*0.85, '#f59e0b70', 1.5, 7);
+
+    // Right angle indicator between e1 and e2
+    const dotCheck = e1.x*e2.x + e1.y*e2.y;
+    const sz = 10;
+    ctx.save();
+    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1; ctx.globalAlpha=0.6;
+    ctx.beginPath();
+    ctx.moveTo(OX+e1.x*sz + e2.x*sz, OY-e1.y*sz - e2.y*sz);
+    ctx.lineTo(OX+e1.x*sz*2, OY-e1.y*sz*2);
+    ctx.lineTo(OX+e1.x*sz, OY-e1.y*sz);
+    ctx.moveTo(OX+e1.x*sz + e2.x*sz, OY-e1.y*sz - e2.y*sz);
+    ctx.lineTo(OX+e2.x*sz*2, OY-e2.y*sz*2);
+    ctx.stroke();
+    ctx.restore();
+
+    // Labels
+    ctx.save(); ctx.font='bold 11px DM Mono'; ctx.textAlign='left';
+    ctx.fillStyle='#3b82f6'; ctx.fillText('e₁', OX+e1.x*S+8, OY-e1.y*S-6);
+    ctx.fillStyle='#22c55e'; ctx.fillText('e₂', OX+e2.x*S+8, OY-e2.y*S-6);
+    ctx.fillStyle=muted; ctx.font='10px DM Mono';
+    ctx.fillText(`⟨e₁,e₂⟩ = ${dotCheck.toFixed(2)}`, 6, H-8);
+    ctx.restore();
+  }
+
+  // Mouse events
+  function getPointer4(e) {
+    const rect = c4.el.getBoundingClientRect();
+    const te = e.touches ? e.touches[0] : e;
+    return [te.clientX - rect.left, te.clientY - rect.top];
+  }
+  function onDown4(e) {
+    if (!c4) return; e.preventDefault();
+    const [mx,my] = getPointer4(e);
+    const [ux,uy] = w2p4(u4.x,u4.y,c4.W,c4.H);
+    const [vx,vy] = w2p4(v4.x,v4.y,c4.W,c4.H);
+    if (Math.hypot(mx-ux,my-uy)<18) drag4=1;
+    else if (Math.hypot(mx-vx,my-vy)<18) drag4=2;
+  }
+  function onMove4(e) {
+    if (!drag4||!c4) return; e.preventDefault();
+    const [mx,my] = getPointer4(e);
+    const [wx,wy] = p2w4(mx,my,c4.W,c4.H);
+    const cl = { x:Math.max(-4.5,Math.min(4.5,wx)), y:Math.max(-4.5,Math.min(4.5,wy)) };
+    if (drag4===1) u4=cl; else v4=cl;
+    drawDiag4();
+  }
+  function onUp4() { drag4=null; }
+
+  ['mousedown','touchstart'].forEach(ev => {
+    document.getElementById('diag-4')?.addEventListener(ev, onDown4, {passive:false});
+  });
+  ['mousemove','touchmove'].forEach(ev => { document.addEventListener(ev, onMove4, {passive:false}); });
+  ['mouseup','touchend'].forEach(ev => { document.addEventListener(ev, onUp4); });
+
+  window._drawDiag4 = drawDiag4;
+}
+
+// ── DIAGRAM 5: Spectral Decomposition ─────────────────────
+{
+  let c5 = null;
+  const SCALE5 = 42;
+  const N5 = 80;
+
+  function getM5() {
+    return {
+      a: parseFloat(document.getElementById('m5a')?.value || 2),
+      b: parseFloat(document.getElementById('m5b')?.value || 1),
+      d: parseFloat(document.getElementById('m5d')?.value || -1),
+    };
+  }
+
+  function eigenSym5(a, b, d) {
+    const tr = a+d, det = a*d - b*b;
+    const disc = Math.sqrt(Math.max(0, tr*tr/4 - det));
+    const l1 = tr/2+disc, l2 = tr/2-disc;
+    let e1x, e1y, e2x, e2y;
+    if (Math.abs(b)>1e-9) {
+      e1x=b; e1y=l1-a; e2x=b; e2y=l2-a;
+    } else { e1x=1;e1y=0;e2x=0;e2y=1; }
+    const n1=Math.hypot(e1x,e1y), n2=Math.hypot(e2x,e2y);
+    return { l1, l2, e1:[e1x/n1,e1y/n1], e2:[e2x/n2,e2y/n2] };
+  }
+
+  function drawDiag5() {
+    if (!c5) c5 = setupCanvas('diag-5');
+    if (!c5) return;
+    const { ctx, W, H } = c5;
+    ctx.clearRect(0,0,W,H);
+
+    const m = getM5();
+    const { l1, l2, e1, e2 } = eigenSym5(m.a, m.b, m.d);
+    const accent = gc('--accent');
+    const muted  = gc('--muted');
+    const OX = W/2, OY = H/2;
+
+    drawGrid(ctx, OX, OY, SCALE5, W, H, muted);
+    drawAxes(ctx, OX, OY, W, H, muted);
+
+    // Draw projection axes for P1 and P2
+    const axLen = 120;
+    ctx.save();
+    ctx.strokeStyle='#22c55e'; ctx.lineWidth=1; ctx.setLineDash([4,3]); ctx.globalAlpha=0.5;
+    ctx.beginPath();
+    ctx.moveTo(OX-e1[0]*axLen, OY+e1[1]*axLen);
+    ctx.lineTo(OX+e1[0]*axLen, OY-e1[1]*axLen);
+    ctx.stroke();
+    ctx.strokeStyle='#f59e0b';
+    ctx.beginPath();
+    ctx.moveTo(OX-e2[0]*axLen, OY+e2[1]*axLen);
+    ctx.lineTo(OX+e2[0]*axLen, OY-e2[1]*axLen);
+    ctx.stroke();
+    ctx.restore();
+
+    // Unit circle (blue, faint)
+    ctx.save();
+    ctx.strokeStyle='#3b82f6'; ctx.lineWidth=1.2; ctx.globalAlpha=0.5;
+    ctx.beginPath();
+    for (let i=0;i<=N5;i++){
+      const t=(i/N5)*2*Math.PI;
+      const x=OX+Math.cos(t)*SCALE5, y=OY-Math.sin(t)*SCALE5;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // Image ellipse (accent)
+    ctx.save();
+    ctx.strokeStyle=accent; ctx.lineWidth=2; ctx.globalAlpha=0.85;
+    ctx.beginPath();
+    for (let i=0;i<=N5;i++){
+      const t=(i/N5)*2*Math.PI;
+      const ux=Math.cos(t), uy=Math.sin(t);
+      const tx=(m.a*ux+m.b*uy)*SCALE5, ty=(m.b*ux+m.d*uy)*SCALE5;
+      i===0?ctx.moveTo(OX+tx,OY-ty):ctx.lineTo(OX+tx,OY-ty);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // Eigenvector arrows (showing P1 and P2 projections)
+    const EL = 1.8;
+    arrow(ctx, OX, OY, OX+e1[0]*EL*SCALE5, OY-e1[1]*EL*SCALE5, '#22c55e', 3, 11);
+    arrow(ctx, OX, OY, OX+e2[0]*EL*SCALE5, OY-e2[1]*EL*SCALE5, '#f59e0b', 3, 11);
+
+    // Lambda * eigenvector (where they map to)
+    if (Math.abs(l1) < 5) {
+      const sc1 = l1*EL;
+      ctx.save(); ctx.strokeStyle='#22c55e'; ctx.lineWidth=1.5; ctx.setLineDash([3,2]); ctx.globalAlpha=0.6;
+      ctx.beginPath(); ctx.moveTo(OX+e1[0]*EL*SCALE5, OY-e1[1]*EL*SCALE5);
+      ctx.lineTo(OX+e1[0]*sc1*SCALE5, OY-e1[1]*sc1*SCALE5); ctx.stroke();
+      ctx.restore();
+      arrow(ctx, OX, OY, OX+e1[0]*sc1*SCALE5, OY-e1[1]*sc1*SCALE5, '#22c55e99', 1.5, 8);
+    }
+    if (Math.abs(l2) < 5) {
+      const sc2 = l2*EL;
+      ctx.save(); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.setLineDash([3,2]); ctx.globalAlpha=0.6;
+      ctx.beginPath(); ctx.moveTo(OX+e2[0]*EL*SCALE5, OY-e2[1]*EL*SCALE5);
+      ctx.lineTo(OX+e2[0]*sc2*SCALE5, OY-e2[1]*sc2*SCALE5); ctx.stroke();
+      ctx.restore();
+      arrow(ctx, OX, OY, OX+e2[0]*sc2*SCALE5, OY-e2[1]*sc2*SCALE5, '#f59e0b99', 1.5, 8);
+    }
+
+    // Eigenvalue labels on arrows
+    ctx.save(); ctx.font='bold 11px DM Mono';
+    ctx.fillStyle='#22c55e'; ctx.textAlign='left';
+    ctx.fillText(`e₁ (λ=${l1.toFixed(1)})`, OX+e1[0]*EL*SCALE5+8, OY-e1[1]*EL*SCALE5-6);
+    ctx.fillStyle='#f59e0b';
+    ctx.fillText(`e₂ (λ=${l2.toFixed(1)})`, OX+e2[0]*EL*SCALE5+8, OY-e2[1]*EL*SCALE5-6);
+    ctx.restore();
+
+    // Matrix
+    ctx.save(); ctx.font='11px DM Mono'; ctx.fillStyle=muted; ctx.textAlign='left';
+    ctx.fillText(`A = [${m.a.toFixed(1)}  ${m.b.toFixed(1)}]`, 8, 20);
+    ctx.fillText(`    [${m.b.toFixed(1)}  ${m.d.toFixed(1)}]`, 8, 34);
+    ctx.restore();
+
+    const statEl = document.getElementById('stat-5');
+    if (statEl) statEl.textContent = `λ₁ = ${l1.toFixed(2)}  ·  λ₂ = ${l2.toFixed(2)}`;
+  }
+
+  ['m5a','m5b','m5d'].forEach(id => {
+    const el = document.getElementById(id);
+    const key = id.slice(2);
+    const val = document.getElementById('v5'+key);
+    el?.addEventListener('input', () => {
+      if(val) val.textContent = parseFloat(el.value).toFixed(1);
+      drawDiag5();
+    });
+  });
+
+  window._drawDiag5 = drawDiag5;
+}
+
+// ── Draw All / Init ────────────────────────────────────────
+function drawAll() {
+  window._drawDiag0?.();
+  window._drawDiag1?.();
+  window._drawDiag2?.();
+  window._drawDiag3?.();
+  window._drawDiag4?.();
+  window._drawDiag5?.();
+}
+
+// Initial draw after fonts loaded
+if (document.fonts) {
+  document.fonts.ready.then(() => { drawAll(); });
+} else {
+  setTimeout(drawAll, 300);
+}
+
+// Resize observer to re-setup canvases on window resize
+window.addEventListener('resize', () => {
+  // Force re-setup on next draw
+  window._c0=null; window._c1=null; window._c2=null;
+  window._c3=null; window._c4=null; window._c5=null;
+  setTimeout(drawAll, 100);
+});
+</script>
+</body>
+</html>
