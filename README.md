@@ -1,6 +1,6 @@
 # Curious Crows
 
-Curious Crows is a web-based physics practice platform built from previous year questions of competitive exams such as **CSIR-NET**, **GATE**, **BARC**, and **TIFR**.
+Curious Crows is a web-based physics practice platform built from previous-year questions of competitive exams such as **CSIR-NET**, **GATE**, **BARC**, and **TIFR**.
 
 The goal of this project is to provide students with a realistic exam-oriented practice environment and help them experience the style and difficulty level of actual competitive examinations.
 
@@ -10,6 +10,13 @@ The goal of this project is to provide students with a realistic exam-oriented p
 - Clean and simple HTML-based interface
 - Fast and lightweight webpage
 - Useful for self-assessment and revision
+
+## Inside
+
+- Subject-wise questions to practice
+- Previous-year papers
+- Quick recaps for physics concepts
+- Interactive playful websites to learn concepts
 
 ## Website
 
