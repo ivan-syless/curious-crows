@@ -25,3 +25,6 @@ Visit the practice site here: 🔗 [Curious Crows](https://ivan-syless.github.io
 ## Purpose
 
 This repository hosts the source files for the website and serves as an open educational resource for physics aspirants preparing for national-level examinations.
+
+
+<p align="center">`(made with the help of claud.ai)`</p>
