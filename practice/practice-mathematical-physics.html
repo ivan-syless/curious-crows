@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mathematical Physics Practice — PhysicaLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#fdf8f0;--bg2:#f7f0e4;--bg3:#f0e8d8;--surface:#e8ddc8;
+  --border:rgba(160,100,40,0.14);--accent:#c4570a;--accent2:#1a8fa8;
+  --text:#1e150a;--muted:#7a6348;--faint:rgba(196,87,10,0.06);
+  --nav-bg:rgba(253,248,240,0.88);--shadow:rgba(160,100,40,0.12);
+  --correct:#22a84a;--wrong:#e03e3e;
+  --font-display:'Instrument Serif',serif;
+  --font-ui:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+}
+:root.dark {
+  --bg:#09090f;--bg2:#0f0f1a;--bg3:#13131f;--surface:#1a1a2e;
+  --border:rgba(255,255,255,0.07);--accent:#7c6af7;--accent2:#4fc8e8;
+  --text:#f0eeff;--muted:#7a7899;--faint:rgba(255,255,255,0.04);
+  --nav-bg:rgba(9,9,15,0.82);--shadow:rgba(0,0,0,0.35);
+  --correct:#2ecc71;--wrong:#ff6b6b;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-ui);overflow-x:hidden;cursor:none;transition:background .45s,color .45s}
+#cursor{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .08s,background .2s}
+#cursor-ring{width:36px;height:36px;border:1.5px solid color-mix(in srgb,var(--accent) 50%,transparent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .18s ease,opacity .2s}
+#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.22;transition:opacity .45s}
+:root.dark #canvas-bg{opacity:.35}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:var(--nav-bg);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);transition:background .45s,border-color .45s}
+.nav-logo{font-family:var(--font-display);font-size:1.4rem;color:var(--text);text-decoration:none;letter-spacing:.01em;display:flex;align-items:center;gap:10px}
+.nav-logo .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 0%,transparent)}}
+.nav-links{display:flex;align-items:center;gap:2rem;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.nav-links a:hover{color:var(--text)} .nav-links a:hover::after{transform:scaleX(1)}
+.nav-links a.active{color:var(--accent)} .nav-links a.active::after{transform:scaleX(1)}
+.theme-toggle{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;outline:none;margin-left:.5rem}
+.toggle-track{position:relative;width:58px;height:28px;border-radius:999px;background:linear-gradient(135deg,#a8d8ff,#d4eaff);border:1.5px solid rgba(90,80,200,.2);display:flex;align-items:center;overflow:hidden;transition:background .5s,border-color .4s,box-shadow .4s;box-shadow:0 2px 12px rgba(90,80,200,.15)}
+:root.dark .toggle-track{background:linear-gradient(135deg,#1a1040,#0d0828);border-color:rgba(124,106,247,.3);box-shadow:0 2px 16px rgba(124,106,247,.25)}
+.toggle-thumb{position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff8c0,#ffd700);box-shadow:0 1px 6px rgba(200,160,0,.4);left:3px;transition:left .42s cubic-bezier(.34,1.56,.64,1),background .4s;z-index:3}
+:root.dark .toggle-thumb{left:33px;background:radial-gradient(circle at 35% 35%,#e8e0ff,#c0b0ff);box-shadow:0 1px 8px rgba(124,106,247,.6)}
+.toggle-sun{position:absolute;width:28px;height:28px;left:-1px;display:flex;align-items:center;justify-content:center;z-index:2;transition:opacity .35s,transform .42s cubic-bezier(.34,1.56,.64,1)}
+:root.dark .toggle-sun{opacity:0;transform:translateX(30px) rotate(90deg)}
+.sun-core{position:absolute;width:10px;height:10px;border-radius:50%;background:transparent}
+.ray{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,200,0,.7)}
+.r1{top:2px;left:50%;transform:translateX(-50%)}.r2{bottom:2px;left:50%;transform:translateX(-50%)}.r3{left:2px;top:50%;transform:translateY(-50%)}.r4{right:2px;top:50%;transform:translateY(-50%)}.r5{top:3px;left:3px}.r6{top:3px;right:3px}.r7{bottom:3px;left:3px}.r8{bottom:3px;right:3px}
+.toggle-stars{position:absolute;inset:0;z-index:1;transition:opacity .35s,transform .42s;opacity:0;transform:translateX(-10px)}
+:root.dark .toggle-stars{opacity:1;transform:translateX(0)}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle 2.4s ease-in-out infinite}
+.s1{width:2.5px;height:2.5px;top:5px;left:8px}.s2{width:2px;height:2px;top:14px;left:14px;animation-delay:.7s}.s3{width:2px;height:2px;top:7px;left:20px;animation-delay:1.3s}
+@keyframes twinkle{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HERO ── */
+.page-hero{position:relative;z-index:1;padding:130px 2rem 60px;text-align:center}
+.grid-lines{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(196,87,10,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(196,87,10,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+:root.dark .grid-lines{background-image:linear-gradient(rgba(124,106,247,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.04) 1px,transparent 1px)}
+.hero-eyebrow{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;animation:fadeUp .7s .1s both}
+.hero-title{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,5rem);line-height:1.08;letter-spacing:-.02em;margin-bottom:1rem;animation:fadeUp .8s .25s both}
+.hero-title em{font-style:italic;color:transparent;-webkit-text-stroke:1.5px var(--accent)}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:480px;margin:0 auto 2.5rem;line-height:1.7;animation:fadeUp .8s .4s both}
+.float-eq{position:absolute;font-family:var(--font-mono);font-size:.72rem;color:color-mix(in srgb,var(--accent) 28%,transparent);white-space:nowrap;pointer-events:none;animation:floatEq linear infinite}
+@keyframes floatEq{from{transform:translateY(0) rotate(var(--rot));opacity:0}10%{opacity:1}90%{opacity:1}to{transform:translateY(-100px) rotate(var(--rot));opacity:0}}
+
+/* ── START CARD ── */
+.start-wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 2rem 100px;animation:fadeUp .7s .55s both}
+.start-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2.5rem;position:relative;overflow:hidden}
+.start-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px 3px 0 0}
+.start-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0 2rem}
+.start-stat{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:4px}
+.stat-val{font-family:var(--font-display);font-size:2rem;line-height:1;color:var(--accent)}
+.stat-label{font-family:var(--font-mono);font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.start-title{font-family:var(--font-display);font-size:1.7rem;margin-bottom:.4rem}
+.start-desc{font-size:.88rem;color:var(--muted);line-height:1.7}
+.start-filters{display:flex;flex-wrap:wrap;gap:8px;margin:1.5rem 0 0}
+.filter-chip{font-family:var(--font-mono);font-size:.62rem;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);cursor:pointer;transition:all .18s;letter-spacing:.06em}
+.filter-chip:hover,.filter-chip.active{background:color-mix(in srgb,var(--accent) 10%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,transparent);color:var(--accent)}
+.btn-start{display:inline-flex;align-items:center;gap:10px;padding:14px 36px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--font-ui);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.02em;margin-top:2rem}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 12px 32px color-mix(in srgb,var(--accent) 30%,transparent)}
+.btn-start svg{transition:transform .2s}
+.btn-start:hover svg{transform:translateX(4px)}
+
+/* ── QUIZ AREA ── */
+.quiz-wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:90px 2rem 100px;display:none}
+.quiz-wrap.active{display:block}
+.q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.q-progress-wrap{flex:1}
+.q-progress-label{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-bottom:6px;letter-spacing:.08em;display:flex;justify-content:space-between}
+.q-progress-bar{height:4px;background:var(--surface);border-radius:4px;overflow:hidden}
+.q-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+.q-nav-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-left:1.5rem}
+.q-dot{width:10px;height:10px;border-radius:50%;background:var(--surface);border:1.5px solid var(--border);cursor:pointer;transition:all .2s;flex-shrink:0}
+.q-dot.answered{background:var(--accent);border-color:var(--accent)}
+.q-dot.current{background:var(--accent2);border-color:var(--accent2);transform:scale(1.3)}
+.q-dot.correct{background:var(--correct);border-color:var(--correct)}
+.q-dot.wrong{background:var(--wrong);border-color:var(--wrong)}
+
+/* ── QUESTION CARD ── */
+.q-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2.2rem 2.5rem;position:relative;overflow:hidden;animation:fadeUp .35s ease}
+.q-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--accent);border-radius:3px 0 0 3px}
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
+.q-badge{font-family:var(--font-mono);font-size:.6rem;padding:3px 10px;border-radius:99px;letter-spacing:.08em;text-transform:uppercase}
+.q-badge.exam{background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);color:var(--accent)}
+.q-badge.topic{background:color-mix(in srgb,var(--accent2) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent2) 25%,transparent);color:var(--accent2)}
+.q-badge.multi{background:color-mix(in srgb,#e8a020 10%,transparent);border:1px solid color-mix(in srgb,#e8a020 25%,transparent);color:#e8a020}
+.q-num{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-left:auto}
+.q-text{font-family:var(--font-display);font-size:1.18rem;line-height:1.6;margin-bottom:1.8rem;color:var(--text)}
+.q-image{width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-bottom:1.5rem;border:1px solid var(--border);background:var(--bg3)}
+.options-list{display:flex;flex-direction:column;gap:10px}
+.option{display:flex;align-items:center;gap:14px;padding:1rem 1.3rem;border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all .18s;background:var(--bg3);position:relative;overflow:hidden}
+.option::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--accent) 8%,transparent),transparent 65%);opacity:0;transition:opacity .3s;pointer-events:none}
+.option:hover::after{opacity:1}
+.option:hover{border-color:color-mix(in srgb,var(--accent) 40%,transparent);transform:translateX(4px)}
+.option.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.option.selected .opt-marker{background:var(--accent);border-color:var(--accent);color:#fff}
+.option.correct-reveal{border-color:var(--correct)!important;background:color-mix(in srgb,var(--correct) 8%,transparent)!important}
+.option.correct-reveal .opt-marker{background:var(--correct)!important;border-color:var(--correct)!important;color:#fff!important}
+.option.wrong-reveal{border-color:var(--wrong)!important;background:color-mix(in srgb,var(--wrong) 8%,transparent)!important}
+.option.wrong-reveal .opt-marker{background:var(--wrong)!important;border-color:var(--wrong)!important;color:#fff!important}
+.option.disabled{cursor:default;pointer-events:none}
+.opt-marker{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.7rem;font-weight:500;flex-shrink:0;transition:all .2s;color:var(--muted)}
+.opt-text{font-size:.9rem;line-height:1.5;flex:1}
+.opt-icon{margin-left:auto;font-size:1rem;opacity:0;transition:opacity .2s;flex-shrink:0}
+.option.correct-reveal .opt-icon,.option.wrong-reveal .opt-icon{opacity:1}
+
+/* ── EXPLANATION ── */
+.explanation{margin-top:1.2rem;padding:1.1rem 1.4rem;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:0 10px 10px 0;font-size:.85rem;color:var(--muted);line-height:1.7;display:none;animation:fadeUp .3s ease}
+.explanation.visible{display:block}
+.explanation strong{color:var(--accent2);font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+
+/* ── Q FOOTER ── */
+.q-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;gap:1rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:9px;font-family:var(--font-ui);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .18s;letter-spacing:.02em;border:1.5px solid transparent}
+.btn-ghost{background:none;border-color:var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 28%,transparent)}
+.btn-secondary{background:var(--bg2);border-color:var(--border);color:var(--text)}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
+/* ── BOTTOM ACTION BAR ── */
+.quiz-actions{display:flex;align-items:center;justify-content:space-between;max-width:820px;margin:1.5rem auto 0;padding:0 2rem;gap:1rem;flex-wrap:wrap}
+
+/* ── RESULTS OVERLAY ── */
+.results-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.results-overlay.active{opacity:1;pointer-events:all}
+.results-modal{background:var(--bg);border:1px solid var(--border);border-radius:22px;width:min(680px,94vw);max-height:88vh;overflow-y:auto;box-shadow:0 32px 80px var(--shadow);position:relative;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.results-overlay.active .results-modal{transform:translateY(0) scale(1)}
+.results-header{padding:2.2rem 2.4rem 0;position:sticky;top:0;background:var(--bg);z-index:2;border-bottom:1px solid var(--border);padding-bottom:1.4rem}
+.results-close{position:absolute;top:1.1rem;right:1.1rem;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.95rem;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:7px;transition:background .15s,color .15s}
+.results-close:hover{background:var(--faint);color:var(--text)}
+.results-score-wrap{display:flex;align-items:center;gap:1.8rem;margin-bottom:1.2rem}
+.score-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.4rem;line-height:1;color:var(--text)}
+.score-ring-val span{font-family:var(--font-mono);font-size:.55rem;color:var(--muted);margin-top:2px}
+.score-info h2{font-family:var(--font-display);font-size:1.5rem;margin-bottom:.3rem}
+.score-info p{font-size:.85rem;color:var(--muted)}
+.score-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:.6rem}
+.score-pill{font-family:var(--font-mono);font-size:.62rem;padding:3px 10px;border-radius:99px;letter-spacing:.05em}
+.pill-correct{background:color-mix(in srgb,var(--correct) 12%,transparent);border:1px solid color-mix(in srgb,var(--correct) 28%,transparent);color:var(--correct)}
+.pill-wrong{background:color-mix(in srgb,var(--wrong) 12%,transparent);border:1px solid color-mix(in srgb,var(--wrong) 28%,transparent);color:var(--wrong)}
+.pill-skip{background:color-mix(in srgb,var(--muted) 12%,transparent);border:1px solid color-mix(in srgb,var(--muted) 28%,transparent);color:var(--muted)}
+
+/* ── RESULTS LIST ── */
+.results-list{padding:1.4rem 2.4rem 1rem}
+.result-item{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
+.result-item:hover{box-shadow:0 4px 20px var(--shadow)}
+.result-item-head{display:flex;align-items:flex-start;gap:12px;padding:1rem 1.2rem;cursor:pointer;background:var(--bg2)}
+.result-status{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;margin-top:1px}
+.status-correct{background:color-mix(in srgb,var(--correct) 15%,transparent);color:var(--correct)}
+.status-wrong{background:color-mix(in srgb,var(--wrong) 15%,transparent);color:var(--wrong)}
+.status-skip{background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted)}
+.result-qtext{font-size:.84rem;line-height:1.55;flex:1;color:var(--text)}
+.result-toggle{font-size:.7rem;color:var(--muted);flex-shrink:0;margin-top:2px;transition:transform .2s}
+.result-item.open .result-toggle{transform:rotate(180deg)}
+.result-detail{display:none;padding:1rem 1.2rem 1.2rem;background:var(--bg3);border-top:1px solid var(--border)}
+.result-item.open .result-detail{display:block}
+.result-options{display:flex;flex-direction:column;gap:6px;margin-bottom:.8rem}
+.ro{display:flex;align-items:center;gap:8px;font-size:.82rem;padding:6px 10px;border-radius:8px}
+.ro.rc{background:color-mix(in srgb,var(--correct) 10%,transparent);color:var(--correct)}
+.ro.rw{background:color-mix(in srgb,var(--wrong) 10%,transparent);color:var(--wrong)}
+.ro.rn{color:var(--muted)}
+.ro-marker{width:18px;height:18px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0;font-family:var(--font-mono)}
+.result-expl{font-size:.8rem;color:var(--muted);line-height:1.6;padding:.7rem .9rem;background:var(--bg2);border-radius:8px;border-left:2px solid var(--accent2)}
+.result-expl strong{color:var(--accent2);font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;display:block;margin-bottom:.3rem;letter-spacing:.08em}
+
+/* ── MODAL FOOTER ── */
+.results-footer{padding:1.2rem 2.4rem 1.8rem;display:flex;gap:10px;flex-wrap:wrap;position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border)}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text);border-radius:9px;padding:10px 18px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s;letter-spacing:.02em}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-filled{background:var(--accent);border:1.5px solid var(--accent);color:#fff;border-radius:9px;padding:10px 18px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s;letter-spacing:.02em}
+.btn-filled:hover{transform:translateY(-1px);box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 30%,transparent)}
+.btn-teal{background:var(--accent2);border:1.5px solid var(--accent2);color:#fff;border-radius:9px;padding:10px 18px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s;letter-spacing:.02em}
+.btn-teal:hover{transform:translateY(-1px);box-shadow:0 6px 16px color-mix(in srgb,var(--accent2) 30%,transparent)}
+
+/* ── LOADING ── */
+.loading-wrap{text-align:center;padding:4rem 2rem;display:none}
+.loading-wrap.active{display:block}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;transition:background .45s,border-color .45s}
+.footer-logo{font-family:var(--font-display);font-size:1.3rem;margin-bottom:.6rem}
+.footer-note{font-size:.75rem;color:var(--muted);font-family:var(--font-mono);line-height:1.8}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.reveal.visible{opacity:1;transform:none}
+
+@media(max-width:700px){
+  .nav-links{display:none}
+  .start-grid{grid-template-columns:1fr 1fr}
+  .q-card{padding:1.5rem}
+  .results-header,.results-list,.results-footer{padding-left:1.4rem;padding-right:1.4rem}
+  .q-nav-dots{display:none}
+  .quiz-actions{flex-direction:column;align-items:stretch}
+  .quiz-actions .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="canvas-bg"></canvas>
+
+<nav>
+  <a class="nav-logo" href="../index.html"><span class="dot"></span> PhysicaLab</a>
+  <ul class="nav-links">
+    <li><a href="../index.html#practice">Practice</a></li>
+    <li><a href="mock-exam.html">Mock Exams</a></li>
+    <li><a href="../index.html#learn">Learn</a></li>
+    <li><a href="../index.html#play">Play</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+    <span class="toggle-track">
+      <span class="toggle-stars"><span class="star s1"></span><span class="star s2"></span><span class="star s3"></span></span>
+      <span class="toggle-sun"><span class="sun-core"></span><span class="ray r1"></span><span class="ray r2"></span><span class="ray r3"></span><span class="ray r4"></span><span class="ray r5"></span><span class="ray r6"></span><span class="ray r7"></span><span class="ray r8"></span></span>
+      <span class="toggle-thumb"></span>
+    </span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero" id="heroSection">
+  <div class="grid-lines"></div>
+  <div class="float-eq" style="left:7%;top:38%;--rot:-6deg;animation-duration:11s;animation-delay:0s;">∇²φ = ρ/ε₀</div>
+  <div class="float-eq" style="left:78%;top:25%;--rot:5deg;animation-duration:13s;animation-delay:1.2s;">Γ(n+1) = n!</div>
+  <div class="float-eq" style="left:15%;top:65%;--rot:-3deg;animation-duration:14s;animation-delay:.6s;">∮ f(z) dz = 2πi Σ Res</div>
+  <div class="float-eq" style="left:68%;top:58%;--rot:7deg;animation-duration:10s;animation-delay:2s;">Pₙ(x) = (2n)! / 2ⁿ n!²</div>
+  <div class="float-eq" style="left:40%;top:20%;--rot:-4deg;animation-duration:12s;animation-delay:.3s;">F[f∗g] = F̂(k)·Ĝ(k)</div>
+  <div class="hero-eyebrow">Question Bank · 60 Problems</div>
+  <h1 class="hero-title">Mathematical <em>Physics</em></h1>
+  <p class="hero-sub">10 random questions drawn from CSIR-NET, GATE, BARC & TIFR. Pick a topic filter or go full random.</p>
+</div>
+
+<!-- START CARD -->
+<div class="start-wrap" id="startSection">
+  <div class="start-card reveal">
+    <div class="start-title">Start a Practice Session</div>
+    <p class="start-desc">Each session pulls 10 questions at random. Filter by topic to focus your revision, or leave all selected for a mixed set.</p>
+    <div class="start-grid">
+      <div class="start-stat"><div class="stat-val">60</div><div class="stat-label">Total Questions</div></div>
+      <div class="start-stat"><div class="stat-val">10</div><div class="stat-label">Per Session</div></div>
+      <div class="start-stat"><div class="stat-val" id="topicCount">9</div><div class="stat-label">Topics</div></div>
+      <div class="start-stat"><div class="stat-val">4</div><div class="stat-label">Exams Covered</div></div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.7rem">Filter by topic</div>
+    <div class="start-filters" id="filterChips"></div>
+    <div>
+      <button class="btn-start" id="btnStart" onclick="startQuiz()">
+        Begin Practice
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-wrap" id="loadingSection">
+  <div class="loading-spinner"></div>
+  <div style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);letter-spacing:.1em">Loading questions…</div>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz-wrap" id="quizSection">
+  <div class="q-header">
+    <div class="q-progress-wrap">
+      <div class="q-progress-label">
+        <span id="progLabel">Question 1 of 10</span>
+        <span id="progAnswered">0 answered</span>
+      </div>
+      <div class="q-progress-bar"><div class="q-progress-fill" id="progFill" style="width:10%"></div></div>
+    </div>
+    <div class="q-nav-dots" id="navDots"></div>
+  </div>
+
+  <div id="questionArea"></div>
+
+  <div class="quiz-actions">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" id="btnPrev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn btn-ghost" id="btnNext" onclick="navigate(1)">Next →</button>
+    </div>
+    <button class="btn btn-primary" onclick="openResults()">Check Answers</button>
+  </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="results-overlay" id="resultsOverlay">
+  <div class="results-modal">
+    <div class="results-header">
+      <button class="results-close" onclick="closeResults()" aria-label="Close">✕</button>
+      <div class="results-score-wrap">
+        <div class="score-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--accent)" stroke-width="6"
+              stroke-dasharray="201" stroke-dashoffset="201" id="scoreCircle" stroke-linecap="round"
+              style="transition:stroke-dashoffset 1s cubic-bezier(.34,1.56,.64,1)"/>
+          </svg>
+          <div class="score-ring-val"><span id="scoreNum">0</span><span>/ 10</span></div>
+        </div>
+        <div class="score-info">
+          <h2 id="scoreTitle">Results</h2>
+          <p id="scoreSubtitle"></p>
+          <div class="score-pills">
+            <span class="score-pill pill-correct" id="pillCorrect">0 correct</span>
+            <span class="score-pill pill-wrong" id="pillWrong">0 wrong</span>
+            <span class="score-pill pill-skip" id="pillSkip">0 skipped</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-list" id="resultsList"></div>
+
+    <div class="results-footer">
+      <button class="btn-outline" onclick="closeResults()">Close</button>
+      <button class="btn-filled" onclick="redoSame()">Redo Test</button>
+      <button class="btn-teal" onclick="redoDifferent()">Redo with Different Questions</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PhysicaLab</div>
+  <div class="footer-note">
+    Mathematical Physics · 60 questions across CSIR-NET · GATE · BARC · TIFR<br/>
+    <a href="../index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a>
+  </div>
+</footer>
+
+<script>
+/* ── Theme ── */
+(function(){const s=localStorage.getItem('pl-theme');if(s==='dark')document.documentElement.classList.add('dark');})();
+function toggleTheme(){const d=document.documentElement.classList.toggle('dark');localStorage.setItem('pl-theme',d?'dark':'light');}
+
+/* ── Cursor ── */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function animCursor(){cur.style.left=mx+'px';cur.style.top=my+'px';rx+=(mx-rx)*.14;ry+=(my-ry)*.14;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animCursor);})();
+document.addEventListener('mousedown',()=>{cur.style.transform='translate(-50%,-50%) scale(1.8)';});
+document.addEventListener('mouseup',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';});
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.5)';ring.style.opacity='.4';});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.opacity='1';});
+});
+
+/* ── Canvas ── */
+(function(){
+  const canvas=document.getElementById('canvas-bg'),ctx=canvas.getContext('2d');
+  let W,H,nodes=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  function makeNodes(n){nodes=[];for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.8+.5});}
+  function getAccent(){return document.documentElement.classList.contains('dark')?'#7c6af7':'#c4570a';}
+  function draw(){
+    ctx.clearRect(0,0,W,H);const col=getAccent();
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.strokeStyle=col+Math.floor((1-d/120)*55).toString(16).padStart(2,'0');ctx.lineWidth=.5;ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
+    nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=col+'99';ctx.fill();n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
+    requestAnimationFrame(draw);
+  }
+  resize();makeNodes(55);draw();
+  window.addEventListener('resize',()=>{resize();makeNodes(55);});
+})();
+
+/* ── Reveal ── */
+function runReveal(){document.querySelectorAll('.reveal:not(.visible)').forEach(el=>{if(el.getBoundingClientRect().top<window.innerHeight-60)el.classList.add('visible');});}
+window.addEventListener('scroll',runReveal,{passive:true});
+window.addEventListener('DOMContentLoaded',()=>setTimeout(runReveal,100));
+
+/* ══════════════════════════════════════════
+   QUIZ ENGINE
+══════════════════════════════════════════ */
+let allQuestions = [];
+let currentSession = [];   // 10 picked questions
+let userAnswers = [];       // array of Set (selected option indices)
+let currentIdx = 0;
+let activeFilters = new Set(); // empty = all topics
+
+const JSON_PATH = 'questions/mathematical-physics.json';
+
+/* Load JSON on page load */
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await fetch(JSON_PATH);
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    allQuestions = data.questions;
+    buildFilterChips();
+  } catch(e) {
+    // Fallback: try same directory
+    try {
+      const res2 = await fetch('mathematical-physics.json');
+      const data2 = await res2.json();
+      allQuestions = data2.questions;
+      buildFilterChips();
+    } catch(e2) {
+      document.getElementById('startSection').innerHTML =
+        '<div style="text-align:center;padding:3rem;color:var(--wrong);font-family:var(--font-mono);font-size:.8rem">⚠ Could not load mathematical-physics.json<br><br>Place the JSON file at:<br><code>questions/mathematical-physics.json</code><br>or in the same folder as this HTML file.</div>';
+    }
+  }
+});
+
+function buildFilterChips() {
+  const topics = [...new Set(allQuestions.map(q => q.topic))].sort();
+  document.getElementById('topicCount').textContent = topics.length;
+  const wrap = document.getElementById('filterChips');
+  // "All" chip
+  const allChip = document.createElement('button');
+  allChip.className = 'filter-chip active';
+  allChip.textContent = 'All Topics';
+  allChip.dataset.topic = '__all__';
+  allChip.addEventListener('click', () => {
+    activeFilters.clear();
+    wrap.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    allChip.classList.add('active');
+    updateStartBtn();
+  });
+  wrap.appendChild(allChip);
+
+  topics.forEach(topic => {
+    const chip = document.createElement('button');
+    chip.className = 'filter-chip';
+    chip.textContent = topic;
+    chip.dataset.topic = topic;
+    chip.addEventListener('click', () => {
+      const allC = wrap.querySelector('[data-topic="__all__"]');
+      allC.classList.remove('active');
+      if (activeFilters.has(topic)) {
+        activeFilters.delete(topic);
+        chip.classList.remove('active');
+        if (activeFilters.size === 0) { allC.classList.add('active'); }
+      } else {
+        activeFilters.add(topic);
+        chip.classList.add('active');
+      }
+      updateStartBtn();
+    });
+    wrap.appendChild(chip);
+  });
+}
+
+function updateStartBtn() {
+  const pool = getPool();
+  const btn = document.getElementById('btnStart');
+  if (pool.length < 1) {
+    btn.disabled = true;
+    btn.querySelector('span') && (btn.textContent = 'No questions match filter');
+  } else {
+    btn.disabled = false;
+  }
+}
+
+function getPool() {
+  if (activeFilters.size === 0) return allQuestions;
+  return allQuestions.filter(q => activeFilters.has(q.topic));
+}
+
+function pickRandom(pool, n, exclude = []) {
+  const available = pool.filter(q => !exclude.includes(q.id));
+  const shuffled = [...available].sort(() => Math.random() - .5);
+  return shuffled.slice(0, Math.min(n, shuffled.length));
+}
+
+function startQuiz(excludeIds = []) {
+  const pool = getPool();
+  currentSession = pickRandom(pool, 10, excludeIds);
+  if (currentSession.length === 0) { alert('Not enough questions available.'); return; }
+  userAnswers = currentSession.map(() => new Set());
+  currentIdx = 0;
+
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('startSection').style.display = 'none';
+  document.getElementById('quizSection').classList.add('active');
+
+  buildNavDots();
+  renderQuestion(0);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function buildNavDots() {
+  const wrap = document.getElementById('navDots');
+  wrap.innerHTML = '';
+  currentSession.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot' + (i === 0 ? ' current' : '');
+    dot.title = `Question ${i+1}`;
+    dot.addEventListener('click', () => renderQuestion(i));
+    wrap.appendChild(dot);
+  });
+}
+
+function updateNavDots() {
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach((dot, i) => {
+    dot.className = 'q-dot';
+    if (i === currentIdx) dot.classList.add('current');
+    else if (userAnswers[i] && userAnswers[i].size > 0) dot.classList.add('answered');
+  });
+}
+
+function renderQuestion(idx) {
+  currentIdx = idx;
+  const q = currentSession[idx];
+  const total = currentSession.length;
+
+  // Progress
+  document.getElementById('progLabel').textContent = `Question ${idx+1} of ${total}`;
+  const answered = userAnswers.filter(s => s.size > 0).length;
+  document.getElementById('progAnswered').textContent = `${answered} answered`;
+  document.getElementById('progFill').style.width = `${((idx+1)/total)*100}%`;
+
+  updateNavDots();
+
+  // Prev/Next
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = idx === total - 1;
+
+  const isMulti = q.correct.length > 1;
+
+  let html = `<div class="q-card">
+    <div class="q-meta">
+      <span class="q-badge exam">${q.exam}</span>
+      <span class="q-badge topic">${q.topic}</span>
+      ${isMulti ? '<span class="q-badge multi">Multi-answer</span>' : ''}
+      <span class="q-num">Q${idx+1}</span>
+    </div>
+    <div class="q-text">${q.question}</div>
+    ${q.image ? `<img class="q-image" src="${q.image}" alt="Question diagram"/>` : ''}
+    <div class="options-list" id="optionsList">`;
+
+  q.options.forEach((opt, oi) => {
+    const isSelected = userAnswers[idx].has(oi);
+    const letter = String.fromCharCode(65 + oi);
+    html += `<div class="option${isSelected ? ' selected' : ''}" data-idx="${oi}" onclick="selectOption(${oi})">
+      <div class="opt-marker">${letter}</div>
+      <div class="opt-text">${opt}</div>
+      <div class="opt-icon"></div>
+    </div>`;
+  });
+
+  html += `</div>
+    <div class="explanation" id="explanation"></div>
+  </div>`;
+
+  document.getElementById('questionArea').innerHTML = html;
+
+  // Ripple effect on options
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('mousemove', e => {
+      const r = opt.getBoundingClientRect();
+      opt.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+      opt.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+    });
+  });
+}
+
+function selectOption(oi) {
+  const q = currentSession[currentIdx];
+  const isMulti = q.correct.length > 1;
+  const answers = userAnswers[currentIdx];
+
+  if (isMulti) {
+    if (answers.has(oi)) answers.delete(oi);
+    else answers.add(oi);
+  } else {
+    answers.clear();
+    answers.add(oi);
+  }
+
+  // Re-render options only (not whole card)
+  q.options.forEach((_, i) => {
+    const el = document.querySelector(`.option[data-idx="${i}"]`);
+    if (!el) return;
+    el.classList.toggle('selected', answers.has(i));
+    const marker = el.querySelector('.opt-marker');
+    marker.textContent = String.fromCharCode(65 + i);
+  });
+
+  // Update progress answered count
+  const answered = userAnswers.filter(s => s.size > 0).length;
+  document.getElementById('progAnswered').textContent = `${answered} answered`;
+  updateNavDots();
+}
+
+function navigate(dir) {
+  const next = currentIdx + dir;
+  if (next >= 0 && next < currentSession.length) renderQuestion(next);
+}
+
+/* ── Results ── */
+function openResults() {
+  // Score
+  let correct = 0, wrong = 0, skipped = 0;
+  currentSession.forEach((q, i) => {
+    const sel = userAnswers[i];
+    if (sel.size === 0) { skipped++; return; }
+    const correctSet = new Set(q.correct);
+    const isCorrect = sel.size === correctSet.size && [...sel].every(v => correctSet.has(v));
+    if (isCorrect) correct++; else wrong++;
+  });
+
+  document.getElementById('scoreNum').textContent = correct;
+  document.getElementById('pillCorrect').textContent = `${correct} correct`;
+  document.getElementById('pillWrong').textContent = `${wrong} wrong`;
+  document.getElementById('pillSkip').textContent = `${skipped} skipped`;
+
+  const pct = correct / currentSession.length;
+  const titles = ['Keep Practising!', 'Getting There!', 'Good Work!', 'Great Job!', 'Excellent!', 'Perfect Score! 🎉'];
+  const ti = Math.floor(pct * 5);
+  document.getElementById('scoreTitle').textContent = titles[Math.min(ti, 5)];
+  document.getElementById('scoreSubtitle').textContent = `${Math.round(pct*100)}% — ${correct} of ${currentSession.length} correct`;
+
+  // Animate ring (circumference = 2π×32 ≈ 201)
+  setTimeout(() => {
+    const offset = 201 - (pct * 201);
+    document.getElementById('scoreCircle').style.strokeDashoffset = offset;
+  }, 100);
+
+  // Build results list
+  const list = document.getElementById('resultsList');
+  list.innerHTML = '';
+  currentSession.forEach((q, i) => {
+    const sel = userAnswers[i];
+    const correctSet = new Set(q.correct);
+    let status, statusClass, icon;
+    if (sel.size === 0) { status = 'Skipped'; statusClass = 'status-skip'; icon = '−'; }
+    else {
+      const isCorrect = sel.size === correctSet.size && [...sel].every(v => correctSet.has(v));
+      if (isCorrect) { status = 'Correct'; statusClass = 'status-correct'; icon = '✓'; }
+      else { status = 'Wrong'; statusClass = 'status-wrong'; icon = '✗'; }
+    }
+
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      const isCorrectOpt = correctSet.has(oi);
+      const isSelected = sel.has(oi);
+      let cls = 'rn', mkIcon = String.fromCharCode(65+oi);
+      if (isCorrectOpt) { cls = 'rc'; mkIcon = '✓'; }
+      else if (isSelected && !isCorrectOpt) { cls = 'rw'; mkIcon = '✗'; }
+      optionsHtml += `<div class="ro ${cls}"><div class="ro-marker">${mkIcon}</div><span>${opt}</span></div>`;
+    });
+
+    const item = document.createElement('div');
+    item.className = 'result-item';
+    item.innerHTML = `
+      <div class="result-item-head" onclick="toggleResultItem(this)">
+        <div class="result-status ${statusClass}">${icon}</div>
+        <div class="result-qtext"><b style="font-family:var(--font-mono);font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Q${i+1} · ${q.exam} · ${q.topic}</b><br>${q.question}</div>
+        <div class="result-toggle">▾</div>
+      </div>
+      <div class="result-detail">
+        <div class="result-options">${optionsHtml}</div>
+        <div class="result-expl"><strong>Explanation</strong>${q.explanation}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+
+  document.getElementById('resultsOverlay').classList.add('active');
+}
+
+function toggleResultItem(head) {
+  head.parentElement.classList.toggle('open');
+}
+
+function closeResults() {
+  document.getElementById('resultsOverlay').classList.remove('active');
+  document.getElementById('scoreCircle').style.strokeDashoffset = '201';
+}
+
+function redoSame() {
+  closeResults();
+  userAnswers = currentSession.map(() => new Set());
+  currentIdx = 0;
+  buildNavDots();
+  renderQuestion(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function redoDifferent() {
+  closeResults();
+  const usedIds = currentSession.map(q => q.id);
+  // Reset quiz view
+  currentSession = [];
+  userAnswers = [];
+  document.getElementById('questionArea').innerHTML = '';
+  startQuiz(usedIds);
+}
+</script>
+</body>
+</html>
