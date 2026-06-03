@@ -20,9 +20,7 @@ The goal of this project is to provide students with a realistic exam-oriented p
 
 ## Website
 
-Visit the practice site here:
-
-🔗 [Curious Crows](https://ivan-syless.github.io/curious-crows/)
+Visit the practice site here: 🔗 [Curious Crows](https://ivan-syless.github.io/curious-crows/)
 
 ## Purpose
 
