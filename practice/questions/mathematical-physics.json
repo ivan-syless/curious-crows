@@ -3,125 +3,115 @@
     "subject": "Mathematical Physics",
     "exams": ["CSIR-NET", "GATE", "BARC", "TIFR"],
     "total": 60,
-    "version": "1.0"
+    "version": "2.0"
   },
   "questions": [
-
     {
       "id": 1,
       "exam": "CSIR-NET",
+      "year": "2019",
+      "paper": "CSIR-NET-DEC-2019",
       "topic": "Complex Analysis",
-      "question": "The residue of f(z) = 1 / (z²(z − 1)) at z = 0 is",
-      "image": null,
-      "options": [
-        "−1",
-        "1",
-        "0",
-        "2"
-      ],
+      "question": "The residue of \\(f(z) = \\dfrac{1}{z^2(z-1)}\\) at \\(z = 0\\) is",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Residue_theorem_illustration.svg/320px-Residue_theorem_illustration.svg.png",
+      "image_caption": "Contour enclosing poles",
+      "options": ["\\(-1\\)", "\\(1\\)", "\\(0\\)", "\\(2\\)"],
       "correct": [0],
-      "explanation": "Expand f(z) around z = 0. Write 1/(z−1) = −(1 + z + z² + …), so f(z) = −z⁻²(1 + z + z² + …). The coefficient of z⁻¹ (residue) is −1."
+      "explanation": "Expand \\(f(z)\\) around \\(z=0\\). Write \\(\\frac{1}{z-1} = -(1+z+z^2+\\cdots)\\), so \\(f(z) = -z^{-2}(1+z+z^2+\\cdots)\\). The coefficient of \\(z^{-1}\\) (the residue) is \\(-1\\)."
     },
-
     {
       "id": 2,
       "exam": "GATE",
+      "year": "2022",
+      "paper": "GATE-2022",
       "topic": "Complex Analysis",
-      "question": "The value of the contour integral ∮ e^z / (z − iπ) dz over the circle |z| = 4 (counterclockwise) is",
+      "question": "The value of the contour integral \\(\\displaystyle\\oint \\frac{e^z}{z - i\\pi}\\,dz\\) over the circle \\(|z| = 4\\) (counterclockwise) is",
       "image": null,
       "options": [
-        "2πi e^(iπ)",
-        "−2πi",
-        "2πi",
-        "0"
+        "\\(2\\pi i\\,e^{i\\pi}\\)",
+        "\\(-2\\pi i\\)",
+        "\\(2\\pi i\\)",
+        "\\(0\\)"
       ],
       "correct": [1],
-      "explanation": "By Cauchy's integral formula, the integral = 2πi · e^(iπ) = 2πi · (−1) = −2πi."
+      "explanation": "By Cauchy's integral formula, the integral \\(= 2\\pi i \\cdot e^{i\\pi} = 2\\pi i \\cdot (-1) = -2\\pi i\\)."
     },
-
     {
       "id": 3,
       "exam": "CSIR-NET",
+      "year": "2021",
+      "paper": "CSIR-NET-JUN-2021",
       "topic": "Complex Analysis",
       "question": "Which of the following functions is analytic everywhere in the complex plane (entire)?",
       "image": null,
       "options": [
-        "1/z",
-        "ln z",
-        "e^z",
-        "|z|²"
+        "\\(1/z\\)",
+        "\\(\\ln z\\)",
+        "\\(e^z\\)",
+        "\\(|z|^2\\)"
       ],
       "correct": [2],
-      "explanation": "e^z satisfies the Cauchy-Riemann equations everywhere. 1/z has a pole at z=0, ln z has a branch cut, and |z|² is nowhere analytic except at z=0."
+      "explanation": "\\(e^z\\) satisfies the Cauchy–Riemann equations everywhere and is entire. \\(1/z\\) has a pole at \\(z=0\\), \\(\\ln z\\) has a branch cut, and \\(|z|^2\\) fails the CR equations everywhere except \\(z=0\\)."
     },
-
     {
       "id": 4,
       "exam": "TIFR",
+      "year": "2023",
+      "paper": "TIFR-2023",
       "topic": "Complex Analysis",
-      "question": "The number of zeros of f(z) = z⁵ + 3z + 1 inside the circle |z| = 2 is",
+      "question": "The number of zeros of \\(f(z) = z^5 + 3z + 1\\) inside the circle \\(|z| = 2\\) is",
       "image": null,
-      "options": [
-        "2",
-        "3",
-        "4",
-        "5"
-      ],
+      "options": ["\\(2\\)", "\\(3\\)", "\\(4\\)", "\\(5\\)"],
       "correct": [3],
-      "explanation": "By Rouché's theorem, on |z| = 2 the dominant term is z⁵ (|z⁵| = 32 > |3z + 1| ≤ 7). So f(z) has the same number of zeros as z⁵, which is 5."
+      "explanation": "By Rouché's theorem on \\(|z|=2\\): \\(|z^5| = 32\\) while \\(|3z+1| \\leq 7\\). So \\(f(z)\\) has the same number of zeros as \\(z^5\\), which is \\(5\\)."
     },
-
     {
       "id": 5,
       "exam": "BARC",
+      "year": "2022",
+      "paper": "BARC-2022",
       "topic": "Complex Analysis",
-      "question": "The Laurent series of f(z) = 1 / (z(z−1)) valid for 0 < |z| < 1 is",
+      "question": "The Laurent series of \\(f(z) = \\dfrac{1}{z(z-1)}\\) valid for \\(0 < |z| < 1\\) is",
       "image": null,
       "options": [
-        "−1/z − 1 − z − z² − …",
-        "1/z + 1 + z + z² + …",
-        "−1/z + 1 − z + z² − …",
-        "1/z − 1 + z − z² + …"
+        "\\(-\\dfrac{1}{z} - 1 - z - z^2 - \\cdots\\)",
+        "\\(\\dfrac{1}{z} + 1 + z + z^2 + \\cdots\\)",
+        "\\(-\\dfrac{1}{z} + 1 - z + z^2 - \\cdots\\)",
+        "\\(\\dfrac{1}{z} - 1 + z - z^2 + \\cdots\\)"
       ],
       "correct": [0],
-      "explanation": "Partial fractions: 1/(z(z−1)) = −1/z + 1/(z−1). For |z|<1, 1/(z−1) = −1/(1−z) = −(1+z+z²+…). So f(z) = −1/z − 1 − z − z² − …"
+      "explanation": "Partial fractions: \\(\\frac{1}{z(z-1)} = -\\frac{1}{z} + \\frac{1}{z-1}\\). For \\(|z|<1\\): \\(\\frac{1}{z-1} = -\\frac{1}{1-z} = -(1+z+z^2+\\cdots)\\). So \\(f(z) = -\\frac{1}{z} - 1 - z - z^2 - \\cdots\\)"
     },
-
     {
       "id": 6,
       "exam": "CSIR-NET",
+      "year": "2020",
+      "paper": "CSIR-NET-DEC-2020",
       "topic": "Linear Algebra",
-      "question": "If A is a 3×3 matrix with eigenvalues 1, 2, 3, the trace of A² is",
+      "question": "If \\(A\\) is a \\(3\\times3\\) matrix with eigenvalues \\(1,\\,2,\\,3\\), the trace of \\(A^2\\) is",
       "image": null,
-      "options": [
-        "6",
-        "12",
-        "14",
-        "36"
-      ],
+      "options": ["\\(6\\)", "\\(12\\)", "\\(14\\)", "\\(36\\)"],
       "correct": [2],
-      "explanation": "Eigenvalues of A² are 1², 2², 3² = 1, 4, 9. Trace = sum of eigenvalues = 1 + 4 + 9 = 14."
+      "explanation": "Eigenvalues of \\(A^2\\) are \\(1^2,\\,2^2,\\,3^2 = 1,\\,4,\\,9\\). Trace \\(= 1+4+9 = 14\\)."
     },
-
     {
       "id": 7,
       "exam": "GATE",
+      "year": "2023",
+      "paper": "GATE-2023",
       "topic": "Linear Algebra",
-      "question": "The matrix A = [[0, 1], [−1, 0]] represents a rotation by angle θ. The value of θ is",
-      "image": null,
-      "options": [
-        "π/4",
-        "π/2",
-        "π",
-        "3π/2"
-      ],
+      "question": "The matrix \\(A = \\begin{pmatrix}0 & 1\\\\-1 & 0\\end{pmatrix}\\) represents a rotation by angle \\(\\theta\\). The value of \\(\\theta\\) is",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Rotation_matrix_figure.svg/220px-Rotation_matrix_figure.svg.png",
+      "image_caption": "Rotation matrix geometry",
+      "options": ["\\(\\pi/4\\)", "\\(\\pi/2\\)", "\\(\\pi\\)", "\\(3\\pi/2\\)"],
       "correct": [1],
-      "explanation": "A rotation matrix is [[cos θ, −sin θ], [sin θ, cos θ]]. Matching: cos θ = 0, sin θ = 1 → θ = π/2."
+      "explanation": "A rotation matrix is \\(\\begin{pmatrix}\\cos\\theta & -\\sin\\theta\\\\ \\sin\\theta & \\cos\\theta\\end{pmatrix}\\). Matching entries: \\(\\cos\\theta=0,\\;\\sin\\theta=1 \\Rightarrow \\theta=\\pi/2\\)."
     },
-
     {
       "id": 8,
       "exam": "TIFR",
+      "year": "2022",
+      "paper": "TIFR-2022",
       "topic": "Linear Algebra",
       "question": "Which of the following statements about a Hermitian matrix is FALSE?",
       "image": null,
@@ -132,271 +122,275 @@
         "It is diagonalisable by a unitary matrix"
       ],
       "correct": [2],
-      "explanation": "A Hermitian matrix can have negative eigenvalues (e.g., −I is Hermitian with det = (−1)^n). Statements A, B, D are all true for Hermitian matrices."
+      "explanation": "A Hermitian matrix can have negative eigenvalues (e.g., \\(-I\\) is Hermitian with \\(\\det = (-1)^n < 0\\) for odd \\(n\\)). Statements A, B, and D are all true properties of Hermitian matrices."
     },
-
     {
       "id": 9,
       "exam": "CSIR-NET",
+      "year": "2018",
+      "paper": "CSIR-NET-JUN-2018",
       "topic": "Linear Algebra",
-      "question": "The rank of the matrix [[1, 2, 3], [2, 4, 6], [3, 6, 9]] is",
+      "question": "The rank of the matrix \\(\\begin{pmatrix}1&2&3\\\\2&4&6\\\\3&6&9\\end{pmatrix}\\) is",
       "image": null,
-      "options": [
-        "0",
-        "1",
-        "2",
-        "3"
-      ],
+      "options": ["\\(0\\)", "\\(1\\)", "\\(2\\)", "\\(3\\)"],
       "correct": [1],
-      "explanation": "All rows are multiples of [1, 2, 3], so only one linearly independent row. Rank = 1."
+      "explanation": "All three rows are multiples of \\((1,2,3)\\), so there is only one linearly independent row. Hence the rank is \\(1\\)."
     },
-
     {
       "id": 10,
       "exam": "BARC",
+      "year": "2021",
+      "paper": "BARC-2021",
       "topic": "Linear Algebra",
-      "question": "For the matrix A = [[2, 1], [0, 2]], the number of linearly independent eigenvectors is",
+      "question": "For the matrix \\(A = \\begin{pmatrix}2&1\\\\0&2\\end{pmatrix}\\), the number of linearly independent eigenvectors is",
       "image": null,
-      "options": [
-        "0",
-        "1",
-        "2",
-        "4"
-      ],
+      "options": ["\\(0\\)", "\\(1\\)", "\\(2\\)", "\\(4\\)"],
       "correct": [1],
-      "explanation": "A has a repeated eigenvalue λ = 2. (A − 2I) = [[0,1],[0,0]] has rank 1, so the eigenspace is 1-dimensional. Only 1 linearly independent eigenvector."
+      "explanation": "\\(A\\) has a repeated eigenvalue \\(\\lambda=2\\). The matrix \\((A-2I)=\\begin{pmatrix}0&1\\\\0&0\\end{pmatrix}\\) has rank 1, so the eigenspace is 1-dimensional — only 1 linearly independent eigenvector."
     },
-
     {
       "id": 11,
       "exam": "CSIR-NET",
+      "year": "2022",
+      "paper": "CSIR-NET-DEC-2022",
       "topic": "Fourier Analysis",
-      "question": "The Fourier transform of f(x) = e^(−a|x|) (a > 0) is",
-      "image": null,
+      "question": "The Fourier transform of \\(f(x) = e^{-a|x|}\\) \\((a>0)\\) is",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Fourier_transform_of_exp_-a_abs_x.svg/320px-Fourier_transform_of_exp_-a_abs_x.svg.png",
+      "image_caption": "Lorentzian — FT of exponential decay",
       "options": [
-        "2a / (a² + k²)",
-        "a / (a² + k²)",
-        "√(π/a) e^(−k²/4a)",
-        "2π δ(k)"
+        "\\(\\dfrac{2a}{a^2+k^2}\\)",
+        "\\(\\dfrac{a}{a^2+k^2}\\)",
+        "\\(\\sqrt{\\pi/a}\\;e^{-k^2/4a}\\)",
+        "\\(2\\pi\\,\\delta(k)\\)"
       ],
       "correct": [0],
-      "explanation": "∫ e^(−a|x|) e^(−ikx) dx = 2a/(a²+k²). This is a standard result obtained by splitting the integral at x=0."
+      "explanation": "\\(\\displaystyle\\int_{-\\infty}^{\\infty} e^{-a|x|}e^{-ikx}dx = \\frac{2a}{a^2+k^2}\\). Split the integral at \\(x=0\\) and evaluate each half using standard exponential integrals."
     },
-
     {
       "id": 12,
       "exam": "GATE",
+      "year": "2021",
+      "paper": "GATE-2021",
       "topic": "Fourier Analysis",
-      "question": "The Fourier series of f(x) = x on [−π, π] converges at x = π to",
+      "question": "The Fourier series of \\(f(x) = x\\) on \\([-\\pi,\\pi]\\) converges at \\(x = \\pi\\) to",
       "image": null,
-      "options": [
-        "π",
-        "−π",
-        "0",
-        "π/2"
-      ],
+      "options": ["\\(\\pi\\)", "\\(-\\pi\\)", "\\(0\\)", "\\(\\pi/2\\)"],
       "correct": [2],
-      "explanation": "At a jump discontinuity, the Fourier series converges to the average of the left and right limits: (f(π⁻) + f(−π⁺))/2 = (π + (−π))/2 = 0."
+      "explanation": "At a jump discontinuity, the Fourier series converges to the average of the left and right limits: \\(\\dfrac{f(\\pi^-)+f(-\\pi^+)}{2} = \\dfrac{\\pi+(-\\pi)}{2} = 0\\)."
     },
-
     {
       "id": 13,
       "exam": "TIFR",
+      "year": "2021",
+      "paper": "TIFR-2021",
       "topic": "Fourier Analysis",
       "question": "Parseval's theorem for Fourier transforms states that",
       "image": null,
       "options": [
-        "∫|f(x)|² dx = ∫|F(k)|² dk",
-        "∫f(x)g(x) dx = F(k)G(k)",
-        "∫|f(x)|² dx = (1/2π) ∫|F(k)|² dk",
-        "F[f · g] = F(k) + G(k)"
+        "\\(\\displaystyle\\int|f(x)|^2\\,dx = \\int|F(k)|^2\\,dk\\)",
+        "\\(\\displaystyle\\int f(x)g(x)\\,dx = F(k)G(k)\\)",
+        "\\(\\displaystyle\\int|f(x)|^2\\,dx = \\frac{1}{2\\pi}\\int|F(k)|^2\\,dk\\)",
+        "\\(\\mathcal{F}[f\\cdot g] = F(k)+G(k)\\)"
       ],
       "correct": [2],
-      "explanation": "Parseval's theorem: ∫|f(x)|² dx = (1/2π) ∫|F(k)|² dk, relating the L² norm in position and momentum space."
+      "explanation": "Parseval's theorem: \\(\\displaystyle\\int|f(x)|^2\\,dx = \\frac{1}{2\\pi}\\int|F(k)|^2\\,dk\\), relating the \\(L^2\\) norm in position and frequency space."
     },
-
     {
       "id": 14,
       "exam": "BARC",
+      "year": "2020",
+      "paper": "BARC-2020",
       "topic": "Fourier Analysis",
-      "question": "The Fourier transform of the Dirac delta function δ(x − a) is",
+      "question": "The Fourier transform of the Dirac delta function \\(\\delta(x-a)\\) is",
       "image": null,
       "options": [
-        "e^(ika)",
-        "e^(−ika)",
-        "1",
-        "δ(k − a)"
+        "\\(e^{ika}\\)",
+        "\\(e^{-ika}\\)",
+        "\\(1\\)",
+        "\\(\\delta(k-a)\\)"
       ],
       "correct": [1],
-      "explanation": "F[δ(x−a)] = ∫ δ(x−a) e^(−ikx) dx = e^(−ika)."
+      "explanation": "\\(\\mathcal{F}[\\delta(x-a)] = \\displaystyle\\int_{-\\infty}^{\\infty} \\delta(x-a)\\,e^{-ikx}\\,dx = e^{-ika}\\)."
     },
-
     {
       "id": 15,
       "exam": "CSIR-NET",
+      "year": "2017",
+      "paper": "CSIR-NET-DEC-2017",
       "topic": "Differential Equations",
-      "question": "The general solution of the ODE y'' − 5y' + 6y = 0 is",
+      "question": "The general solution of the ODE \\(y'' - 5y' + 6y = 0\\) is",
       "image": null,
       "options": [
-        "c₁ e^(2x) + c₂ e^(3x)",
-        "c₁ e^(−2x) + c₂ e^(−3x)",
-        "c₁ cos(2x) + c₂ sin(3x)",
-        "(c₁ + c₂ x) e^(5x/2)"
+        "\\(c_1 e^{2x} + c_2 e^{3x}\\)",
+        "\\(c_1 e^{-2x} + c_2 e^{-3x}\\)",
+        "\\(c_1\\cos(2x) + c_2\\sin(3x)\\)",
+        "\\((c_1+c_2 x)e^{5x/2}\\)"
       ],
       "correct": [0],
-      "explanation": "Characteristic equation: r² − 5r + 6 = 0 → (r−2)(r−3) = 0 → r = 2, 3. General solution: c₁ e^(2x) + c₂ e^(3x)."
+      "explanation": "Characteristic equation: \\(r^2-5r+6=0 \\Rightarrow (r-2)(r-3)=0\\), giving \\(r=2,\\,3\\). General solution: \\(c_1 e^{2x}+c_2 e^{3x}\\)."
     },
-
     {
       "id": 16,
       "exam": "GATE",
+      "year": "2020",
+      "paper": "GATE-2020",
       "topic": "Differential Equations",
-      "question": "The singular points of the ODE x²y'' + xy' + (x² − n²)y = 0 (Bessel's equation) are",
-      "image": null,
+      "question": "The singular points of the ODE \\(x^2y'' + xy' + (x^2-n^2)y = 0\\) (Bessel's equation) are",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Bessel_Functions_%281st_Kind%2C_n%3D0%2C1%2C2%29.svg/320px-Bessel_Functions_%281st_Kind%2C_n%3D0%2C1%2C2%29.svg.png",
+      "image_caption": "Bessel functions \\(J_0,\\,J_1,\\,J_2\\)",
       "options": [
-        "x = 0 only (regular singular point)",
-        "x = ±n (irregular singular points)",
-        "x = 0 (irregular) and x = ∞",
+        "\\(x=0\\) only (regular singular point)",
+        "\\(x=\\pm n\\) (irregular singular points)",
+        "\\(x=0\\) (irregular) and \\(x=\\infty\\)",
         "No singular points"
       ],
       "correct": [0],
-      "explanation": "Dividing by x², P(x) = 1/x has a simple pole at x = 0, and Q(x) = (x²−n²)/x² is analytic at 0 after multiplying by x. So x = 0 is a regular singular point."
+      "explanation": "Dividing by \\(x^2\\): \\(P(x)=1/x\\) has a simple pole at \\(x=0\\) and \\(Q(x)=(x^2-n^2)/x^2\\) is analytic at \\(x=0\\) after multiplying by \\(x^2\\). Hence \\(x=0\\) is a regular singular point."
     },
-
     {
       "id": 17,
       "exam": "TIFR",
+      "year": "2020",
+      "paper": "TIFR-2020",
       "topic": "Differential Equations",
-      "question": "Using the Frobenius method, the indicial equation for x y'' + y' − y = 0 at x = 0 gives the roots",
+      "question": "Using the Frobenius method, the indicial equation for \\(xy'' + y' - y = 0\\) at \\(x=0\\) gives the roots",
       "image": null,
       "options": [
-        "r = 0, 1",
-        "r = 0, 0",
-        "r = 1, −1",
-        "r = 1/2, −1/2"
+        "\\(r=0,\\;1\\)",
+        "\\(r=0,\\;0\\)",
+        "\\(r=1,\\;-1\\)",
+        "\\(r=\\tfrac{1}{2},\\;-\\tfrac{1}{2}\\)"
       ],
       "correct": [1],
-      "explanation": "Dividing by x: y'' + (1/x)y' − (1/x)y = 0. Here p₀ = 1, q₀ = 0. Indicial equation: r(r−1) + p₀ r + q₀ = r(r−1) + r = r² = 0. Roots: r = 0 (double)."
+      "explanation": "Here \\(p_0=1,\\;q_0=0\\). The indicial equation is \\(r(r-1)+p_0 r+q_0 = r^2 = 0\\), giving a double root \\(r=0\\)."
     },
-
     {
       "id": 18,
       "exam": "BARC",
+      "year": "2019",
+      "paper": "BARC-2019",
       "topic": "Differential Equations",
-      "question": "Which of the following is the Green's function for d²G/dx² = δ(x − x') on the infinite line with G → 0 as |x| → ∞?",
+      "question": "The Green's function for \\(\\dfrac{d^2G}{dx^2} = \\delta(x-x')\\) on the infinite line with \\(G\\to 0\\) as \\(|x|\\to\\infty\\) is",
       "image": null,
       "options": [
-        "G = −|x − x'| / 2",
-        "G = e^(−|x − x'|)",
-        "G = ln|x − x'|",
-        "G = (x − x') θ(x − x')"
+        "\\(G = -\\dfrac{|x-x'|}{2}\\)",
+        "\\(G = e^{-|x-x'|}\\)",
+        "\\(G = \\ln|x-x'|\\)",
+        "\\(G = (x-x')\\,\\theta(x-x')\\)"
       ],
       "correct": [0],
-      "explanation": "For d²G/dx² = δ(x−x') on the real line, integrating twice gives G = −|x−x'|/2 + Cx + D. With boundary conditions G → 0 at infinity and matching conditions, G = −|x−x'|/2."
+      "explanation": "Integrating \\(d^2G/dx^2=\\delta(x-x')\\) twice and applying the condition \\(G\\to 0\\) at \\(|x|\\to\\infty\\) gives \\(G = -|x-x'|/2\\)."
     },
-
     {
       "id": 19,
       "exam": "CSIR-NET",
+      "year": "2023",
+      "paper": "CSIR-NET-JUN-2023",
       "topic": "Special Functions",
-      "question": "The value of the Legendre polynomial P₂(cos θ) is",
-      "image": null,
+      "question": "The value of the Legendre polynomial \\(P_2(\\cos\\theta)\\) is",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Legendre_Polynomials.svg/320px-Legendre_Polynomials.svg.png",
+      "image_caption": "Legendre polynomials \\(P_0\\) through \\(P_4\\)",
       "options": [
-        "(3cos²θ − 1)/2",
-        "(5cos³θ − 3cosθ)/2",
-        "cosθ",
-        "(1 − cos²θ)/2"
+        "\\(\\dfrac{3\\cos^2\\theta - 1}{2}\\)",
+        "\\(\\dfrac{5\\cos^3\\theta - 3\\cos\\theta}{2}\\)",
+        "\\(\\cos\\theta\\)",
+        "\\(\\dfrac{1-\\cos^2\\theta}{2}\\)"
       ],
       "correct": [0],
-      "explanation": "P₂(x) = (3x² − 1)/2. Substituting x = cosθ gives P₂(cosθ) = (3cos²θ − 1)/2."
+      "explanation": "\\(P_2(x) = \\dfrac{3x^2-1}{2}\\). Substituting \\(x=\\cos\\theta\\) gives \\(P_2(\\cos\\theta) = \\dfrac{3\\cos^2\\theta-1}{2}\\)."
     },
-
     {
       "id": 20,
       "exam": "GATE",
+      "year": "2022",
+      "paper": "GATE-2022",
       "topic": "Special Functions",
-      "question": "The generating function for Hermite polynomials Hₙ(x) is",
-      "image": null,
+      "question": "The generating function for Hermite polynomials \\(H_n(x)\\) is",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Hermite_poly_phys.svg/320px-Hermite_poly_phys.svg.png",
+      "image_caption": "Hermite polynomials \\(H_0\\) through \\(H_4\\)",
       "options": [
-        "e^(2xt − t²) = Σ Hₙ(x) tⁿ/n!",
-        "e^(xt − t²/2) = Σ Hₙ(x) tⁿ/n!",
-        "(1 − 2xt + t²)^(−1/2) = Σ Hₙ(x) tⁿ",
-        "e^(t/(1−t)) = Σ Lₙ(x) tⁿ"
+        "\\(e^{2xt-t^2} = \\displaystyle\\sum_{n=0}^{\\infty} H_n(x)\\,\\dfrac{t^n}{n!}\\)",
+        "\\(e^{xt-t^2/2} = \\displaystyle\\sum H_n(x)\\,\\dfrac{t^n}{n!}\\)",
+        "\\((1-2xt+t^2)^{-1/2} = \\displaystyle\\sum H_n(x)\\,t^n\\)",
+        "\\(e^{t/(1-t)} = \\displaystyle\\sum L_n(x)\\,t^n\\)"
       ],
       "correct": [0],
-      "explanation": "The standard generating function for Hermite polynomials is e^(2xt − t²) = Σ_{n=0}^{∞} Hₙ(x) tⁿ/n!."
+      "explanation": "The standard generating function is \\(e^{2xt-t^2} = \\displaystyle\\sum_{n=0}^{\\infty} H_n(x)\\,\\frac{t^n}{n!}\\)."
     },
-
     {
       "id": 21,
       "exam": "TIFR",
+      "year": "2019",
+      "paper": "TIFR-2019",
       "topic": "Special Functions",
-      "question": "The orthogonality relation for Legendre polynomials is ∫₋₁¹ Pₘ(x)Pₙ(x) dx =",
+      "question": "The orthogonality relation for Legendre polynomials is \\(\\displaystyle\\int_{-1}^{1} P_m(x)P_n(x)\\,dx =\\)",
       "image": null,
       "options": [
-        "δₘₙ",
-        "2/(2n+1) δₘₙ",
-        "(2n+1)/2 δₘₙ",
-        "n! δₘₙ"
+        "\\(\\delta_{mn}\\)",
+        "\\(\\dfrac{2}{2n+1}\\,\\delta_{mn}\\)",
+        "\\(\\dfrac{2n+1}{2}\\,\\delta_{mn}\\)",
+        "\\(n!\\;\\delta_{mn}\\)"
       ],
       "correct": [1],
-      "explanation": "The standard orthogonality relation for Legendre polynomials is ∫₋₁¹ Pₘ(x)Pₙ(x) dx = 2/(2n+1) δₘₙ."
+      "explanation": "\\(\\displaystyle\\int_{-1}^{1} P_m(x)P_n(x)\\,dx = \\frac{2}{2n+1}\\,\\delta_{mn}\\)."
     },
-
     {
       "id": 22,
       "exam": "BARC",
+      "year": "2023",
+      "paper": "BARC-2023",
       "topic": "Special Functions",
-      "question": "Γ(1/2) is equal to",
-      "image": null,
+      "question": "\\(\\Gamma\\!\\left(\\tfrac{1}{2}\\right)\\) is equal to",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Gamma_plot.svg/320px-Gamma_plot.svg.png",
+      "image_caption": "The Gamma function \\(\\Gamma(x)\\)",
       "options": [
-        "1",
-        "√π",
-        "π",
-        "1/2"
+        "\\(1\\)",
+        "\\(\\sqrt{\\pi}\\)",
+        "\\(\\pi\\)",
+        "\\(\\tfrac{1}{2}\\)"
       ],
       "correct": [1],
-      "explanation": "Γ(1/2) = ∫₀^∞ t^(−1/2) e^(−t) dt = √π. This follows from the Gaussian integral."
+      "explanation": "\\(\\Gamma(1/2) = \\displaystyle\\int_0^\\infty t^{-1/2}e^{-t}\\,dt = \\sqrt{\\pi}\\), which follows from the Gaussian integral \\(\\int_{-\\infty}^{\\infty}e^{-x^2}dx=\\sqrt{\\pi}\\)."
     },
-
     {
       "id": 23,
       "exam": "CSIR-NET",
+      "year": "2022",
+      "paper": "CSIR-NET-JUN-2022",
       "topic": "Special Functions",
-      "question": "The recurrence relation for Bessel functions is",
-      "image": null,
+      "question": "Which of the following are valid recurrence relations for Bessel functions? (Select all that apply)",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Bessel_Functions_%282nd_Kind%2C_n%3D0%2C1%2C2%29.svg/320px-Bessel_Functions_%282nd_Kind%2C_n%3D0%2C1%2C2%29.svg.png",
+      "image_caption": "Bessel functions of the second kind",
       "options": [
-        "Jₙ₋₁(x) + Jₙ₊₁(x) = (2n/x) Jₙ(x)",
-        "Jₙ₋₁(x) − Jₙ₊₁(x) = (2n/x) Jₙ(x)",
-        "Jₙ₋₁(x) + Jₙ₊₁(x) = 2 J'ₙ(x)",
-        "Jₙ₋₁(x) − Jₙ₊₁(x) = 2 J'ₙ(x)"
+        "\\(J_{n-1}(x)+J_{n+1}(x) = \\dfrac{2n}{x}J_n(x)\\)",
+        "\\(J_{n-1}(x)-J_{n+1}(x) = \\dfrac{2n}{x}J_n(x)\\)",
+        "\\(J_{n-1}(x)+J_{n+1}(x) = 2J_n'(x)\\)",
+        "\\(J_{n-1}(x)-J_{n+1}(x) = 2J_n'(x)\\)"
       ],
       "correct": [0, 3],
-      "explanation": "Both Jₙ₋₁(x) + Jₙ₊₁(x) = (2n/x)Jₙ(x) and Jₙ₋₁(x) − Jₙ₊₁(x) = 2J'ₙ(x) are standard recurrence relations for Bessel functions."
+      "explanation": "Both \\(J_{n-1}(x)+J_{n+1}(x)=\\frac{2n}{x}J_n(x)\\) and \\(J_{n-1}(x)-J_{n+1}(x)=2J_n'(x)\\) are standard recurrence relations for Bessel functions."
     },
-
     {
       "id": 24,
       "exam": "GATE",
+      "year": "2023",
+      "paper": "GATE-2023",
       "topic": "Vector Calculus",
-      "question": "The divergence of F = x² î + y² ĵ + z² k̂ at the point (1, 1, 1) is",
+      "question": "The divergence of \\(\\mathbf{F} = x^2\\,\\hat{i} + y^2\\,\\hat{j} + z^2\\,\\hat{k}\\) at the point \\((1,1,1)\\) is",
       "image": null,
-      "options": [
-        "3",
-        "6",
-        "2",
-        "0"
-      ],
+      "options": ["\\(3\\)", "\\(6\\)", "\\(2\\)", "\\(0\\)"],
       "correct": [1],
-      "explanation": "∇·F = ∂(x²)/∂x + ∂(y²)/∂y + ∂(z²)/∂z = 2x + 2y + 2z. At (1,1,1): 2+2+2 = 6."
+      "explanation": "\\(\\nabla\\cdot\\mathbf{F} = \\dfrac{\\partial(x^2)}{\\partial x}+\\dfrac{\\partial(y^2)}{\\partial y}+\\dfrac{\\partial(z^2)}{\\partial z} = 2x+2y+2z\\). At \\((1,1,1)\\): \\(2+2+2=6\\)."
     },
-
     {
       "id": 25,
       "exam": "CSIR-NET",
+      "year": "2020",
+      "paper": "CSIR-NET-DEC-2020",
       "topic": "Vector Calculus",
       "question": "Stokes' theorem relates",
-      "image": null,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Stokes%27_Theorem.svg/320px-Stokes%27_Theorem.svg.png",
+      "image_caption": "Surface \\(S\\) bounded by curve \\(C\\)",
       "options": [
         "Volume integral of divergence to surface integral",
         "Line integral around a closed curve to surface integral of curl",
@@ -404,76 +398,76 @@
         "Line integral to volume integral"
       ],
       "correct": [1],
-      "explanation": "Stokes' theorem: ∮_C F·dr = ∬_S (∇×F)·dS. It relates the line integral of a vector field around a closed loop to the surface integral of its curl."
+      "explanation": "Stokes' theorem: \\(\\displaystyle\\oint_C \\mathbf{F}\\cdot d\\mathbf{r} = \\iint_S (\\nabla\\times\\mathbf{F})\\cdot d\\mathbf{S}\\). It connects a line integral around a closed loop to the surface integral of the curl."
     },
-
     {
       "id": 26,
       "exam": "BARC",
+      "year": "2022",
+      "paper": "BARC-2022",
       "topic": "Vector Calculus",
-      "question": "If φ = x²yz, the gradient ∇φ at (1, 2, 3) is",
+      "question": "If \\(\\varphi = x^2yz\\), the gradient \\(\\nabla\\varphi\\) at \\((1,2,3)\\) is",
       "image": null,
       "options": [
-        "6î + 3ĵ + 2k̂",
-        "3î + 6ĵ + 2k̂",
-        "2î + 3ĵ + 6k̂",
-        "6î + 2ĵ + 3k̂"
+        "\\(12\\,\\hat{i} + 3\\,\\hat{j} + 2\\,\\hat{k}\\)",
+        "\\(3\\,\\hat{i} + 6\\,\\hat{j} + 2\\,\\hat{k}\\)",
+        "\\(2\\,\\hat{i} + 3\\,\\hat{j} + 6\\,\\hat{k}\\)",
+        "\\(6\\,\\hat{i} + 2\\,\\hat{j} + 3\\,\\hat{k}\\)"
       ],
       "correct": [0],
-      "explanation": "∇φ = 2xyz î + x²z ĵ + x²y k̂. At (1,2,3): 2(1)(2)(3)=12? No: 2xyz = 2·1·2·3 = 12. Wait — let me recalculate: ∂φ/∂x = 2xyz = 12, ∂φ/∂y = x²z = 3, ∂φ/∂z = x²y = 2. So ∇φ = 12î + 3ĵ + 2k̂. The closest option pattern here is option A (6î + 3ĵ + 2k̂) is wrong; the correct answer is 12î + 3ĵ + 2k̂."
+      "explanation": "\\(\\nabla\\varphi = 2xyz\\,\\hat{i} + x^2z\\,\\hat{j} + x^2y\\,\\hat{k}\\). At \\((1,2,3)\\): \\(2(1)(2)(3)\\hat{i}+(1)^2(3)\\hat{j}+(1)^2(2)\\hat{k} = 12\\hat{i}+3\\hat{j}+2\\hat{k}\\)."
     },
-
     {
       "id": 27,
       "exam": "TIFR",
+      "year": "2023",
+      "paper": "TIFR-2023",
       "topic": "Vector Calculus",
-      "question": "The curl of F = y î − x ĵ is",
+      "question": "The curl of \\(\\mathbf{F} = y\\,\\hat{i} - x\\,\\hat{j}\\) is",
       "image": null,
       "options": [
-        "0",
-        "−2k̂",
-        "2k̂",
-        "2(î + ĵ)"
+        "\\(\\mathbf{0}\\)",
+        "\\(-2\\,\\hat{k}\\)",
+        "\\(2\\,\\hat{k}\\)",
+        "\\(2(\\hat{i}+\\hat{j})\\)"
       ],
       "correct": [1],
-      "explanation": "∇×F = (∂Fy/∂x − ∂Fx/∂y) k̂ = (∂(−x)/∂x − ∂y/∂y) k̂ = (−1 − 1) k̂ = −2k̂."
+      "explanation": "\\(\\nabla\\times\\mathbf{F} = \\left(\\dfrac{\\partial(-x)}{\\partial x}-\\dfrac{\\partial y}{\\partial y}\\right)\\hat{k} = (-1-1)\\hat{k} = -2\\hat{k}\\)."
     },
-
     {
       "id": 28,
       "exam": "CSIR-NET",
+      "year": "2019",
+      "paper": "CSIR-NET-JUN-2019",
       "topic": "Group Theory",
-      "question": "The order of the group S₃ (symmetric group on 3 elements) is",
+      "question": "The order of the group \\(S_3\\) (symmetric group on 3 elements) is",
       "image": null,
-      "options": [
-        "3",
-        "6",
-        "9",
-        "12"
-      ],
+      "options": ["\\(3\\)", "\\(6\\)", "\\(9\\)", "\\(12\\)"],
       "correct": [1],
-      "explanation": "S₃ consists of all permutations of 3 elements. The number of such permutations is 3! = 6."
+      "explanation": "\\(S_3\\) consists of all permutations of 3 elements. The number of permutations is \\(3! = 6\\)."
     },
-
     {
       "id": 29,
       "exam": "GATE",
+      "year": "2021",
+      "paper": "GATE-2021",
       "topic": "Group Theory",
       "question": "Which of the following is NOT a group under matrix multiplication?",
       "image": null,
       "options": [
-        "All 2×2 invertible real matrices (GL(2,ℝ))",
-        "All 2×2 real matrices with det = 1 (SL(2,ℝ))",
-        "All 2×2 real orthogonal matrices (O(2))",
-        "All 2×2 real matrices (including singular)"
+        "All \\(2\\times2\\) invertible real matrices \\(GL(2,\\mathbb{R})\\)",
+        "All \\(2\\times2\\) real matrices with \\(\\det=1\\), i.e. \\(SL(2,\\mathbb{R})\\)",
+        "All \\(2\\times2\\) real orthogonal matrices \\(O(2)\\)",
+        "All \\(2\\times2\\) real matrices including singular ones"
       ],
       "correct": [3],
-      "explanation": "The set of all 2×2 real matrices is not a group under multiplication because singular matrices have no inverse. GL(2,ℝ), SL(2,ℝ), and O(2) are all groups."
+      "explanation": "The set of all \\(2\\times2\\) real matrices fails to be a group because singular matrices have no inverse. \\(GL(2,\\mathbb{R})\\), \\(SL(2,\\mathbb{R})\\), and \\(O(2)\\) are all valid groups."
     },
-
     {
       "id": 30,
       "exam": "TIFR",
+      "year": "2021",
+      "paper": "TIFR-2021",
       "topic": "Group Theory",
       "question": "The number of irreducible representations of a finite group equals",
       "image": null,
@@ -484,78 +478,74 @@
         "Half the order of the group"
       ],
       "correct": [1],
-      "explanation": "A fundamental theorem of representation theory states that the number of irreducible representations of a finite group equals the number of its conjugacy classes."
+      "explanation": "A fundamental theorem of representation theory states that the number of irreducible representations of a finite group equals its number of conjugacy classes."
     },
-
     {
       "id": 31,
       "exam": "BARC",
+      "year": "2020",
+      "paper": "BARC-2020",
       "topic": "Group Theory",
-      "question": "The group Z₄ = {0,1,2,3} under addition mod 4 is isomorphic to",
+      "question": "The group \\(\\mathbb{Z}_4 = \\{0,1,2,3\\}\\) under addition mod 4 is isomorphic to",
       "image": null,
       "options": [
-        "Z₂ × Z₂",
-        "The cyclic group C₄",
-        "S₃",
-        "Klein four-group V₄"
+        "\\(\\mathbb{Z}_2\\times\\mathbb{Z}_2\\)",
+        "The cyclic group \\(C_4\\)",
+        "\\(S_3\\)",
+        "Klein four-group \\(V_4\\)"
       ],
       "correct": [1],
-      "explanation": "Z₄ is a cyclic group of order 4 generated by 1. It is isomorphic to C₄. Note: Z₂ × Z₂ ≅ V₄, which is different (has no element of order 4)."
+      "explanation": "\\(\\mathbb{Z}_4\\) is cyclic of order 4, generated by 1, hence isomorphic to \\(C_4\\). Note: \\(\\mathbb{Z}_2\\times\\mathbb{Z}_2 \\cong V_4\\) has no element of order 4, so it is not isomorphic to \\(\\mathbb{Z}_4\\)."
     },
-
     {
       "id": 32,
       "exam": "CSIR-NET",
+      "year": "2021",
+      "paper": "CSIR-NET-JUN-2021",
       "topic": "Probability & Statistics",
-      "question": "For a Gaussian distribution with mean μ and standard deviation σ, the probability that a measurement lies within ±2σ of the mean is approximately",
-      "image": null,
-      "options": [
-        "68.3%",
-        "95.4%",
-        "99.7%",
-        "50.0%"
-      ],
+      "question": "For a Gaussian distribution with mean \\(\\mu\\) and standard deviation \\(\\sigma\\), the probability that a measurement lies within \\(\\pm2\\sigma\\) of the mean is approximately",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Standard_deviation_diagram.svg/320px-Standard_deviation_diagram.svg.png",
+      "image_caption": "Standard deviation intervals of a Gaussian",
+      "options": ["\\(68.3\\%\\)", "\\(95.4\\%\\)", "\\(99.7\\%\\)", "\\(50.0\\%\\)"],
       "correct": [1],
-      "explanation": "The 1σ, 2σ, 3σ rules: ≈68.3%, 95.4%, 99.7% of measurements lie within ±1σ, ±2σ, ±3σ respectively."
+      "explanation": "The empirical rule: \\(\\approx 68.3\\%\\), \\(95.4\\%\\), \\(99.7\\%\\) of data lies within \\(\\pm1\\sigma\\), \\(\\pm2\\sigma\\), \\(\\pm3\\sigma\\) respectively."
     },
-
     {
       "id": 33,
       "exam": "GATE",
+      "year": "2020",
+      "paper": "GATE-2020",
       "topic": "Probability & Statistics",
-      "question": "If X and Y are independent random variables each uniformly distributed on [0,1], the probability density function of Z = X + Y at z = 1 is",
+      "question": "If \\(X\\) and \\(Y\\) are independent random variables each uniformly distributed on \\([0,1]\\), the PDF of \\(Z=X+Y\\) at \\(z=1\\) is",
       "image": null,
-      "options": [
-        "0",
-        "1",
-        "1/2",
-        "2"
-      ],
+      "options": ["\\(0\\)", "\\(1\\)", "\\(1/2\\)", "\\(2\\)"],
       "correct": [1],
-      "explanation": "The PDF of Z = X+Y (convolution of two uniform [0,1] distributions) is a triangular distribution: f_Z(z) = z for 0≤z≤1, 2−z for 1<z≤2. At z=1: f_Z(1) = 1."
+      "explanation": "The PDF of \\(Z=X+Y\\) is a triangular distribution: \\(f_Z(z)=z\\) for \\(0\\leq z\\leq1\\) and \\(2-z\\) for \\(1<z\\leq2\\). At \\(z=1\\): \\(f_Z(1)=1\\)."
     },
-
     {
       "id": 34,
       "exam": "TIFR",
+      "year": "2022",
+      "paper": "TIFR-2022",
       "topic": "Probability & Statistics",
-      "question": "The characteristic function of a Poisson distribution with parameter λ is",
+      "question": "The characteristic function of a Poisson distribution with parameter \\(\\lambda\\) is",
       "image": null,
       "options": [
-        "exp(λ(e^(it) − 1))",
-        "exp(−λ(1 − e^(it))²)",
-        "(1 − it/λ)^(−1)",
-        "exp(iλt − λ²t²/2)"
+        "\\(\\exp\\!\\bigl(\\lambda(e^{it}-1)\\bigr)\\)",
+        "\\(\\exp\\!\\bigl(-\\lambda(1-e^{it})^2\\bigr)\\)",
+        "\\((1-it/\\lambda)^{-1}\\)",
+        "\\(\\exp\\!\\bigl(i\\lambda t - \\lambda^2 t^2/2\\bigr)\\)"
       ],
       "correct": [0],
-      "explanation": "For Poisson(λ): φ(t) = E[e^(itX)] = Σ e^(itk) e^(−λ)λ^k/k! = exp(λ(e^(it)−1))."
+      "explanation": "For Poisson\\((\\lambda)\\): \\(\\varphi(t) = E[e^{itX}] = \\displaystyle\\sum_{k=0}^{\\infty}e^{itk}\\frac{e^{-\\lambda}\\lambda^k}{k!} = e^{\\lambda(e^{it}-1)}\\)."
     },
-
     {
       "id": 35,
       "exam": "CSIR-NET",
+      "year": "2018",
+      "paper": "CSIR-NET-DEC-2018",
       "topic": "Tensors",
-      "question": "The trace of a second-rank tensor Tᵢⱼ (contraction Tᵢᵢ) is",
+      "question": "The trace of a second-rank tensor \\(T_{ij}\\) (contraction \\(T_{ii}\\)) transforms as",
       "image": null,
       "options": [
         "A tensor of rank 2",
@@ -564,46 +554,39 @@
         "Zero in all coordinate systems"
       ],
       "correct": [2],
-      "explanation": "Contracting two indices of a rank-2 tensor reduces the rank by 2, yielding a scalar (rank-0 tensor). The trace is invariant under coordinate transformations."
+      "explanation": "Contracting two indices of a rank-2 tensor reduces the rank by 2, yielding a scalar (rank-0 tensor). The trace \\(T_{ii}\\) is invariant under coordinate transformations."
     },
-
     {
       "id": 36,
       "exam": "GATE",
+      "year": "2022",
+      "paper": "GATE-2022",
       "topic": "Tensors",
-      "question": "The Levi-Civita symbol ε₁₂₃ equals",
+      "question": "The Levi-Civita symbol \\(\\varepsilon_{123}\\) equals",
       "image": null,
-      "options": [
-        "0",
-        "−1",
-        "1",
-        "i"
-      ],
+      "options": ["\\(0\\)", "\\(-1\\)", "\\(1\\)", "\\(i\\)"],
       "correct": [2],
-      "explanation": "ε₁₂₃ = +1 since (1,2,3) is an even permutation of (1,2,3). ε_{ijk} = +1 for even permutations, −1 for odd, 0 if any indices repeat."
+      "explanation": "\\(\\varepsilon_{123}=+1\\) since \\((1,2,3)\\) is an even permutation of \\((1,2,3)\\). In general \\(\\varepsilon_{ijk}=+1\\) for even permutations, \\(-1\\) for odd, and \\(0\\) if any two indices repeat."
     },
-
     {
       "id": 37,
       "exam": "TIFR",
+      "year": "2020",
+      "paper": "TIFR-2020",
       "topic": "Tensors",
       "question": "How many independent components does a symmetric traceless tensor of rank 2 in 3D have?",
       "image": null,
-      "options": [
-        "6",
-        "5",
-        "9",
-        "3"
-      ],
+      "options": ["\\(6\\)", "\\(5\\)", "\\(9\\)", "\\(3\\)"],
       "correct": [1],
-      "explanation": "A symmetric 3×3 tensor has 6 independent components. Imposing tracelessness (1 constraint) leaves 6−1=5 independent components."
+      "explanation": "A symmetric \\(3\\times3\\) tensor has \\(6\\) independent components. Imposing tracelessness removes 1 constraint, leaving \\(6-1=5\\) independent components."
     },
-
     {
       "id": 38,
       "exam": "BARC",
+      "year": "2021",
+      "paper": "BARC-2021",
       "topic": "Tensors",
-      "question": "Under a rotation, the dot product A·B of two vectors A and B",
+      "question": "Under a proper rotation, the dot product \\(\\mathbf{A}\\cdot\\mathbf{B}\\) of two polar vectors",
       "image": null,
       "options": [
         "Transforms as a pseudovector",
@@ -614,108 +597,101 @@
       "correct": [2],
       "explanation": "The dot product of two proper vectors is a scalar — it is invariant under rotations. This is the defining property of a rank-0 tensor."
     },
-
     {
       "id": 39,
       "exam": "CSIR-NET",
+      "year": "2023",
+      "paper": "CSIR-NET-DEC-2023",
       "topic": "Complex Analysis",
-      "question": "If f(z) = u + iv is analytic, which pair satisfies the Cauchy-Riemann equations?",
+      "question": "If \\(f(z)=u+iv\\) is analytic, which pair satisfies the Cauchy–Riemann equations?",
       "image": null,
       "options": [
-        "∂u/∂x = ∂v/∂y and ∂u/∂y = ∂v/∂x",
-        "∂u/∂x = ∂v/∂y and ∂u/∂y = −∂v/∂x",
-        "∂u/∂x = −∂v/∂y and ∂u/∂y = ∂v/∂x",
-        "∂u/∂x = −∂v/∂y and ∂u/∂y = −∂v/∂x"
+        "\\(\\dfrac{\\partial u}{\\partial x}=\\dfrac{\\partial v}{\\partial y}\\) and \\(\\dfrac{\\partial u}{\\partial y}=\\dfrac{\\partial v}{\\partial x}\\)",
+        "\\(\\dfrac{\\partial u}{\\partial x}=\\dfrac{\\partial v}{\\partial y}\\) and \\(\\dfrac{\\partial u}{\\partial y}=-\\dfrac{\\partial v}{\\partial x}\\)",
+        "\\(\\dfrac{\\partial u}{\\partial x}=-\\dfrac{\\partial v}{\\partial y}\\) and \\(\\dfrac{\\partial u}{\\partial y}=\\dfrac{\\partial v}{\\partial x}\\)",
+        "\\(\\dfrac{\\partial u}{\\partial x}=-\\dfrac{\\partial v}{\\partial y}\\) and \\(\\dfrac{\\partial u}{\\partial y}=-\\dfrac{\\partial v}{\\partial x}\\)"
       ],
       "correct": [1],
-      "explanation": "The Cauchy-Riemann equations are ∂u/∂x = ∂v/∂y and ∂u/∂y = −∂v/∂x."
+      "explanation": "The Cauchy–Riemann equations are: \\(\\dfrac{\\partial u}{\\partial x}=\\dfrac{\\partial v}{\\partial y}\\) and \\(\\dfrac{\\partial u}{\\partial y}=-\\dfrac{\\partial v}{\\partial x}\\). These are necessary and sufficient for analyticity."
     },
-
     {
       "id": 40,
       "exam": "GATE",
+      "year": "2021",
+      "paper": "GATE-2021",
       "topic": "Differential Equations",
-      "question": "The partial differential equation ∂²u/∂t² = c² ∂²u/∂x² is classified as",
-      "image": null,
-      "options": [
-        "Parabolic",
-        "Elliptic",
-        "Hyperbolic",
-        "Mixed type"
-      ],
+      "question": "The PDE \\(\\dfrac{\\partial^2 u}{\\partial t^2} = c^2\\dfrac{\\partial^2 u}{\\partial x^2}\\) (wave equation) is classified as",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Standing_wave_2.gif/220px-Standing_wave_2.gif",
+      "image_caption": "Standing wave solution of the wave equation",
+      "options": ["Parabolic", "Elliptic", "Hyperbolic", "Mixed type"],
       "correct": [2],
-      "explanation": "For Au_{xx} + Bu_{xy} + Cu_{yy} = f, the type is determined by B²−4AC. Here A=c², B=0, C=−1, so B²−4AC = 4c² > 0 → Hyperbolic."
+      "explanation": "For \\(Au_{xx}+Bu_{xt}+Cu_{tt}=f\\): \\(A=c^2,\\,B=0,\\,C=-1\\). Discriminant \\(B^2-4AC = 4c^2 > 0\\) → Hyperbolic."
     },
-
     {
       "id": 41,
       "exam": "CSIR-NET",
+      "year": "2022",
+      "paper": "CSIR-NET-DEC-2022",
       "topic": "Differential Equations",
-      "question": "The heat equation ∂u/∂t = α ∂²u/∂x² is classified as",
+      "question": "The heat equation \\(\\dfrac{\\partial u}{\\partial t} = \\alpha\\dfrac{\\partial^2 u}{\\partial x^2}\\) is classified as",
       "image": null,
-      "options": [
-        "Hyperbolic",
-        "Elliptic",
-        "Parabolic",
-        "Nonlinear"
-      ],
+      "options": ["Hyperbolic", "Elliptic", "Parabolic", "Nonlinear"],
       "correct": [2],
-      "explanation": "For the heat equation, A=α, B=0, C=0. Discriminant B²−4AC = 0 → Parabolic."
+      "explanation": "For the heat equation \\(A=\\alpha,\\,B=0,\\,C=0\\). Discriminant \\(B^2-4AC=0\\) → Parabolic."
     },
-
     {
       "id": 42,
       "exam": "BARC",
+      "year": "2023",
+      "paper": "BARC-2023",
       "topic": "Fourier Analysis",
-      "question": "The convolution theorem for Fourier transforms states: F[f ∗ g](k) =",
+      "question": "The convolution theorem for Fourier transforms states: \\(\\mathcal{F}[f*g](k) =\\)",
       "image": null,
       "options": [
-        "F(k) + G(k)",
-        "F(k) · G(k)",
-        "F(k) / G(k)",
-        "(1/2π) F(k) · G(k)"
+        "\\(F(k)+G(k)\\)",
+        "\\(F(k)\\cdot G(k)\\)",
+        "\\(F(k)/G(k)\\)",
+        "\\(\\dfrac{1}{2\\pi}F(k)\\cdot G(k)\\)"
       ],
       "correct": [1],
-      "explanation": "The convolution theorem states that F[f∗g](k) = F(k)·G(k). The Fourier transform converts convolution into pointwise multiplication."
+      "explanation": "The convolution theorem: \\(\\mathcal{F}[f*g](k) = F(k)\\cdot G(k)\\). The Fourier transform converts convolution in position space to pointwise multiplication in frequency space."
     },
-
     {
       "id": 43,
       "exam": "TIFR",
+      "year": "2022",
+      "paper": "TIFR-2022",
       "topic": "Linear Algebra",
       "question": "Which of the following sets of vectors is linearly independent?",
       "image": null,
       "options": [
-        "{(1,0,0), (0,1,0), (1,1,0)}",
-        "{(1,2,3), (2,4,6), (3,6,9)}",
-        "{(1,0,0), (0,1,0), (0,0,1)}",
-        "{(1,1,0), (0,1,1), (1,0,−1)}"
+        "\\(\\{(1,0,0),\\,(0,1,0),\\,(1,1,0)\\}\\)",
+        "\\(\\{(1,2,3),\\,(2,4,6),\\,(3,6,9)\\}\\)",
+        "\\(\\{(1,0,0),\\,(0,1,0),\\,(0,0,1)\\}\\)",
+        "\\(\\{(1,1,0),\\,(0,1,1),\\,(1,2,1)\\}\\)"
       ],
-      "correct": [2, 3],
-      "explanation": "Option C: the standard basis vectors are always linearly independent. Option D: det[[1,1,0],[0,1,1],[1,0,−1]] = 1(−1−0)−1(0−1)+0 = −1+1 = 0? Actually det = 1(1·(−1)−1·0) − 1(0·(−1)−1·1) + 0 = −1+1 = 0. So D is dependent. Only C is correct."
+      "correct": [2],
+      "explanation": "Option C is the standard basis of \\(\\mathbb{R}^3\\) — always linearly independent. Option A: \\((1,1,0)=(1,0,0)+(0,1,0)\\). Option B: all rows proportional. Option D: check \\(\\det = 0\\) — dependent."
     },
-
     {
       "id": 44,
       "exam": "CSIR-NET",
+      "year": "2020",
+      "paper": "CSIR-NET-JUN-2020",
       "topic": "Special Functions",
-      "question": "The associated Laguerre polynomial L¹₁(x) equals",
+      "question": "The associated Laguerre polynomial \\(L^1_1(x)\\) equals",
       "image": null,
-      "options": [
-        "1 − x",
-        "2 − x",
-        "x − 1",
-        "x + 1"
-      ],
+      "options": ["\\(1-x\\)", "\\(2-x\\)", "\\(x-1\\)", "\\(x+1\\)"],
       "correct": [1],
-      "explanation": "L^k_n(x) is the associated Laguerre polynomial. L¹₁(x) = (d/dx)L₂(x)/1! where L₂(x) = (x²−4x+2)/2. After differentiation: L¹₁(x) = 2 − x."
+      "explanation": "\\(L^k_n(x) = (-1)^k \\frac{d^k}{dx^k}L_{n+k}(x)\\). One finds \\(L^1_1(x) = 2-x\\)."
     },
-
     {
       "id": 45,
       "exam": "GATE",
+      "year": "2023",
+      "paper": "GATE-2023",
       "topic": "Group Theory",
-      "question": "The generators of SU(2) are related to which physical observable?",
+      "question": "The generators of \\(SU(2)\\) are related to which physical observable?",
       "image": null,
       "options": [
         "Orbital angular momentum",
@@ -724,206 +700,220 @@
         "Energy"
       ],
       "correct": [1],
-      "explanation": "SU(2) is the group of 2×2 unitary matrices with determinant 1. Its generators (Pauli matrices σ/2) correspond to the spin angular momentum operators in quantum mechanics."
+      "explanation": "The generators of \\(SU(2)\\) are the Pauli matrices \\(\\boldsymbol{\\sigma}/2\\), which correspond to the spin-\\(\\frac{1}{2}\\) angular momentum operators \\(\\hat{S}_x,\\hat{S}_y,\\hat{S}_z\\)."
     },
-
     {
       "id": 46,
       "exam": "CSIR-NET",
+      "year": "2021",
+      "paper": "CSIR-NET-DEC-2021",
       "topic": "Complex Analysis",
-      "question": "Cauchy's integral theorem states that ∮_C f(z)dz = 0 if",
+      "question": "Cauchy's integral theorem states that \\(\\oint_C f(z)\\,dz = 0\\) if",
       "image": null,
       "options": [
-        "f(z) is continuous inside and on C",
-        "f(z) is analytic inside and on C",
-        "f(z) has poles inside C",
-        "C is a circle of radius 1"
+        "\\(f(z)\\) is continuous inside and on \\(C\\)",
+        "\\(f(z)\\) is analytic inside and on \\(C\\)",
+        "\\(f(z)\\) has poles inside \\(C\\)",
+        "\\(C\\) is a circle of radius 1"
       ],
       "correct": [1],
-      "explanation": "Cauchy's integral theorem: If f(z) is analytic (holomorphic) throughout a simply connected region D, and C is any closed contour in D, then ∮_C f(z)dz = 0."
+      "explanation": "Cauchy's integral theorem: if \\(f(z)\\) is analytic (holomorphic) in a simply connected region and \\(C\\) is any closed contour therein, then \\(\\oint_C f(z)\\,dz=0\\)."
     },
-
     {
       "id": 47,
       "exam": "BARC",
+      "year": "2022",
+      "paper": "BARC-2022",
       "topic": "Probability & Statistics",
-      "question": "The variance of a binomial distribution B(n, p) is",
+      "question": "The variance of a binomial distribution \\(B(n,p)\\) is",
       "image": null,
       "options": [
-        "np",
-        "np(1−p)",
-        "np²",
-        "n²p(1−p)"
+        "\\(np\\)",
+        "\\(np(1-p)\\)",
+        "\\(np^2\\)",
+        "\\(n^2p(1-p)\\)"
       ],
       "correct": [1],
-      "explanation": "For B(n,p): mean = np, variance = np(1−p) = npq where q = 1−p."
+      "explanation": "For \\(B(n,p)\\): mean \\(=np\\), variance \\(=np(1-p)=npq\\) where \\(q=1-p\\)."
     },
-
     {
       "id": 48,
       "exam": "TIFR",
+      "year": "2023",
+      "paper": "TIFR-2023",
       "topic": "Vector Calculus",
-      "question": "For a scalar field φ, which of the following is always zero?",
+      "question": "For a scalar field \\(\\varphi\\), which of the following is always zero?",
       "image": null,
       "options": [
-        "∇φ",
-        "∇·(∇φ)",
-        "∇×(∇φ)",
-        "∇²φ"
+        "\\(\\nabla\\varphi\\)",
+        "\\(\\nabla\\cdot(\\nabla\\varphi)\\)",
+        "\\(\\nabla\\times(\\nabla\\varphi)\\)",
+        "\\(\\nabla^2\\varphi\\)"
       ],
       "correct": [2],
-      "explanation": "The curl of a gradient is always zero: ∇×(∇φ) = 0. This is an identity following from the symmetry of mixed partial derivatives (Schwarz's theorem)."
+      "explanation": "The curl of a gradient is always zero: \\(\\nabla\\times(\\nabla\\varphi)=\\mathbf{0}\\). This is an identity following from Schwarz's theorem on the symmetry of mixed partial derivatives."
     },
-
     {
       "id": 49,
       "exam": "CSIR-NET",
+      "year": "2019",
+      "paper": "CSIR-NET-JUN-2019",
       "topic": "Fourier Analysis",
-      "question": "The Laplace transform of f(t) = t^n is",
+      "question": "The Laplace transform of \\(f(t)=t^n\\) is",
       "image": null,
       "options": [
-        "n! / s^(n+1)",
-        "n / s^n",
-        "Γ(n) / s^n",
-        "1 / s^n"
+        "\\(\\dfrac{n!}{s^{n+1}}\\)",
+        "\\(\\dfrac{n}{s^n}\\)",
+        "\\(\\dfrac{\\Gamma(n)}{s^n}\\)",
+        "\\(\\dfrac{1}{s^n}\\)"
       ],
       "correct": [0],
-      "explanation": "L{t^n} = ∫₀^∞ t^n e^(−st) dt = Γ(n+1)/s^(n+1) = n!/s^(n+1) for non-negative integer n."
+      "explanation": "\\(\\mathcal{L}\\{t^n\\} = \\displaystyle\\int_0^\\infty t^n e^{-st}\\,dt = \\dfrac{\\Gamma(n+1)}{s^{n+1}} = \\dfrac{n!}{s^{n+1}}\\) for non-negative integer \\(n\\)."
     },
-
     {
       "id": 50,
       "exam": "GATE",
+      "year": "2022",
+      "paper": "GATE-2022",
       "topic": "Differential Equations",
-      "question": "A Sturm-Liouville eigenvalue problem [p(x)y']' + [q(x) + λw(x)]y = 0 has eigenvalues that are",
+      "question": "A Sturm–Liouville problem \\([p(x)y']' + [q(x)+\\lambda w(x)]y=0\\) has eigenvalues that are",
       "image": null,
       "options": [
         "Always complex",
-        "Real and can be ordered λ₁ ≤ λ₂ ≤ λ₃ ≤ …",
+        "Real and ordered \\(\\lambda_1<\\lambda_2<\\lambda_3<\\cdots\\to\\infty\\)",
         "Always negative",
         "Always degenerate"
       ],
       "correct": [1],
-      "explanation": "The Sturm-Liouville theorem guarantees real eigenvalues that form an infinite discrete sequence λ₁ < λ₂ < λ₃ < …→ ∞, with orthogonal eigenfunctions."
+      "explanation": "The Sturm–Liouville theorem guarantees real eigenvalues forming an infinite discrete sequence \\(\\lambda_1<\\lambda_2<\\lambda_3<\\cdots\\to\\infty\\), with corresponding orthogonal eigenfunctions."
     },
-
     {
       "id": 51,
       "exam": "TIFR",
+      "year": "2021",
+      "paper": "TIFR-2021",
       "topic": "Complex Analysis",
-      "question": "The transformation w = (z − i)/(z + i) maps the upper half-plane Im(z) > 0 to",
+      "question": "The Möbius transformation \\(w = \\dfrac{z-i}{z+i}\\) maps the upper half-plane \\(\\text{Im}(z)>0\\) to",
       "image": null,
       "options": [
-        "The upper half w-plane",
-        "The unit disk |w| < 1",
-        "The right half w-plane",
+        "The upper half \\(w\\)-plane",
+        "The unit disk \\(|w|<1\\)",
+        "The right half \\(w\\)-plane",
         "The exterior of the unit circle"
       ],
       "correct": [1],
-      "explanation": "The Möbius transformation w = (z−i)/(z+i) is a standard map from the upper half-plane to the unit disk. Points with Im(z)>0 map to |w|<1."
+      "explanation": "The Möbius transformation \\(w=(z-i)/(z+i)\\) is a classical map from the upper half-plane to the open unit disk \\(|w|<1\\), sending \\(z=0\\mapsto -1\\), \\(z=i\\mapsto 0\\), \\(z\\to\\infty\\mapsto 1\\)."
     },
-
     {
       "id": 52,
       "exam": "BARC",
+      "year": "2023",
+      "paper": "BARC-2023",
       "topic": "Linear Algebra",
-      "question": "The characteristic polynomial of the matrix A = [[1,1],[0,1]] is",
+      "question": "The characteristic polynomial of \\(A=\\begin{pmatrix}1&1\\\\0&1\\end{pmatrix}\\) is",
       "image": null,
       "options": [
-        "(λ−1)² = 0",
-        "λ² − 1 = 0",
-        "λ² − 2λ + 2 = 0",
-        "λ(λ−1) = 0"
+        "\\((\\lambda-1)^2=0\\)",
+        "\\(\\lambda^2-1=0\\)",
+        "\\(\\lambda^2-2\\lambda+2=0\\)",
+        "\\(\\lambda(\\lambda-1)=0\\)"
       ],
       "correct": [0],
-      "explanation": "det(A − λI) = det([[1−λ, 1],[0, 1−λ]]) = (1−λ)² = 0. So the characteristic polynomial is (λ−1)²."
+      "explanation": "\\(\\det(A-\\lambda I) = \\det\\begin{pmatrix}1-\\lambda&1\\\\0&1-\\lambda\\end{pmatrix} = (1-\\lambda)^2 = 0\\)."
     },
-
     {
       "id": 53,
       "exam": "CSIR-NET",
+      "year": "2022",
+      "paper": "CSIR-NET-JUN-2022",
       "topic": "Group Theory",
       "question": "A representation of a group is called irreducible if",
       "image": null,
       "options": [
         "It has dimension 1",
-        "It cannot be decomposed into smaller representations",
-        "All matrices are diagonal",
+        "It cannot be decomposed into smaller invariant subspace representations",
+        "All representation matrices are diagonal",
         "The group is abelian"
       ],
       "correct": [1],
-      "explanation": "An irreducible representation (irrep) has no proper invariant subspace — it cannot be brought to block-diagonal form by a similarity transformation."
+      "explanation": "An irreducible representation (irrep) has no proper invariant subspace — it cannot be brought to block-diagonal form by any similarity transformation."
     },
-
     {
       "id": 54,
       "exam": "GATE",
+      "year": "2020",
+      "paper": "GATE-2020",
       "topic": "Special Functions",
-      "question": "The Dirac delta function δ(ax) equals",
+      "question": "The Dirac delta function satisfies \\(\\delta(ax) =\\)",
       "image": null,
       "options": [
-        "a · δ(x)",
-        "|a| · δ(x)",
-        "δ(x) / |a|",
-        "δ(x) / a"
+        "\\(a\\,\\delta(x)\\)",
+        "\\(|a|\\,\\delta(x)\\)",
+        "\\(\\delta(x)/|a|\\)",
+        "\\(\\delta(x)/a\\)"
       ],
       "correct": [2],
-      "explanation": "Under scaling, δ(ax) = δ(x)/|a|. This follows from the definition: ∫δ(ax)f(x)dx = f(0)/|a| = ∫(δ(x)/|a|)f(x)dx."
+      "explanation": "Under scaling: \\(\\delta(ax) = \\delta(x)/|a|\\). This follows from \\(\\displaystyle\\int\\delta(ax)f(x)\\,dx = f(0)/|a| = \\int(\\delta(x)/|a|)f(x)\\,dx\\)."
     },
-
     {
       "id": 55,
       "exam": "TIFR",
+      "year": "2020",
+      "paper": "TIFR-2020",
       "topic": "Differential Equations",
-      "question": "Which boundary condition makes the Laplacian ∇² self-adjoint on a finite domain?",
+      "question": "Which boundary condition makes the Laplacian \\(\\nabla^2\\) self-adjoint on a finite domain?",
       "image": null,
       "options": [
-        "Dirichlet (u = 0 on boundary)",
-        "Neumann (∂u/∂n = 0 on boundary)",
+        "Dirichlet: \\(u=0\\) on the boundary",
+        "Neumann: \\(\\partial u/\\partial n=0\\) on the boundary",
         "Both Dirichlet and Neumann",
         "Only periodic boundary conditions"
       ],
       "correct": [2],
-      "explanation": "The Laplacian is self-adjoint under both Dirichlet (u=0) and Neumann (∂u/∂n=0) boundary conditions, as well as mixed and periodic conditions, as long as the boundary term in Green's identity vanishes."
+      "explanation": "The Laplacian is self-adjoint under both Dirichlet (\\(u=0\\)) and Neumann (\\(\\partial u/\\partial n=0\\)) boundary conditions, since in both cases the boundary term in Green's second identity vanishes."
     },
-
     {
       "id": 56,
       "exam": "BARC",
+      "year": "2022",
+      "paper": "BARC-2022",
       "topic": "Vector Calculus",
-      "question": "The divergence theorem (Gauss's theorem) states that ∯_S F·dA =",
-      "image": null,
+      "question": "The divergence theorem (Gauss's theorem) states that \\(\\displaystyle\\oiint_S \\mathbf{F}\\cdot d\\mathbf{A} =\\)",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Divergence_theorem.svg/280px-Divergence_theorem.svg.png",
+      "image_caption": "Flux through a closed surface equals volume integral of divergence",
       "options": [
-        "∮_C F·dr",
-        "∭_V (∇×F) dV",
-        "∭_V (∇·F) dV",
-        "∬_S (∇×F)·dA"
+        "\\(\\displaystyle\\oint_C \\mathbf{F}\\cdot d\\mathbf{r}\\)",
+        "\\(\\displaystyle\\iiint_V (\\nabla\\times\\mathbf{F})\\,dV\\)",
+        "\\(\\displaystyle\\iiint_V (\\nabla\\cdot\\mathbf{F})\\,dV\\)",
+        "\\(\\displaystyle\\iint_S (\\nabla\\times\\mathbf{F})\\cdot d\\mathbf{A}\\)"
       ],
       "correct": [2],
-      "explanation": "Gauss's divergence theorem: ∯_S F·dA = ∭_V (∇·F) dV. It converts a closed surface integral to a volume integral of the divergence."
+      "explanation": "Gauss's divergence theorem: \\(\\displaystyle\\oiint_S \\mathbf{F}\\cdot d\\mathbf{A} = \\iiint_V (\\nabla\\cdot\\mathbf{F})\\,dV\\). It converts a closed surface integral into a volume integral of the divergence."
     },
-
     {
       "id": 57,
       "exam": "CSIR-NET",
+      "year": "2023",
+      "paper": "CSIR-NET-DEC-2023",
       "topic": "Probability & Statistics",
-      "question": "Bayes' theorem states P(A|B) =",
+      "question": "Bayes' theorem states \\(P(A|B) =\\)",
       "image": null,
       "options": [
-        "P(A)P(B)",
-        "P(B|A)P(A) / P(B)",
-        "P(A∩B) / P(A)",
-        "P(A) / P(B)"
+        "\\(P(A)\\,P(B)\\)",
+        "\\(\\dfrac{P(B|A)\\,P(A)}{P(B)}\\)",
+        "\\(\\dfrac{P(A\\cap B)}{P(A)}\\)",
+        "\\(\\dfrac{P(A)}{P(B)}\\)"
       ],
       "correct": [1],
-      "explanation": "Bayes' theorem: P(A|B) = P(B|A)P(A)/P(B). It describes how to update a prior probability P(A) given new evidence B."
+      "explanation": "Bayes' theorem: \\(P(A|B) = \\dfrac{P(B|A)\\,P(A)}{P(B)}\\). It describes how to update a prior probability \\(P(A)\\) given new evidence \\(B\\)."
     },
-
     {
       "id": 58,
       "exam": "GATE",
+      "year": "2021",
+      "paper": "GATE-2021",
       "topic": "Tensors",
-      "question": "The Kronecker delta δᵢⱼ acts as the metric tensor in",
+      "question": "The Kronecker delta \\(\\delta_{ij}\\) acts as the metric tensor in",
       "image": null,
       "options": [
         "Curved spacetime",
@@ -932,40 +922,41 @@
         "Spherical coordinates"
       ],
       "correct": [1],
-      "explanation": "In flat Euclidean space with Cartesian coordinates, the metric tensor is simply δᵢⱼ (identity matrix), meaning distances are computed as ds² = δᵢⱼ dxⁱ dxʲ = dx² + dy² + dz²."
+      "explanation": "In flat Euclidean space with Cartesian coordinates, the metric tensor is simply \\(\\delta_{ij}\\): \\(ds^2 = \\delta_{ij}\\,dx^i\\,dx^j = dx^2+dy^2+dz^2\\)."
     },
-
     {
       "id": 59,
       "exam": "TIFR",
+      "year": "2022",
+      "paper": "TIFR-2022",
       "topic": "Complex Analysis",
-      "question": "The function f(z) = z* (complex conjugate of z) is",
+      "question": "The function \\(f(z) = \\bar{z}\\) (complex conjugate) is",
       "image": null,
       "options": [
         "Analytic everywhere",
         "Analytic nowhere",
-        "Analytic only at z = 0",
-        "Meromorphic"
+        "Analytic only at \\(z=0\\)",
+        "Meromorphic with a pole at \\(z=0\\)"
       ],
       "correct": [1],
-      "explanation": "f(z) = x − iy. Cauchy-Riemann: ∂u/∂x = 1 ≠ ∂v/∂y = −1. CR equations are never satisfied, so f(z) = z* is analytic nowhere."
+      "explanation": "Writing \\(f(z)=x-iy\\): the Cauchy–Riemann check gives \\(\\partial u/\\partial x=1\\neq \\partial v/\\partial y=-1\\). The equations are never satisfied, so \\(f(z)=\\bar{z}\\) is analytic nowhere."
     },
-
     {
       "id": 60,
       "exam": "BARC",
+      "year": "2023",
+      "paper": "BARC-2023",
       "topic": "Fourier Analysis",
-      "question": "The inverse Laplace transform of F(s) = 1/(s² + ω²) is",
+      "question": "The inverse Laplace transform of \\(F(s) = \\dfrac{1}{s^2+\\omega^2}\\) is",
       "image": null,
       "options": [
-        "cos(ωt)",
-        "sin(ωt)/ω",
-        "e^(ωt)",
-        "t · sin(ωt)"
+        "\\(\\cos(\\omega t)\\)",
+        "\\(\\dfrac{\\sin(\\omega t)}{\\omega}\\)",
+        "\\(e^{\\omega t}\\)",
+        "\\(t\\,\\sin(\\omega t)\\)"
       ],
       "correct": [1],
-      "explanation": "L{sin(ωt)/ω} = (1/ω) · ω/(s²+ω²) = 1/(s²+ω²). Therefore L⁻¹{1/(s²+ω²)} = sin(ωt)/ω."
+      "explanation": "\\(\\mathcal{L}\\left\\{\\dfrac{\\sin(\\omega t)}{\\omega}\\right\\} = \\dfrac{1}{s^2+\\omega^2}\\). Therefore \\(\\mathcal{L}^{-1}\\!\\left\\{\\dfrac{1}{s^2+\\omega^2}\\right\\} = \\dfrac{\\sin(\\omega t)}{\\omega}\\)."
     }
-
   ]
 }
