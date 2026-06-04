@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Fourier Series Visualizer — PhysicaLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#fdf8f0;--bg2:#f5eed8;--bg3:#ede3c8;--surface:#e0d4b8;
+  --border:rgba(140,90,30,0.2);--accent:#b84d08;--accent2:#1a8fa8;
+  --accent4:#1e6b22;--text:#18100a;--muted:#6e5738;
+  --faint:rgba(184,77,8,0.07);--shadow:rgba(140,90,30,0.18);
+  --fui:'Syne',sans-serif;--fmono:'DM Mono',monospace;--fdisp:'Instrument Serif',serif;
+}
+:root.dark{
+  --bg:#08080e;--bg2:#0d0d18;--bg3:#111120;--surface:#181828;
+  --border:rgba(255,255,255,0.09);--accent:#8b7fff;--accent2:#4fc8e8;
+  --accent4:#4ee870;--text:#eeeeff;--muted:#8880aa;
+  --faint:rgba(139,127,255,0.06);--shadow:rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--fui);cursor:none;font-size:15px;}
+
+/* CURSOR */
+#CUR{width:11px;height:11px;background:var(--accent);border-radius:50%;position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);transition:width .13s,height .13s;}
+#CRING{width:36px;height:36px;border:1.5px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:50%;position:fixed;z-index:9998;pointer-events:none;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+#BGCV{position:fixed;inset:0;z-index:0;opacity:.09;pointer-events:none;}
+
+/* SHELL */
+.shell{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh;}
+
+/* TOPBAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;height:54px;flex-shrink:0;
+  background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(20px);
+  border-bottom:1.5px solid var(--border);
+}
+.t-left{display:flex;align-items:center;gap:12px;}
+.logo{font-family:var(--fdisp);font-size:1.25rem;color:var(--text);display:flex;align-items:center;gap:9px;}
+.logodot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pdot 2s ease-in-out infinite;}
+@keyframes pdot{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 50%,transparent);}50%{box-shadow:0 0 0 6px transparent;}}
+.chip{font-family:var(--fmono);font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);padding:3px 10px;background:var(--faint);border:1px solid var(--border);border-radius:4px;}
+.t-right{display:flex;align-items:center;gap:8px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border:1.5px solid var(--border);background:var(--faint);color:var(--text);border-radius:7px;font-family:var(--fui);font-size:.82rem;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:background .16s,border-color .16s,transform .1s;}
+.btn:hover{background:var(--bg3);border-color:var(--accent);transform:translateY(-1px);}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn.pri:hover{background:color-mix(in srgb,var(--accent) 80%,#000);}
+
+/* THEME TOGGLE */
+.tgl{background:none;border:none;cursor:pointer;padding:0;}
+.tgl-track{position:relative;width:54px;height:27px;border-radius:999px;background:linear-gradient(135deg,#a8d8ff,#d4eaff);border:1.5px solid rgba(80,60,200,.2);overflow:hidden;transition:background .4s;}
+:root.dark .tgl-track{background:linear-gradient(135deg,#1a1040,#080818);border-color:rgba(139,127,255,.35);}
+.tgl-thumb{position:absolute;width:21px;height:21px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff8c0,#ffd700);left:3px;top:3px;transition:left .4s cubic-bezier(.34,1.56,.64,1),background .4s;z-index:2;}
+:root.dark .tgl-thumb{left:30px;background:radial-gradient(circle at 35% 35%,#e8e0ff,#c0b0ff);}
+
+/* BODY SPLIT */
+.body-split{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{
+  width:230px;flex-shrink:0;background:var(--bg2);
+  border-right:1.5px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:width .3s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.closed{width:0;}
+.sb-inner{flex:1;overflow-y:auto;overflow-x:hidden;min-width:230px;padding-bottom:1rem;}
+.sb-inner::-webkit-scrollbar{width:3px;}
+.sb-inner::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* SIDEBAR SECTIONS */
+.sec{padding:.9rem 1.1rem;border-bottom:1.5px solid var(--border);}
+.sec-hdr{font-family:var(--fmono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:.8rem;font-weight:500;}
+
+/* PRESET GRID */
+.pg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
+.pb{padding:5px 3px;background:var(--faint);border:1px solid var(--border);border-radius:5px;font-family:var(--fmono);font-size:.67rem;color:var(--muted);cursor:pointer;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all .15s;}
+.pb:hover{background:var(--bg3);color:var(--text);border-color:var(--accent);}
+.pb.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* CONTROLS */
+.cr{margin-bottom:.85rem;}
+.cl{display:flex;align-items:center;justify-content:space-between;font-family:var(--fmono);font-size:.73rem;color:var(--muted);margin-bottom:5px;}
+.cv{color:var(--accent);font-weight:600;font-size:.73rem;}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--surface);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);transition:transform .13s;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
+select,input[type=text]{width:100%;padding:5px 9px;background:var(--faint);border:1.5px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--fmono);font-size:.74rem;outline:none;transition:border-color .18s;}
+select:focus,input[type=text]:focus{border-color:var(--accent);}
+
+/* SPEED BUTTONS */
+.spd{display:flex;flex-wrap:wrap;gap:3px;}
+.spb{padding:4px 8px;background:var(--faint);border:1px solid var(--border);border-radius:4px;font-family:var(--fmono);font-size:.67rem;color:var(--muted);cursor:pointer;transition:all .15s;}
+.spb.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.spb:hover:not(.on){background:var(--bg3);border-color:var(--accent);}
+
+/* CHECKBOXES */
+.chkrow{display:flex;align-items:center;justify-content:space-between;font-family:var(--fmono);font-size:.73rem;color:var(--muted);margin-bottom:.55rem;cursor:pointer;}
+.chkrow input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer;}
+
+/* FORMULA BOX */
+.fbox{background:var(--faint);border:1.5px solid var(--border);border-radius:7px;padding:.75rem;font-family:var(--fmono);font-size:.67rem;color:var(--muted);line-height:1.85;word-break:break-all;}
+
+/* APPLY BTN */
+.apply-btn{width:100%;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-family:var(--fui);font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:background .18s,transform .1s;}
+.apply-btn:hover{background:color-mix(in srgb,var(--accent) 80%,#000);transform:translateY(-1px);}
+
+/* ── CANVAS AREA ── */
+.cv-area{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:10px 12px 8px;gap:8px;background:var(--bg);}
+
+/* GRAPH PANEL */
+.gp{
+  flex:1;position:relative;
+  border:2px solid var(--border);border-radius:10px;overflow:hidden;
+  background:var(--bg2);display:flex;flex-direction:column;
+  min-height:0;
+}
+.gp-hdr{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 14px;border-bottom:1.5px solid var(--border);
+  background:color-mix(in srgb,var(--bg2) 94%,var(--accent) 6%);
+  flex-shrink:0;
+}
+.gp-title{font-family:var(--fmono);font-size:.8rem;font-weight:600;color:var(--text);letter-spacing:.06em;}
+.gp-badge{padding:2px 9px;border-radius:4px;font-family:var(--fmono);font-size:.72rem;background:var(--faint);border:1px solid var(--border);color:var(--accent);transition:background .3s,color .3s;}
+.gp-eq{font-family:var(--fmono);font-size:.7rem;color:var(--muted);margin-left:auto;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gp-cv{flex:1;position:relative;overflow:hidden;min-height:0;}
+.gp-cv canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
+
+/* MERGE DIVIDER */
+.mdiv{
+  height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.mdiv::before,.mdiv::after{content:'';flex:1;height:1px;background:var(--border);}
+.mlabel{
+  font-family:var(--fmono);font-size:.75rem;color:var(--accent);
+  padding:4px 16px;background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:14px;white-space:nowrap;letter-spacing:.06em;transition:color .3s,border-color .3s;
+}
+
+/* PLAYBAR */
+.playbar{
+  display:flex;align-items:center;gap:10px;
+  padding:.5rem 1rem;border-top:1.5px solid var(--border);
+  background:var(--bg2);flex-shrink:0;
+}
+.prog-wrap{flex:1;height:20px;display:flex;align-items:center;cursor:pointer;position:relative;}
+.prog-track{width:100%;height:5px;background:var(--surface);border-radius:3px;position:relative;}
+.prog-fill{height:100%;background:var(--accent);border-radius:3px;width:0%;pointer-events:none;}
+.prog-dot{position:absolute;top:50%;transform:translate(-50%,-50%);left:0%;width:15px;height:15px;border-radius:50%;background:var(--accent);border:2.5px solid var(--bg);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent);pointer-events:none;transition:left .04s linear;}
+.pstat{font-family:var(--fmono);font-size:.74rem;color:var(--muted);white-space:nowrap;min-width:170px;text-align:right;}
+
+/* NOTIF */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:9px 17px;font-family:var(--fmono);font-size:.78rem;color:var(--text);box-shadow:0 8px 28px var(--shadow);transform:translateY(16px);opacity:0;transition:all .26s;z-index:8000;pointer-events:none;}
+.notif.show{transform:translateY(0);opacity:1;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.54);backdrop-filter:blur(8px);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.on{opacity:1;pointer-events:all;}
+.modal{background:var(--bg);border:1.5px solid var(--border);border-radius:16px;padding:2rem;max-width:420px;width:90%;box-shadow:0 24px 64px var(--shadow);transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.34,1.56,.64,1);position:relative;}
+.modal-bg.on .modal{transform:none;}
+.modal-title{font-family:var(--fdisp);font-size:1.5rem;margin-bottom:.5rem;}
+.modal-sub{color:var(--muted);font-size:.88rem;line-height:1.65;margin-bottom:1.3rem;}
+.modal-row{display:flex;gap:9px;margin-bottom:.9rem;flex-wrap:wrap;}
+.modal-close{position:absolute;top:.9rem;right:.9rem;background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:4px 8px;border-radius:4px;}
+.modal-close:hover{color:var(--text);background:var(--faint);}
+.mfld{flex:1;}
+.mfld label{display:block;font-family:var(--fmono);font-size:.67rem;color:var(--muted);margin-bottom:4px;}
+
+/* REC PROGRESS */
+.recprog-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);z-index:7000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.recprog-bg.on{opacity:1;pointer-events:all;}
+.recprog-box{background:var(--bg);border:1.5px solid var(--border);border-radius:15px;padding:2rem 2.5rem;text-align:center;max-width:360px;width:90%;}
+.recprog-title{font-family:var(--fdisp);font-size:1.4rem;margin-bottom:.4rem;}
+.recprog-sub{color:var(--muted);font-size:.85rem;margin-bottom:1.1rem;}
+.recbar{height:6px;background:var(--surface);border-radius:3px;overflow:hidden;margin-bottom:.7rem;}
+.recbar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .08s linear;width:0%;}
+.recfc{font-family:var(--fmono);font-size:.73rem;color:var(--muted);}
+
+#recChip{font-family:var(--fmono);font-size:.72rem;color:#c0192a;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:5px;}
+.recdot{width:7px;height:7px;border-radius:50%;background:#c0192a;animation:rb 1s infinite;}
+@keyframes rb{0%,100%{opacity:1;}50%{opacity:.15;}}
+</style>
+</head>
+<body>
+<div id="CUR"></div>
+<div id="CRING"></div>
+<canvas id="BGCV"></canvas>
+
+<div class="shell">
+<div class="topbar">
+  <div class="t-left">
+    <div class="logo"><span class="logodot"></span>PhysicaLab</div>
+    <div class="chip">Fourier Series</div>
+  </div>
+  <div class="t-right">
+    <div id="recChip"><span class="recdot"></span>REC</div>
+    <button class="btn" onclick="openDL()">⬇ Download</button>
+    <button class="btn pri" id="btnPlay" onclick="togglePlay()">▶ Play</button>
+    <button class="btn" onclick="doReset()">↺ Reset</button>
+    <button class="tgl" onclick="toggleTheme()"><div class="tgl-track"><div class="tgl-thumb"></div></div></button>
+    <button class="btn" onclick="toggleSidebar()" style="padding:7px 11px;">☰</button>
+  </div>
+</div>
+
+<div class="body-split">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+<div class="sb-inner">
+
+<div class="sec">
+  <div class="sec-hdr">Presets</div>
+  <div class="pg" id="presetGrid"></div>
+</div>
+
+<div class="sec">
+  <div class="sec-hdr">Parameters</div>
+  <div class="cr">
+    <div class="cl"><span>Terms N</span><span class="cv" id="vN">10</span></div>
+    <input type="range" id="sN" min="1" max="1000" value="10" oninput="onP()">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>Speed</span></div>
+    <div class="spd" id="spdGrid"></div>
+  </div>
+  <div class="cr">
+    <div class="cl"><span>a₀ DC offset</span><span class="cv" id="vA0">0.00</span></div>
+    <input type="range" id="sA0" min="-3" max="3" step="0.05" value="0" oninput="onP()">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>Phase shift φ</span><span class="cv" id="vB0">0.00</span></div>
+    <input type="range" id="sB0" min="-3.14159" max="3.14159" step="0.05" value="0" oninput="onP()">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>Amplitude scale</span><span class="cv" id="vAmp">1.00</span></div>
+    <input type="range" id="sAmp" min="0.05" max="5" step="0.05" value="1" oninput="onP()">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>Freq multiplier</span><span class="cv" id="vFq">1.00</span></div>
+    <input type="range" id="sFq" min="0.25" max="4" step="0.05" value="1" oninput="onP()">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>Merge dur (s)</span><span class="cv" id="vMD">0.8</span></div>
+    <input type="range" id="sMD" min="0.1" max="5" step="0.1" value="0.8" oninput="document.getElementById('vMD').textContent=this.value">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>Hold dur (s)</span><span class="cv" id="vHD">0.5</span></div>
+    <input type="range" id="sHD" min="0.05" max="5" step="0.05" value="0.5" oninput="document.getElementById('vHD').textContent=this.value">
+  </div>
+  <div class="cr">
+    <div class="cl"><span>X window (×π)</span><span class="cv" id="vXW">8</span></div>
+    <input type="range" id="sXW" min="1" max="20" step="1" value="8" oninput="document.getElementById('vXW').textContent=this.value;redraw()">
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-hdr">Display</div>
+  <label class="chkrow"><span>Grid lines</span><input type="checkbox" id="chkGrid" checked onchange="redraw()"></label>
+  <label class="chkrow"><span>Axis labels</span><input type="checkbox" id="chkAxis" checked onchange="redraw()"></label>
+  <label class="chkrow"><span>Target ghost</span><input type="checkbox" id="chkGhost" checked onchange="redraw()"></label>
+  <label class="chkrow"><span>Auto-fit harmonic Y</span><input type="checkbox" id="chkAutoY" checked onchange="redraw()"></label>
+  <label class="chkrow"><span>Sound on term</span><input type="checkbox" id="chkSound" onchange="toggleSound()"></label>
+</div>
+
+<div class="sec">
+  <div class="sec-hdr">Custom aₙ / bₙ</div>
+  <div class="cr">
+    <div class="cl">aₙ =</div>
+    <select id="selAn" onchange="onCust()">
+      <option value="zero">0</option>
+      <option value="inv_n">1/n</option>
+      <option value="inv_n2">1/n²</option>
+      <option value="alt_n">(-1)ⁿ/n</option>
+      <option value="cos_n">cos(n)</option>
+      <option value="odd_harm">1/(2n-1)</option>
+      <option value="custom">Custom…</option>
+    </select>
+  </div>
+  <div class="cr" id="rowCAn" style="display:none">
+    <input type="text" id="custAn" placeholder="JS: n, PI, Math.sin…">
+  </div>
+  <div class="cr">
+    <div class="cl">bₙ =</div>
+    <select id="selBn" onchange="onCust()">
+      <option value="zero">0</option>
+      <option value="inv_n" selected>1/n</option>
+      <option value="inv_n2">1/n²</option>
+      <option value="alt_n">(-1)ⁿ/n</option>
+      <option value="sin_n">sin(n)</option>
+      <option value="odd_harm">1/(2n-1)</option>
+      <option value="custom">Custom…</option>
+    </select>
+  </div>
+  <div class="cr" id="rowCBn" style="display:none">
+    <input type="text" id="custBn" placeholder="JS: n, PI, Math.sin…">
+  </div>
+  <label class="chkrow"><span>Odd harmonics only</span><input type="checkbox" id="chkOdd"></label>
+  <button class="apply-btn" onclick="applyCustom()">Apply Custom Wave</button>
+</div>
+
+<div class="sec">
+  <div class="sec-hdr">Formula</div>
+  <div class="fbox" id="fbox">Select a preset</div>
+</div>
+
+</div>
+</aside>
+
+<!-- CANVAS AREA -->
+<div class="cv-area" id="cvArea">
+
+  <!-- TOP: current harmonic -->
+  <div class="gp" id="gpTop">
+    <div class="gp-hdr">
+      <span class="gp-title">Current Harmonic  f<sub>n</sub>(x)</span>
+      <span class="gp-badge" id="badgeN">n = 1</span>
+      <span class="gp-eq" id="badgeEq"></span>
+    </div>
+    <div class="gp-cv" id="wrapTop"><canvas id="cvTop"></canvas></div>
+  </div>
+
+  <!-- MERGE DIVIDER -->
+  <div class="mdiv"><div class="mlabel" id="mlabel">↓  add to sum  ↓</div></div>
+
+  <!-- BOTTOM: partial sum -->
+  <div class="gp" id="gpBot">
+    <div class="gp-hdr">
+      <span class="gp-title">Partial Sum  f(x) = Σ fₙ(x)</span>
+      <span class="gp-badge" id="badgeSum">0 / 0 terms</span>
+      <span class="gp-eq" id="sumEq"></span>
+    </div>
+    <div class="gp-cv" id="wrapBot"><canvas id="cvBot"></canvas></div>
+  </div>
+
+  <!-- PLAYBAR -->
+  <div class="playbar">
+    <button class="btn pri" id="btnPlay2" onclick="togglePlay()">▶ Play</button>
+    <button class="btn" onclick="doReset()">↺</button>
+    <div class="prog-wrap" id="progWrap" onclick="onProgClick(event)">
+      <div class="prog-track">
+        <div class="prog-fill" id="progFill"></div>
+        <div class="prog-dot" id="progDot"></div>
+      </div>
+    </div>
+    <div class="pstat" id="pstat">—</div>
+  </div>
+</div>
+
+</div><!-- body-split -->
+</div><!-- shell -->
+
+<!-- DOWNLOAD MODAL -->
+<div class="modal-bg" id="dlModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDL()">✕</button>
+    <div class="modal-title">Download Animation</div>
+    <div class="modal-sub">Records the canvas as WebM video using MediaRecorder. Keep the tab focused during capture.</div>
+    <div class="modal-row">
+      <div class="mfld"><label>Duration (seconds)</label>
+        <select id="recDur"><option>4</option><option selected>8</option><option>16</option><option>30</option><option>60</option></select></div>
+      <div class="mfld"><label>Quality</label>
+        <select id="recQ"><option value="2500000">Standard</option><option value="7000000" selected>High</option><option value="15000000">Ultra</option></select></div>
+    </div>
+    <div class="modal-row">
+      <button class="btn pri" style="flex:1;justify-content:center;" onclick="startRec()">⏺ Start Recording</button>
+      <button class="btn" style="flex:1;justify-content:center;" onclick="closeDL()">Cancel</button>
+    </div>
+    <p style="font-family:var(--fmono);font-size:.65rem;color:var(--muted);line-height:1.65;">WebM/VP9 · best in Chrome & Edge.</p>
+  </div>
+</div>
+
+<div class="recprog-bg" id="recProgBg">
+  <div class="recprog-box">
+    <div class="recprog-title">Recording…</div>
+    <div class="recprog-sub" id="recProgSub">Starting</div>
+    <div class="recbar"><div class="recbar-fill" id="recBarFill"></div></div>
+    <div class="recfc" id="recFC"></div>
+  </div>
+</div>
+<div class="notif" id="notif"></div>
+
+<script>
+'use strict';
+// ══════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════
+(function(){const s=localStorage.getItem('th');if(s==='dark')document.documentElement.classList.add('dark');})();
+function toggleTheme(){const d=document.documentElement.classList.toggle('dark');localStorage.setItem('th',d?'dark':'light');redraw();}
+
+// ══════════════════════════════════════════
+// CURSOR + BG PARTICLES
+// ══════════════════════════════════════════
+const CUR=document.getElementById('CUR'),CRING=document.getElementById('CRING');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function lc(){CUR.style.left=mx+'px';CUR.style.top=my+'px';rx+=(mx-rx)*.12;ry+=(my-ry)*.12;CRING.style.left=rx+'px';CRING.style.top=ry+'px';requestAnimationFrame(lc);})();
+document.querySelectorAll('button,input,select,label').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{CUR.style.width='16px';CUR.style.height='16px';CRING.style.width='50px';CRING.style.height='50px';});
+  el.addEventListener('mouseleave',()=>{CUR.style.width='11px';CUR.style.height='11px';CRING.style.width='36px';CRING.style.height='36px';});
+});
+const bgc=document.getElementById('BGCV'),bgx=bgc.getContext('2d');
+let BW,BH,bpts=[];
+function rszBg(){BW=bgc.width=innerWidth;BH=bgc.height=innerHeight;}
+rszBg();addEventListener('resize',rszBg);
+for(let i=0;i<60;i++)bpts.push({x:Math.random()*2000,y:Math.random()*1200,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.3+.3,a:Math.random()*.35+.1});
+(function bgLoop(){
+  bgx.clearRect(0,0,BW,BH);
+  const dk=document.documentElement.classList.contains('dark');
+  const pc=dk?'139,127,255':'140,80,10';
+  bpts.forEach(p=>{p.x=(p.x+p.vx+BW)%BW;p.y=(p.y+p.vy+BH)%BH;bgx.beginPath();bgx.arc(p.x,p.y,p.r,0,6.283);bgx.fillStyle=`rgba(${pc},${p.a})`;bgx.fill();});
+  requestAnimationFrame(bgLoop);
+})();
+
+// ══════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════
+let sideOpen=true;
+function toggleSidebar(){sideOpen=!sideOpen;document.getElementById('sidebar').classList.toggle('closed',!sideOpen);setTimeout(()=>{resizeCvs();redraw();},320);}
+function notif(msg,ms=2600){const el=document.getElementById('notif');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),ms);}
+
+// ══════════════════════════════════════════
+// MATH CONSTANTS
+// ══════════════════════════════════════════
+const PI=Math.PI, TAU=2*PI;
+
+// ══════════════════════════════════════════
+// PRESETS — verified correct Fourier coefficients
+// ══════════════════════════════════════════
+// Convention: f(x) = a0/2 + Σ_{n=1}^{N} [aₙcos(nx) + bₙsin(nx)]
+// Period = 2π, so fundamental = cos(x), sin(x)
+const PRESETS = {
+  'Square': {
+    lbl: 'Square Wave  f(x)=sgn(sin x)',
+    formula: 'f(x) = (4/π)·[sin x + sin3x/3 + sin5x/5 + ...]',
+    // f(x) = +1 for x∈(0,π), -1 for x∈(π,2π)
+    // aₙ = 0 for all n;  bₙ = 4/(nπ) for odd n, 0 for even n
+    a0: 0,
+    fn: n => ({ a: 0, b: n % 2 === 1 ? 4 / (PI * n) : 0 })
+  },
+  'Triangle': {
+    lbl: 'Triangle Wave',
+    formula: 'f(x) = (8/π²)·[sin x − sin3x/9 + sin5x/25 − ...]',
+    // Triangle wave with amplitude 1, period 2π
+    // bₙ = (8/π²n²)·(-1)^((n-1)/2) for odd n
+    a0: 0,
+    fn: n => {
+      if (n % 2 === 0) return { a: 0, b: 0 };
+      return { a: 0, b: (8 / (PI * PI * n * n)) * Math.pow(-1, (n - 1) / 2) };
+    }
+  },
+  'Sawtooth': {
+    lbl: 'Sawtooth Wave  f(x)=x/π on (-π,π)',
+    formula: 'f(x) = (2/π)·[sin x − sin2x/2 + sin3x/3 − ...]',
+    // f(x) = x/π on (-π,π), periodic; bₙ = 2(-1)^(n+1)/(nπ)
+    a0: 0,
+    fn: n => ({ a: 0, b: 2 * Math.pow(-1, n + 1) / (n * PI) })
+  },
+  'Rev.Saw': {
+    lbl: 'Reverse Sawtooth',
+    formula: 'f(x) = −(2/π)·[sin x + sin2x/2 + sin3x/3 + ...]',
+    a0: 0,
+    fn: n => ({ a: 0, b: -2 / (n * PI) })
+  },
+  'Pulse': {
+    lbl: 'Pulse Wave (duty=25%)',
+    formula: 'f(x) = d + Σ(2/nπ)sin(ndπ)cos(nx), d=0.25',
+    // Pulse: +1 for |x|<δ, 0 otherwise; δ=π/4 → duty=25%
+    a0: 0.5, // a0/2 = 0.25
+    fn: n => {
+      const d = 0.25; // duty fraction
+      const an = (2 / (n * PI)) * Math.sin(n * PI * d);
+      return { a: an, b: 0 };
+    }
+  },
+  'Rect.Sin': {
+    lbl: 'Half-Wave Rectified Sine',
+    formula: 'f(x) = 1/π + sin(x)/2 + (2/π)Σcos(2kx)/(1−4k²)',
+    // |sin x| half-wave: only positive half
+    a0: 2 / PI,  // a0 = 2/π so a0/2 = 1/π
+    fn: n => {
+      if (n === 1) return { a: 0, b: 0.5 };
+      if (n % 2 === 0) {
+        const k = n / 2;
+        return { a: (2 / PI) / (1 - 4 * k * k), b: 0 };
+      }
+      return { a: 0, b: 0 };
+    }
+  },
+  'Full Rect': {
+    lbl: 'Full-Wave Rectified Sine  |sin x|',
+    formula: 'f(x) = 2/π − (4/π)·Σcos(2nx)/(4n²−1)',
+    // |sin x|: a0=4/π, aₙ = -4/(π(4n²-1)) for n=1,2,..., bₙ=0
+    a0: 4 / PI,  // a0/2 = 2/π
+    fn: n => ({ a: -4 / (PI * (4 * n * n - 1)), b: 0 })
+  },
+  'Trapezoid': {
+    lbl: 'Trapezoidal Wave',
+    formula: 'f(x) = (8/π²)Σ sin(nπ/4)·sin(nπ/2)·sin(nx)/n²',
+    a0: 0,
+    fn: n => ({ a: 0, b: (8 / (PI * PI)) * Math.sin(n * PI / 4) * Math.sin(n * PI / 2) / (n * n) })
+  },
+  'Parabolic': {
+    lbl: 'Parabolic Wave  f(x)=x² on (−π,π)',
+    formula: 'f(x) = π²/3 + 4Σ(−1)ⁿcos(nx)/n²',
+    // x² periodic: a0=2π²/3, aₙ=4(-1)^n/n², bₙ=0
+    a0: 2 * PI * PI / 3,
+    fn: n => ({ a: 4 * Math.pow(-1, n) / (n * n), b: 0 })
+  },
+  'Shark Fin': {
+    lbl: 'Shark Fin Wave',
+    formula: 'f(x) = Σ[−cos(nx)/n² + sin(nx)/n]',
+    a0: 0,
+    fn: n => ({ a: -1 / (n * n), b: 1 / n })
+  },
+  'Clipped': {
+    lbl: 'Clipped Sine (clip=0.7)',
+    formula: 'f(x) ≈ Σ bₙsin(nx), odd n only',
+    a0: 0,
+    fn: n => {
+      if (n % 2 === 0) return { a: 0, b: 0 };
+      const clip = 0.7, th = Math.asin(Math.min(clip, 1));
+      // bn = (4/nπ)·[∫₀^θ sin(t)sin(nt)dt + clip·∫_θ^π sin(nt)dt]
+      const b = (4 / (n * PI)) * (clip * Math.sin(n * th) - (n * clip * Math.cos(n * th) - n * 0) / n);
+      return { a: 0, b: (4 * clip * Math.sin(n * th)) / (n * PI) };
+    }
+  },
+  'Staircase': {
+    lbl: 'Staircase Wave (4 steps)',
+    formula: 'f(x) = Σ bₙ sin(nx),  bₙ via step convolution',
+    a0: 0,
+    fn: n => {
+      // 4-step staircase: convolution of square wave with itself
+      // Equivalent: sinc(n/4)·square_bn
+      const sinc4 = Math.abs(Math.sin(n * PI / 4)) > 1e-9 ? Math.sin(n * PI / 4) / (n * PI / 4) : 1;
+      return { a: 0, b: n % 2 === 1 ? (4 / (PI * n)) * sinc4 : 0 };
+    }
+  },
+  'PWM 50%': {
+    lbl: 'PWM Wave (50% duty)',
+    formula: 'f(x) = (2/π)Σ sin(nπ/2)·cos(nx)/n',
+    // Square wave is 50% PWM: same as Square
+    a0: 0,
+    fn: n => ({ a: (2 / (n * PI)) * Math.sin(n * PI * 0.5), b: 0 })
+  },
+  'Semicircle': {
+    lbl: 'Semicircular Bumps',
+    formula: 'f(x) = π/4 + Σ (−1)ⁿ·2cos(nx)/(nπ)',
+    a0: PI / 2,
+    fn: n => ({ a: 2 * Math.pow(-1, n) / (n * PI), b: 0 })
+  },
+  'Gaussian': {
+    lbl: 'Gaussian Pulse Train (σ=0.4)',
+    formula: 'f(x) ≈ Σ exp(−n²σ²/2)·cos(nx)',
+    a0: 0,
+    fn: n => {
+      const sigma = 0.4;
+      return { a: Math.exp(-n * n * sigma * sigma / 2), b: 0 };
+    }
+  },
+  'Tent': {
+    lbl: 'Tent Wave  (=Triangle)',
+    formula: 'f(x) = (8/π²)Σ sin((2k-1)x)/(2k-1)²  ·(−1)^(k+1)',
+    a0: 0,
+    fn: n => {
+      if (n % 2 === 0) return { a: 0, b: 0 };
+      return { a: 0, b: (8 / (PI * PI * n * n)) * Math.pow(-1, (n - 1) / 2) };
+    }
+  },
+  'Dirac Comb': {
+    lbl: 'Dirac Comb (approx)',
+    formula: 'f(x) = 1/2 + Σ cos(nx)/π',
+    a0: 1,
+    fn: n => ({ a: 2 / PI, b: 0 })
+  },
+  'Cusp': {
+    lbl: 'Cusp Wave',
+    formula: 'f(x) ≈ Σ (−1)ⁿcos(nx)/n^1.5',
+    a0: 0,
+    fn: n => ({ a: Math.pow(-1, n) / Math.pow(n, 1.5), b: 0 })
+  },
+  'Cycloid': {
+    lbl: 'Cycloid Series',
+    formula: 'f(x) = Σ −2·J₁(n)/n · sin(nx)',
+    a0: 0,
+    fn: n => {
+      // Use alternating approximation since full Bessel is expensive
+      return { a: 0, b: -2 * Math.pow(-1, n) / (n * Math.sqrt(n)) };
+    }
+  },
+  'Sqrt Wave': {
+    lbl: 'Sqrt Envelope',
+    formula: 'f(x) ≈ Σ (−1)^(n+1)/n^0.75 · sin(nx)',
+    a0: 0,
+    fn: n => ({ a: 0, b: Math.pow(-1, n + 1) / Math.pow(n, 0.75) })
+  },
+  'Half-Sine': {
+    lbl: 'Half-Sine (same as Rect.Sin)',
+    formula: 'f(x) = 1/π + sin(x)/2 + Σ 2cos(2kx)/(π(1−4k²))',
+    a0: 2 / PI,
+    fn: n => {
+      if (n === 1) return { a: 0, b: 0.5 };
+      if (n % 2 === 0) { const k = n / 2; return { a: (2 / PI) / (1 - 4 * k * k), b: 0 }; }
+      return { a: 0, b: 0 };
+    }
+  },
+  'PWM 25%': {
+    lbl: 'PWM Wave (25% duty)',
+    formula: 'f(x) = 0.25 + (2/nπ)Σsin(nπ/4)cos(nx)',
+    a0: 0.5,
+    fn: n => ({ a: (2 / (n * PI)) * Math.sin(n * PI * 0.25), b: 0 })
+  }
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let curPre = 'Square', customPre = null;
+let N = 10, spd = 1;
+let playing = false, lastTS = null;
+let termIdx = 0, mergeT = 0, holdT = 0;
+let phase = 'merge';  // 'merge' | 'hold'
+let coeffs = [], a0half = 0;  // a0half = a0/2 (DC component)
+let _fq = 1, _ph = 0;         // freq multiplier, phase offset
+
+// ══════════════════════════════════════════
+// SOUND
+// ══════════════════════════════════════════
+let soundOn = false, audioCtx = null;
+function toggleSound() {
+  soundOn = document.getElementById('chkSound').checked;
+  if (soundOn && !audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playTone(tc) {
+  if (!soundOn || !audioCtx) return;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.value = Math.min(110 * tc.n, 2200);
+  const amp = Math.min(0.06, (Math.abs(tc.a) + Math.abs(tc.b)) * 0.03 + 0.01);
+  g.gain.setValueAtTime(amp, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.55);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + 0.55);
+}
+
+// ══════════════════════════════════════════
+// BUILD SIDEBAR UI
+// ══════════════════════════════════════════
+function buildPresets() {
+  const g = document.getElementById('presetGrid'); g.innerHTML = '';
+  Object.keys(PRESETS).forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'pb'; b.id = 'pb_' + k.replace(/[^a-z0-9]/gi, '_');
+    b.textContent = k; b.title = PRESETS[k].lbl;
+    b.onclick = () => selPre(k);
+    g.appendChild(b);
+  });
+}
+
+const SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5];
+function buildSpeeds() {
+  const g = document.getElementById('spdGrid'); g.innerHTML = '';
+  SPEEDS.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'spb' + (s === 1 ? ' on' : '');
+    b.textContent = '×' + s;
+    b.onclick = () => { spd = s; document.querySelectorAll('.spb').forEach(x => x.classList.remove('on')); b.classList.add('on'); };
+    g.appendChild(b);
+  });
+}
+
+function selPre(k) {
+  curPre = k; customPre = null;
+  document.querySelectorAll('.pb').forEach(b => b.classList.remove('on'));
+  const pb = document.getElementById('pb_' + k.replace(/[^a-z0-9]/gi, '_'));
+  if (pb) pb.classList.add('on');
+  document.getElementById('fbox').textContent = PRESETS[k].formula;
+  buildCoeffs(); doReset(); redraw();
+}
+
+// ══════════════════════════════════════════
+// BUILD COEFFICIENTS
+// ══════════════════════════════════════════
+function buildCoeffs() {
+  N = parseInt(document.getElementById('sN').value);
+  document.getElementById('vN').textContent = N;
+
+  const ampS = parseFloat(document.getElementById('sAmp').value);
+  document.getElementById('vAmp').textContent = ampS.toFixed(2);
+
+  _fq = parseFloat(document.getElementById('sFq').value);
+  document.getElementById('vFq').textContent = _fq.toFixed(2);
+
+  _ph = parseFloat(document.getElementById('sB0').value);
+  document.getElementById('vB0').textContent = _ph.toFixed(2);
+
+  const a0off = parseFloat(document.getElementById('sA0').value);
+  document.getElementById('vA0').textContent = a0off.toFixed(2);
+
+  const pre = customPre || PRESETS[curPre];
+  // a0/2 is the DC term in f(x) = a0/2 + Σ [aₙcos + bₙsin]
+  a0half = (pre.a0 || 0) / 2 * ampS + a0off;
+
+  coeffs = [];
+  for (let n = 1; n <= N; n++) {
+    const { a, b } = pre.fn(n);
+    coeffs.push({ n, a: a * ampS, b: b * ampS, ra: a, rb: b });
+  }
+}
+
+// ══════════════════════════════════════════
+// CANVAS SETUP
+// ══════════════════════════════════════════
+let cvTop, ctTop, cvBot, ctBot;
+function initCvs() {
+  cvTop = document.getElementById('cvTop'); ctTop = cvTop.getContext('2d');
+  cvBot = document.getElementById('cvBot'); ctBot = cvBot.getContext('2d');
+  resizeCvs();
+}
+function resizeCvs() {
+  if (!cvTop) return;
+  const wt = document.getElementById('wrapTop'), wb = document.getElementById('wrapBot');
+  cvTop.width = wt.clientWidth || 700; cvTop.height = wt.clientHeight || 220;
+  cvBot.width = wb.clientWidth || 700; cvBot.height = wb.clientHeight || 220;
+}
+window.addEventListener('resize', () => { resizeCvs(); redraw(); });
+new ResizeObserver(() => { resizeCvs(); redraw(); }).observe(document.getElementById('cvArea'));
+
+// ══════════════════════════════════════════
+// THEME COLORS
+// ══════════════════════════════════════════
+function T() {
+  const dk = document.documentElement.classList.contains('dark');
+  return {
+    plotBg:    dk ? '#070710' : '#faf5ec',
+    panelBg:   dk ? '#0d0d18' : '#f5eed8',
+    gridMinor: dk ? 'rgba(255,255,255,0.04)' : 'rgba(120,80,10,0.07)',
+    gridMajor: dk ? 'rgba(255,255,255,0.09)' : 'rgba(120,80,10,0.14)',
+    axis:      dk ? 'rgba(200,195,255,0.45)' : 'rgba(100,65,15,0.5)',
+    axLbl:     dk ? 'rgba(160,155,210,0.8)' : 'rgba(90,55,10,0.75)',
+    border:    dk ? 'rgba(255,255,255,0.14)' : 'rgba(140,90,30,0.28)',
+    accent:    dk ? '#8b7fff' : '#b84d08',
+    green:     dk ? '#4ee870' : '#1e6b22',
+    greenFill: dk ? 'rgba(78,232,112,0.13)' : 'rgba(30,107,34,0.1)',
+    ghost:     dk ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)',
+    harmGlow:  dk ? 0.05 : 0.04,
+  };
+}
+
+// ══════════════════════════════════════════
+// COORDINATE HELPERS
+// ══════════════════════════════════════════
+// margin inside canvas for the boxed plot
+const M = { top: 18, right: 14, bot: 30, left: 46 };
+
+function plotW(w) { return w - M.left - M.right; }
+function plotH(h) { return h - M.top - M.bot; }
+
+// world x,y → canvas pixel
+function wx2px(wx, w, xMin, xMax) { return M.left + (wx - xMin) / (xMax - xMin) * plotW(w); }
+function wy2py(wy, h, yMin, yMax) { return M.top + (1 - (wy - yMin) / (yMax - yMin)) * plotH(h); }
+
+// ══════════════════════════════════════════
+// DRAW GRID + AXES + BOX + LABELS
+// ══════════════════════════════════════════
+function drawFrame(ctx, w, h, xMin, xMax, yMin, yMax, t) {
+  const pw = plotW(w), ph = plotH(h);
+  const showGrid = document.getElementById('chkGrid').checked;
+  const showAxis = document.getElementById('chkAxis').checked;
+
+  // plot background
+  ctx.fillStyle = t.plotBg;
+  ctx.fillRect(M.left, M.top, pw, ph);
+
+  if (showGrid) {
+    // minor grid: every π
+    ctx.strokeStyle = t.gridMinor; ctx.lineWidth = 0.5;
+    // x every π
+    const xStep = PI;
+    for (let xx = Math.ceil(xMin / xStep) * xStep; xx <= xMax + 1e-9; xx += xStep) {
+      const px = wx2px(xx, w, xMin, xMax);
+      if (px < M.left - 1 || px > M.left + pw + 1) continue;
+      ctx.beginPath(); ctx.moveTo(px, M.top); ctx.lineTo(px, M.top + ph); ctx.stroke();
+    }
+    // y minor every 0.5
+    for (let yy = Math.ceil(yMin * 2) / 2; yy <= yMax + 1e-9; yy += 0.5) {
+      const py = wy2py(yy, h, yMin, yMax);
+      if (py < M.top - 1 || py > M.top + ph + 1) continue;
+      ctx.beginPath(); ctx.moveTo(M.left, py); ctx.lineTo(M.left + pw, py); ctx.stroke();
+    }
+    // major grid: every 2π and every integer y
+    ctx.strokeStyle = t.gridMajor; ctx.lineWidth = 0.85;
+    for (let xx = Math.ceil(xMin / TAU) * TAU; xx <= xMax + 1e-9; xx += TAU) {
+      const px = wx2px(xx, w, xMin, xMax);
+      if (px < M.left - 1 || px > M.left + pw + 1) continue;
+      ctx.beginPath(); ctx.moveTo(px, M.top); ctx.lineTo(px, M.top + ph); ctx.stroke();
+    }
+    for (let yy = Math.ceil(yMin); yy <= yMax + 1e-9; yy++) {
+      const py = wy2py(yy, h, yMin, yMax);
+      if (py < M.top - 1 || py > M.top + ph + 1) continue;
+      ctx.beginPath(); ctx.moveTo(M.left, py); ctx.lineTo(M.left + pw, py); ctx.stroke();
+    }
+  }
+
+  // X axis (y=0)
+  const py0 = wy2py(0, h, yMin, yMax);
+  if (py0 >= M.top && py0 <= M.top + ph) {
+    ctx.strokeStyle = t.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(M.left, py0); ctx.lineTo(M.left + pw, py0); ctx.stroke();
+  }
+  // Y axis (x=0)
+  const px0 = wx2px(0, w, xMin, xMax);
+  if (px0 >= M.left && px0 <= M.left + pw) {
+    ctx.strokeStyle = t.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(px0, M.top); ctx.lineTo(px0, M.top + ph); ctx.stroke();
+  }
+
+  if (showAxis) {
+    ctx.fillStyle = t.axLbl;
+    ctx.font = 'bold 12px DM Mono,monospace';
+
+    // X tick labels every 2π
+    ctx.textAlign = 'center';
+    for (let xx = Math.ceil(xMin / TAU) * TAU; xx <= xMax + 1e-9; xx += TAU) {
+      const px = wx2px(xx, w, xMin, xMax);
+      if (px < M.left + 5 || px > M.left + pw - 5) continue;
+      // tick
+      ctx.strokeStyle = t.axis; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(px, M.top + ph); ctx.lineTo(px, M.top + ph + 5); ctx.stroke();
+      // label
+      const k = Math.round(xx / PI);
+      const lbl = k === 0 ? '0' : (k === 1 ? 'π' : k === -1 ? '−π' : k + 'π');
+      ctx.fillText(lbl, px, M.top + ph + 18);
+    }
+
+    // Y tick labels at integers and 0
+    ctx.textAlign = 'right';
+    for (let yy = Math.ceil(yMin); yy <= yMax + 1e-9; yy++) {
+      const py = wy2py(yy, h, yMin, yMax);
+      if (py < M.top + 4 || py > M.top + ph - 4) continue;
+      ctx.strokeStyle = t.axis; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(M.left - 5, py); ctx.lineTo(M.left, py); ctx.stroke();
+      ctx.fillText(yy === 0 ? '0' : String(yy), M.left - 7, py + 4);
+    }
+  }
+
+  // BORDER BOX
+  ctx.strokeStyle = t.border; ctx.lineWidth = 1.8;
+  ctx.strokeRect(M.left, M.top, pw, ph);
+
+  // clip to plot area for wave drawing
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(M.left, M.top, pw, ph);
+  ctx.clip();
+}
+
+// ══════════════════════════════════════════
+// WAVE DRAWING (uses clip set by drawFrame)
+// ══════════════════════════════════════════
+function drawWave(ctx, vals, xArr, w, h, xMin, xMax, yMin, yMax, color, lw, alpha, glow) {
+  if (!vals || vals.length < 2) return;
+  ctx.globalAlpha = alpha;
+
+  if (glow) {
+    for (let g = 3; g >= 1; g--) {
+      ctx.beginPath();
+      for (let i = 0; i < vals.length; i++) {
+        const px = wx2px(xArr[i], w, xMin, xMax), py = wy2py(vals[i], h, yMin, yMax);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = color; ctx.lineWidth = lw + g * 3.5; ctx.globalAlpha = alpha * 0.025 / g; ctx.stroke();
+    }
+    ctx.globalAlpha = alpha;
+  }
+
+  ctx.beginPath();
+  for (let i = 0; i < vals.length; i++) {
+    const px = wx2px(xArr[i], w, xMin, xMax), py = wy2py(vals[i], h, yMin, yMax);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.globalAlpha = alpha; ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function fillWave(ctx, vals, xArr, w, h, xMin, xMax, yMin, yMax, fillColor) {
+  if (!vals || vals.length < 2) return;
+  ctx.save();
+  ctx.beginPath();
+  for (let i = 0; i < vals.length; i++) {
+    const px = wx2px(xArr[i], w, xMin, xMax), py = wy2py(vals[i], h, yMin, yMax);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  const py0 = wy2py(0, h, yMin, yMax);
+  const pxLast = wx2px(xArr[xArr.length - 1], w, xMin, xMax);
+  const pxFirst = wx2px(xArr[0], w, xMin, xMax);
+  ctx.lineTo(pxLast, py0); ctx.lineTo(pxFirst, py0); ctx.closePath();
+  ctx.fillStyle = fillColor; ctx.fill();
+  ctx.restore();
+}
+
+// ══════════════════════════════════════════
+// EVALUATE FUNCTIONS
+// ══════════════════════════════════════════
+const NPTS = 900; // sample points
+
+function harmVal(tc, x) {
+  return tc.a * Math.cos(_fq * tc.n * x + _ph) + tc.b * Math.sin(_fq * tc.n * x + _ph);
+}
+
+function partialSumAt(upTo, x) {
+  let y = a0half;
+  for (let i = 0; i <= upTo && i < coeffs.length; i++) y += harmVal(coeffs[i], x);
+  return y;
+}
+
+function fullSumAt(x) { return partialSumAt(coeffs.length - 1, x); }
+
+// ══════════════════════════════════════════
+// MAIN REDRAW
+// ══════════════════════════════════════════
+function redraw() {
+  if (!cvTop || !ctTop || !coeffs.length) return;
+  resizeCvs();
+  const wT = cvTop.width, hT = cvTop.height;
+  const wB = cvBot.width, hB = cvBot.height;
+  const t = T();
+
+  // X range: ±XW*π
+  const xw = parseInt(document.getElementById('sXW').value) || 8;
+  const xMin = -xw * PI, xMax = xw * PI;
+
+  // sample x array
+  const xArr = [];
+  for (let i = 0; i < NPTS; i++) xArr.push(xMin + (xMax - xMin) * i / (NPTS - 1));
+
+  const tc = coeffs[termIdx] || coeffs[0];
+  const prevIdx = Math.max(0, termIdx - 1);
+  const ease = mergeT * mergeT * (3 - 2 * mergeT); // smoothstep
+
+  // ─── clear both canvases ───
+  ctTop.clearRect(0, 0, wT, hT);
+  ctBot.clearRect(0, 0, wB, hB);
+  // outer background
+  ctTop.fillStyle = t.panelBg; ctTop.fillRect(0, 0, wT, hT);
+  ctBot.fillStyle = t.panelBg; ctBot.fillRect(0, 0, wB, hB);
+
+  // ─── TOP PANEL: current harmonic fₙ(x) ───
+  {
+    // Y range for harmonic: auto-fit to its actual amplitude, or fixed ±2
+    const autoY = document.getElementById('chkAutoY').checked;
+    const hVals = xArr.map(x => harmVal(tc, x));
+    let yMin_h, yMax_h;
+    if (autoY) {
+      let hi = -Infinity, lo = Infinity;
+      hVals.forEach(v => { if (v > hi) hi = v; if (v < lo) lo = v; });
+      const rng = Math.max(Math.abs(hi), Math.abs(lo), 0.02);
+      yMin_h = -rng * 1.25; yMax_h = rng * 1.25;
+    } else {
+      yMin_h = -2; yMax_h = 2;
+    }
+
+    drawFrame(ctTop, wT, hT, xMin, xMax, yMin_h, yMax_h, t);
+
+    // During merge: slide off downward + fade
+    const yShiftPx = phase === 'merge' ? ease * hT * 0.65 : 0;
+    const alpha_h = phase === 'merge' ? (1 - ease) : 1;
+
+    ctTop.save();
+    ctTop.translate(0, yShiftPx);
+    const c = t.accent;
+    drawWave(ctTop, hVals, xArr, wT, hT, xMin, xMax, yMin_h, yMax_h, c, 2.5, alpha_h, true);
+    ctTop.restore();
+
+    // update header
+    const amp = Math.hypot(tc.a, tc.b).toFixed(4);
+    document.getElementById('badgeN').textContent = `n = ${tc.n}`;
+    document.getElementById('badgeN').style.background = t.accent;
+    document.getElementById('badgeN').style.color = '#fff';
+    document.getElementById('badgeN').style.borderColor = 'transparent';
+
+    let eq = '';
+    if (Math.abs(tc.ra) > 1e-7) eq += `${tc.ra.toFixed(4)}·cos(${tc.n === 1 ? '' : tc.n}x)`;
+    if (Math.abs(tc.rb) > 1e-7) { if (eq) eq += ' + '; eq += `${tc.rb.toFixed(4)}·sin(${tc.n === 1 ? '' : tc.n}x)`; }
+    if (!eq) eq = '≈ 0';
+    document.getElementById('badgeEq').textContent = eq;
+
+    // label inside plot
+    ctTop.restore(); // pop clip
+    ctTop.fillStyle = t.axLbl; ctTop.font = 'bold 13px DM Mono,monospace'; ctTop.textAlign = 'left';
+    ctTop.fillText(`f${tc.n}(x)   |A| = ${amp}`, M.left + 6, M.top + 15);
+  }
+
+  // ─── BOTTOM PANEL: running partial sum ───
+  {
+    const yMin_s = -2, yMax_s = 2;
+
+    drawFrame(ctBot, wB, hB, xMin, xMax, yMin_s, yMax_s, t);
+
+    // ghost: full target wave
+    if (document.getElementById('chkGhost').checked) {
+      const gVals = xArr.map(x => fullSumAt(x));
+      drawWave(ctBot, gVals, xArr, wB, hB, xMin, xMax, yMin_s, yMax_s, t.ghost, 1.8, 0.9, false);
+    }
+
+    // Prev partial sum
+    const prevVals = xArr.map(x => partialSumAt(prevIdx, x));
+    // Current partial sum
+    const currVals = xArr.map(x => partialSumAt(termIdx, x));
+
+    // Lerp between prev and curr during merge
+    const dispVals = phase === 'merge'
+      ? currVals.map((v, i) => prevVals[i] + (v - prevVals[i]) * ease)
+      : currVals;
+
+    fillWave(ctBot, dispVals, xArr, wB, hB, xMin, xMax, yMin_s, yMax_s, t.greenFill);
+
+    // Falling harmonic overlay during merge
+    if (phase === 'merge' && tc) {
+      const hVals2 = xArr.map(x => harmVal(tc, x));
+      const fallAlpha = Math.sin(ease * PI) * 0.7; // bell: 0 at start/end, 0.7 at mid
+      const fallOff = -(1 - ease) * hB * 0.4;     // falls from above into plot
+      ctBot.save();
+      ctBot.translate(0, fallOff);
+      drawWave(ctBot, hVals2, xArr, wB, hB, xMin, xMax, yMin_s, yMax_s, t.accent, 2, fallAlpha, true);
+      ctBot.restore();
+    }
+
+    // Main partial sum
+    drawWave(ctBot, dispVals, xArr, wB, hB, xMin, xMax, yMin_s, yMax_s, t.green, 2.8, 1, true);
+
+    // inside label
+    ctBot.restore(); // pop clip
+    ctBot.fillStyle = t.axLbl; ctBot.font = 'bold 13px DM Mono,monospace'; ctBot.textAlign = 'left';
+    ctBot.fillText(`Σ ${termIdx + 1} / ${coeffs.length} terms`, M.left + 6, M.top + 15);
+
+    // right-side: a0 label
+    ctBot.textAlign = 'right';
+    ctBot.fillText(`a₀/2 = ${a0half.toFixed(3)}`, M.left + plotW(wB) - 6, M.top + 15);
+
+    document.getElementById('badgeSum').textContent = `${termIdx + 1} / ${coeffs.length} terms`;
+    document.getElementById('sumEq').textContent = (customPre || PRESETS[curPre]).formula;
+  }
+
+  // merge divider label
+  const ml = document.getElementById('mlabel');
+  if (phase === 'merge') {
+    ml.textContent = `↓  merging  n=${tc?.n || '?'}  (${(ease * 100).toFixed(0)}%)  ↓`;
+    ml.style.color = 'var(--accent)'; ml.style.borderColor = 'var(--accent)';
+  } else {
+    ml.textContent = `✓  n=${tc?.n}  merged  —  sum updated`;
+    ml.style.color = 'var(--accent4)'; ml.style.borderColor = 'var(--accent4)';
+  }
+
+  // progress bar
+  const pct = coeffs.length > 1 ? termIdx / (coeffs.length - 1) * 100 : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progDot').style.left = pct + '%';
+  document.getElementById('pstat').textContent = `n=${coeffs[termIdx]?.n || '—'}  [${termIdx + 1} / ${coeffs.length}]  N=${N}`;
+}
+
+// ══════════════════════════════════════════
+// ANIMATION LOOP
+// ══════════════════════════════════════════
+function animLoop(ts) {
+  requestAnimationFrame(animLoop);
+  if (!playing) { redraw(); return; }
+
+  const dt = lastTS ? Math.min((ts - lastTS) / 1000, 0.05) : 0;
+  lastTS = ts;
+
+  const mergeDur = parseFloat(document.getElementById('sMD').value) || 0.8;
+  const holdDur = parseFloat(document.getElementById('sHD').value) || 0.5;
+
+  if (phase === 'merge') {
+    mergeT += dt * spd / mergeDur;
+    if (mergeT >= 1) { mergeT = 1; phase = 'hold'; holdT = 0; }
+  } else {
+    holdT += dt * spd / holdDur;
+    if (holdT >= 1) {
+      holdT = 0;
+      if (termIdx < coeffs.length - 1) {
+        termIdx++; phase = 'merge'; mergeT = 0;
+        playTone(coeffs[termIdx]);
+      } else {
+        // Loop
+        termIdx = 0; phase = 'merge'; mergeT = 0;
+        playTone(coeffs[0]);
+      }
+    }
+  }
+
+  redraw(); updateBtns();
+}
+
+function updateBtns() {
+  const l = playing ? '⏸ Pause' : '▶ Play';
+  document.getElementById('btnPlay').textContent = l;
+  document.getElementById('btnPlay2').textContent = l;
+}
+function togglePlay() { playing = !playing; if (playing) lastTS = null; updateBtns(); }
+function doReset() { playing = false; termIdx = 0; mergeT = 0; holdT = 0; phase = 'merge'; lastTS = null; updateBtns(); redraw(); }
+
+// ══════════════════════════════════════════
+// PARAM CHANGE
+// ══════════════════════════════════════════
+function onP() {
+  buildCoeffs();
+  if (termIdx >= coeffs.length) termIdx = Math.max(0, coeffs.length - 1);
+  redraw();
+}
+
+// ══════════════════════════════════════════
+// CUSTOM MODE
+// ══════════════════════════════════════════
+function onCust() {
+  document.getElementById('rowCAn').style.display = document.getElementById('selAn').value === 'custom' ? 'block' : 'none';
+  document.getElementById('rowCBn').style.display = document.getElementById('selBn').value === 'custom' ? 'block' : 'none';
+}
+
+const evalMap = {
+  zero: n => 0, inv_n: n => 1 / n, inv_n2: n => 1 / (n * n),
+  alt_n: n => Math.pow(-1, n) / n, cos_n: n => Math.cos(n),
+  sin_n: n => Math.sin(n), odd_harm: n => 1 / (2 * n - 1)
+};
+
+function applyCustom() {
+  const sa = document.getElementById('selAn').value, sb = document.getElementById('selBn').value;
+  const odd = document.getElementById('chkOdd').checked;
+  let af = evalMap[sa] || (_ => 0), bf = evalMap[sb] || (_ => 0);
+  if (sa === 'custom') { const e = document.getElementById('custAn').value || '0'; af = n => { try { return Function('n', 'PI', 'Math', 'return (' + e + ')')(n, PI, Math); } catch { return 0; } }; }
+  if (sb === 'custom') { const e = document.getElementById('custBn').value || '0'; bf = n => { try { return Function('n', 'PI', 'Math', 'return (' + e + ')')(n, PI, Math); } catch { return 0; } }; }
+  customPre = {
+    lbl: 'Custom', formula: 'f(x) = a₀/2 + Σ[aₙcos(nx) + bₙsin(nx)]', a0: 0,
+    fn: n => { if (odd && n % 2 === 0) return { a: 0, b: 0 }; return { a: af(n), b: bf(n) }; }
+  };
+  document.getElementById('fbox').textContent = 'Custom — aₙ = ' + document.getElementById('selAn').value + '  bₙ = ' + document.getElementById('selBn').value;
+  document.querySelectorAll('.pb').forEach(b => b.classList.remove('on'));
+  buildCoeffs(); doReset(); notif('✓ Custom wave applied');
+}
+
+// ══════════════════════════════════════════
+// PROGRESS BAR CLICK
+// ══════════════════════════════════════════
+function onProgClick(e) {
+  const r = document.getElementById('progWrap').getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  termIdx = Math.round(pct * (coeffs.length - 1));
+  phase = 'hold'; holdT = 0; mergeT = 1; redraw();
+}
+
+// ══════════════════════════════════════════
+// DOWNLOAD / RECORDING
+// ══════════════════════════════════════════
+function openDL() { document.getElementById('dlModal').classList.add('on'); }
+function closeDL() { document.getElementById('dlModal').classList.remove('on'); }
+
+let recChunks = [], recMR = null;
+function startRec() {
+  closeDL();
+  const dur = parseInt(document.getElementById('recDur').value) * 1000;
+  const br = parseInt(document.getElementById('recQ').value);
+
+  const area = document.getElementById('cvArea');
+  const ar = area.getBoundingClientRect();
+  const cw = Math.floor(ar.width), ch = Math.floor(ar.height);
+  const oc = document.createElement('canvas'); oc.width = cw; oc.height = ch;
+  const ox = oc.getContext('2d');
+
+  const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const stream = oc.captureStream(30);
+  recMR = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: br });
+  recChunks = [];
+  recMR.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+  recMR.onstop = finishRec;
+  recMR.start(100);
+
+  document.getElementById('recProgBg').classList.add('on');
+  document.getElementById('recChip').style.opacity = '1';
+  const t0 = performance.now();
+  const wasPlaying = playing;
+  if (!playing) { playing = true; lastTS = null; }
+  let frames = 0;
+  const totF = Math.floor(dur / 1000 * 30);
+
+  function cap() {
+    if (performance.now() - t0 >= dur) { recMR.stop(); if (!wasPlaying) { playing = false; updateBtns(); } return; }
+    const Tc = T(); ox.fillStyle = Tc.panelBg; ox.fillRect(0, 0, cw, ch);
+    area.querySelectorAll('canvas').forEach(c => {
+      const r2 = c.getBoundingClientRect();
+      try { ox.drawImage(c, r2.left - ar.left, r2.top - ar.top, r2.width, r2.height); } catch (e) { }
+    });
+    frames++;
+    const p2 = Math.min((performance.now() - t0) / dur * 100, 100);
+    document.getElementById('recBarFill').style.width = p2 + '%';
+    document.getElementById('recFC').textContent = `${frames} / ~${totF} frames`;
+    document.getElementById('recProgSub').textContent = p2.toFixed(1) + '% captured';
+    requestAnimationFrame(cap);
+  }
+  requestAnimationFrame(cap);
+}
+
+function finishRec() {
+  document.getElementById('recProgBg').classList.remove('on');
+  document.getElementById('recChip').style.opacity = '0';
+  const blob = new Blob(recChunks, { type: 'video/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `fourier-${(customPre ? 'custom' : curPre).toLowerCase().replace(/\s+/g, '-')}-${Date.now()}.webm`;
+  a.click(); URL.revokeObjectURL(url);
+  notif('✓ Animation saved!', 3000);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  buildPresets(); buildSpeeds();
+  initCvs();
+  selPre('Square');
+  requestAnimationFrame(animLoop);
+  setTimeout(() => { resizeCvs(); redraw(); }, 200);
+});
+</script>
+</body>
+</html>
