@@ -257,41 +257,76 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   box-shadow:0 8px 32px var(--shadow);
   animation:fadeUp .35s ease;
 }
-#diagramPanel.visible{display:flex}
-#diagramPanel img{
-  width:100%;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:var(--bg3);
-  object-fit:contain;
-  max-height:300px;
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║  DIAGRAM PANEL — tweak everything here                       ║
+   ║                                                              ║
+   ║  PANEL SIZE      → change width (line A) and padding (B)     ║
+   ║  IMAGE SIZE      → change max-height (line C)                ║
+   ║  POSITION        → change left: calc(50% + Xpx) (line D)    ║
+   ║                    increase X to push further right          ║
+   ║                    decrease X to bring it closer to card     ║
+   ║  CAPTION TEXT    → font-size (line E), color = --muted var   ║
+   ║  BREAKPOINT      → @media max-width (line F) controls when   ║
+   ║                    panel drops below the card instead         ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+#diagramPanel {
+  position: fixed;
+  top: 50%;
+  left: calc(50% + 425px);        /* (D) distance from center → push right of card */
+  transform: translateY(-50%);
+  width: 230px;                   /* (A) panel box width */
+  padding: 16px;                  /* (B) inner padding */
+  z-index: 50;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px var(--shadow);
+  animation: fadeUp .35s ease;
 }
-#diagramCaption{
-  font-family:var(--font-mono);
-  font-size:.62rem;
-  color:var(--muted);
-  text-align:center;
-  line-height:1.5;
+#diagramPanel.visible { display: flex; }
+
+#diagramPanel img {
+  width: 100%;
+  max-height: 320px;              /* (C) max image height — increase for bigger diagram */
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  object-fit: contain;
 }
-/* When viewport too narrow to show panel in gutter, put it below card */
-@media(max-width:1300px){
-  #diagramPanel{
-    position:static !important;
-    transform:none !important;
-    width:100%;
-    max-width:820px;
-    margin:1.2rem auto 0;
-    border-radius:14px;
-    flex-direction:row;
-    align-items:center;
-    gap:16px;
+
+#diagramCaption {
+  font-family: var(--font-mono);
+  font-size: .72rem;              /* (E) caption text size */
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.55;
+  display: block;                 /* always visible */
+  min-height: 1em;
+}
+
+/* ── Narrow screen: drop panel below the card ── */
+@media (max-width: 1300px) {     /* (F) breakpoint */
+  #diagramPanel {
+    position: static !important;
+    transform: none !important;
+    width: 100%;
+    max-width: 820px;
+    margin: 1.2rem auto 0;
+    border-radius: 14px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
   }
-  #diagramPanel.visible{display:flex}
-  #diagramPanel img{max-height:160px;width:auto;flex-shrink:0;max-width:200px}
+  #diagramPanel img { max-height: 180px; width: auto; flex-shrink: 0; max-width: 220px; }
 }
-@media(max-width:700px){
-  #diagramPanel{flex-direction:column !important}
-  #diagramPanel img{max-width:100% !important;width:100% !important}
+@media (max-width: 700px) {
+  #diagramPanel { flex-direction: column !important; }
+  #diagramPanel img { max-width: 100% !important; width: 100% !important; max-height: 260px; }
 }
 .loading-wrap{text-align:center;padding:4rem 2rem;display:none}
 .loading-wrap.active{display:block}
@@ -796,14 +831,14 @@ function renderQuestion(idx) {
   if (q.image) {
     dImg.src = q.image;
     dImg.alt = q.image_caption || 'Diagram';
-    dCap.textContent = q.image_caption || '';
+    dImg.onerror = () => { panel.classList.remove('visible'); };
+    dCap.innerHTML = q.image_caption || '';
     panel.classList.add('visible');
-    /* render math in caption */
-    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([dCap]);
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([dCap]).catch(()=>{});
   } else {
     panel.classList.remove('visible');
     dImg.src = '';
-    dCap.textContent = '';
+    dCap.innerHTML = '';
   }
 
   let optionsHtml = '';
