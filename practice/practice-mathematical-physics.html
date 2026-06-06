@@ -130,9 +130,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .q-num{font-family:var(--font-mono);font-size:.7rem;color:var(--muted);margin-left:auto}
 
 /* ── QUESTION TEXT ── */
-.q-text{font-family:var(--font-display);font-size:1.45rem;line-height:1.75;margin-bottom:2rem;color:var(--text)}
+.q-text{font-family:var(--font-display);font-size:1.45rem;line-height:1.75;margin-bottom:1.4rem;color:var(--text)}
 /* MathJax inline math sizing */
 .q-text mjx-container{font-size:1.15em !important}
+.q-options-wrap{margin-top:0.2rem}
 .q-image{width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-bottom:1.5rem;border:1px solid var(--border);background:var(--bg3)}
 
 /* ── OPTIONS ── */
@@ -231,16 +232,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 /* ── YEAR TAG ── */
 .q-year-tag{display:inline-flex;align-items:center;font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.06em;padding:4px 11px;border-radius:6px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1.5px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);text-transform:uppercase;margin-bottom:1.2rem;width:fit-content}
 
-/* ── QUESTION BODY: text+image side by side when image present ── */
-.q-body{display:flex;gap:1.6rem;align-items:flex-start;margin-bottom:1.8rem}
-.q-body-text{flex:1;min-width:0}
-.q-body-image{flex-shrink:0;width:200px;display:flex;flex-direction:column;gap:6px}
-.q-body-image img{width:100%;border-radius:10px;border:1px solid var(--border);background:var(--bg3);object-fit:contain}
-.q-body-image .img-caption{font-family:var(--font-mono);font-size:.6rem;color:var(--muted);text-align:center;line-height:1.4}
-.q-body-image .img-caption mjx-container{font-size:.95em !important}
-/* no image — text takes full width */
-.q-body.no-image .q-body-text{width:100%}
-@media(max-width:600px){.q-body{flex-direction:column}.q-body-image{width:100%}}
+/* ── QUESTION CARD GRID: image on right spanning full height ── */
+/* When image present: 2-column grid [content | image] */
+.q-card-inner{display:grid;grid-template-columns:1fr 210px;grid-template-rows:auto auto auto;column-gap:1.8rem;align-items:start}
+.q-card-inner.no-image{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+
+/* Row 1: question text */
+.q-body-text{grid-column:1;grid-row:1}
+/* Row 2: options list */
+.q-options-wrap{grid-column:1;grid-row:2;margin-top:0}
+/* Row 3: explanation */
+.q-expl-wrap{grid-column:1;grid-row:3}
+
+/* Image: right column, spans all rows */
+.q-body-image{grid-column:2;grid-row:1/4;display:flex;flex-direction:column;gap:8px;position:sticky;top:80px}
+.q-body-image img{width:100%;border-radius:12px;border:1px solid var(--border);background:var(--bg3);object-fit:contain;max-height:260px}
+.q-body-image .img-caption{font-family:var(--font-mono);font-size:.6rem;color:var(--muted);text-align:center;line-height:1.5;padding:0 2px}
+.q-card-inner.no-image .q-body-image{display:none}
+
+@media(max-width:680px){
+  .q-card-inner{grid-template-columns:1fr !important}
+  .q-body-image{grid-column:1;grid-row:auto;position:static}
+  .q-options-wrap{grid-row:auto}
+  .q-expl-wrap{grid-row:auto}
+}
 .loading-wrap{text-align:center;padding:4rem 2rem;display:none}
 .loading-wrap.active{display:block}
 .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
@@ -737,6 +752,17 @@ function renderQuestion(idx) {
        </div>`
     : '';
 
+  let optionsHtml = '';
+  q.options.forEach((opt, oi) => {
+    const isSelected = userAnswers[idx].has(oi);
+    const letter = String.fromCharCode(65 + oi);
+    optionsHtml += `<div class="option${isSelected ? ' selected' : ''}" data-idx="${oi}" onclick="selectOption(${oi})">
+      <div class="opt-marker">${letter}</div>
+      <div class="opt-text">${opt}</div>
+      <div class="opt-icon"></div>
+    </div>`;
+  });
+
   let html = `<div class="q-card">
     <div class="q-meta">
       <span class="q-badge exam">${q.exam}</span>
@@ -745,25 +771,17 @@ function renderQuestion(idx) {
       <span class="q-num">Q${idx+1}</span>
     </div>
     ${paperTag}
-    <div class="q-body${q.image ? '' : ' no-image'}">
+    <div class="q-card-inner${q.image ? '' : ' no-image'}">
       <div class="q-body-text">
         <div class="q-text">${q.question}</div>
       </div>
+      <div class="q-options-wrap">
+        <div class="options-list" id="optionsList">${optionsHtml}</div>
+        <div class="explanation" id="explanation"></div>
+      </div>
       ${imageHtml}
     </div>
-    <div class="options-list" id="optionsList">`;
-
-  q.options.forEach((opt, oi) => {
-    const isSelected = userAnswers[idx].has(oi);
-    const letter = String.fromCharCode(65 + oi);
-    html += `<div class="option${isSelected ? ' selected' : ''}" data-idx="${oi}" onclick="selectOption(${oi})">
-      <div class="opt-marker">${letter}</div>
-      <div class="opt-text">${opt}</div>
-      <div class="opt-icon"></div>
-    </div>`;
-  });
-
-  html += `</div><div class="explanation" id="explanation"></div></div>`;
+  </div>`;
 
   const area = document.getElementById('questionArea');
   area.innerHTML = html;
