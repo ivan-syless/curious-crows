@@ -1,0 +1,200 @@
+CLASSICAL MECHANICS
+├── Newtonian Mechanics
+├── Particle Dynamics
+├── Work, Energy and Power
+├── Momentum and Collisions
+├── Rotational Mechanics
+├── Oscillations
+├── Central Force Motion
+├── Gravitation
+├── Non-Inertial Frames
+├── Constraints
+├── Calculus of Variations
+├── D'Alembert's Principle
+├── Principle of Virtual Work
+├── Lagrangian Mechanics
+├── Hamiltonian Mechanics
+├── Hamilton-Jacobi Theory
+├── Canonical Transformations
+├── Poisson Brackets
+├── Small Oscillations
+├── Normal Modes
+├── Rigid Body Dynamics
+├── Euler Angles
+├── Gyroscope, Precession and Nutation
+├── Relativity
+└── Conservation Laws
+
+MATHEMATICAL PHYSICS
+├── Vector Calculus
+├── Linear Algebra
+├── Matrix Theory
+├── Eigenvalue Problems
+├── Differential Equations
+├── Partial Differential Equations
+├── Fourier Series
+├── Fourier Transform
+├── Laplace Transform
+├── Complex Analysis
+├── Contour Integration
+├── Probability and Statistics
+├── Tensor Analysis
+├── Green's Functions
+├── Calculus of Variations
+├── Numerical Methods
+├── Special Functions
+├── Integral Transforms
+└── Dirac Delta Function
+
+ELECTROMAGNETIC THEORY
+├── Vector Potential
+├── Electrostatics
+├── Conductors and Dielectrics
+├── Magnetostatics
+├── Magnetic Materials
+├── Maxwell's Equations
+├── Boundary Value Problems
+├── Electromagnetic Waves
+├── Waveguides
+├── Transmission Lines
+├── Radiation
+├── Retarded Potentials
+├── Gauge Transformations
+├── Polarization
+└── Relativistic Electrodynamics
+
+QUANTUM MECHANICS
+├── Wave Function
+├── Postulates of Quantum Mechanics
+├── Operators
+├── Commutators
+├── Uncertainty Principle
+├── Schrödinger Equation
+├── One-Dimensional Potentials
+├── Harmonic Oscillator
+├── Hydrogen Atom
+├── Angular Momentum
+├── Spin
+├── Addition of Angular Momentum
+├── Approximation Methods
+├── WKB Approximation
+├── Variational Method
+├── Perturbation Theory
+├── Scattering Theory
+├── Symmetry
+├── Identical Particles
+├── Density Matrix
+└── Dirac Notation
+
+THERMODYNAMICS AND STATISTICAL PHYSICS
+├── Laws of Thermodynamics
+├── Thermodynamic Potentials
+├── Maxwell Relations
+├── Kinetic Theory
+├── Classical Statistics
+├── Ensemble Theory
+├── Partition Function
+├── Bose-Einstein Statistics
+├── Fermi-Dirac Statistics
+├── Maxwell-Boltzmann Statistics
+├── Blackbody Radiation
+├── Specific Heat Models
+├── Phase Transitions
+├── Critical Phenomena
+└── Transport Phenomena
+
+ATOMIC AND MOLECULAR PHYSICS
+├── Atomic Models
+├── Hydrogen Atom
+├── Fine Structure
+├── Zeeman Effect
+├── Stark Effect
+├── Hyperfine Structure
+├── X-Ray Physics
+├── Molecular Structure
+├── Rotational Spectra
+├── Vibrational Spectra
+├── Electronic Spectra
+├── Raman Effect
+├── Lasers
+└── Selection Rules
+
+NUCLEAR AND PARTICLE PHYSICS
+├── Nuclear Properties
+├── Nuclear Models
+├── Radioactivity
+├── Nuclear Reactions
+├── Fission
+├── Fusion
+├── Particle Accelerators
+├── Elementary Particles
+├── Quark Model
+├── Conservation Laws
+├── Symmetry Principles
+├── Weak Interaction
+├── Strong Interaction
+└── Detector Physics
+
+CONDENSED MATTER PHYSICS
+├── Crystal Structure
+├── Reciprocal Lattice
+├── Crystal Diffraction
+├── Lattice Vibrations
+├── Phonons
+├── Free Electron Theory
+├── Band Theory
+├── Semiconductors
+├── Hall Effect
+├── Dielectrics
+├── Ferroelectricity
+├── Magnetism
+├── Superconductivity
+├── Defects in Solids
+├── Nanomaterials
+└── Low-Dimensional Systems
+
+ELECTRONICS
+├── Semiconductor Physics
+├── Diodes
+├── Bipolar Junction Transistors (BJT)
+├── Field Effect Transistors (FET)
+├── MOSFET
+├── Operational Amplifiers
+├── Oscillators
+├── Feedback Circuits
+├── Digital Logic
+├── Boolean Algebra
+├── Combinational Circuits
+├── Sequential Circuits
+├── Flip-Flops
+├── Counters
+├── Registers
+├── ADC and DAC
+├── Communication Electronics
+└── Basic Instrumentation
+
+EXPERIMENTAL PHYSICS
+├── Error Analysis
+├── Units and Dimensions
+├── Measuring Instruments
+├── Oscilloscope
+├── Vacuum Techniques
+├── Lasers
+├── Optical Fibres
+├── Interference
+├── Diffraction
+├── Polarization
+├── Spectroscopy
+├── Michelson Interferometer
+├── Fabry-Perot Interferometer
+├── Optical Instruments
+├── Electronics Experiments
+└── Data Analysis
+
+GENERAL APTITUDE (GATE)
+├── Quantitative Aptitude
+├── Numerical Ability
+├── Logical Reasoning
+├── Analytical Reasoning
+├── Verbal Ability
+└── Data Interpretation
